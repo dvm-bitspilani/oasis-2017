@@ -7,7 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from instamojo_wrapper import Instamojo
 import re
 
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+#api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
 
 
 @csrf_exempt
