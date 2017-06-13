@@ -1,10 +1,16 @@
 $(document).ready(function(){
-	var open = 'rocktaves_register';
-	$('.register').click(function(){
-		$('.backdrop').fadeIn();
+	var open = 'rocktaves';
+	$('.register-button').click(function(){
+		
+		$('#'+open).fadeOut();
 
-		$('#'+$(this).parent().attr('data')+'_register').fadeIn();
-		open = $(this).parent().attr('data')+'_register';
+		var event = $(this).attr('data')
+		var k = setTimeout(function(){
+			// console.log($('#'+event+'_register'));
+			$('.backdrop').fadeIn();
+			$('#'+event+'_register').fadeIn();},500);
+
+		open = $(this).attr('data')+'_register';
 	});
 
 	$('.info').click(function(){
@@ -18,6 +24,21 @@ $(document).ready(function(){
 		$('#'+open).fadeOut();
 		$('.backdrop').fadeOut();
 	});
+
+	// $('.backdrop').click(function(){
+	// 		$('.backdrop').fadeOut();
+	// 		$('#'+open).fadeOut();
+	// })
+
+	$(document).on('click', function(event) {
+    	if ($(event.target).has('#'+open).length) {
+        	$('.backdrop').fadeOut();
+			$('#'+open).fadeOut();
+    	}
+	});
+
+
+
 
 
 
@@ -73,7 +94,7 @@ $(document).ready(function(){
 		function info_dom(json){
 			var message;
 			if(json.status == 1){
-      			message = 'Hi '+json['email'] +'!.' + ' You have entered name:'+      json['name'] + ' and have successfully registered for ' +json['Event'];
+      			message = 'Hi '+json['email'] +'!.' + ' You have entered name:'+      json['name'];
    			}
      		 else if(json.status == 2){
      		   message = 'Enter a valid phone number.'
@@ -81,11 +102,8 @@ $(document).ready(function(){
 		      else if(json.status == 3){
 		        message = 'Enter a valid email address.'
 		    }
-		    else if(json.status == 0){
-		      message = 'Already registered'
-		    }
 		    else{
-		    	message = 'Error'
+		      message = 'Email already registered'
 		    }
 			$('.msg').text(message);
 			$('.msg').fadeIn();

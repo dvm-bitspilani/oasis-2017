@@ -4,7 +4,7 @@
 	left:0;
 	right:0;
 	bottom:0;
-	background: rgba(0,0,0,0.3);
+	background: rgba(0,0,0,0.7);
 	display:none;
 }
 
@@ -19,11 +19,13 @@
 }
 
 .close{
-	color: #fff;
-	position: absolute;
-	top: 20px;
-	right: 20px;
-	cursor: pointer;
+	color: #000;
+ 	margin-top: 10px;
+ 	margin-right: 15px;
+ 	float: right;
+ 	font-size: 25px;
+ 	font-family: 'Passion One', cursive;
+ 	cursor:pointer;
 }
 
 a{

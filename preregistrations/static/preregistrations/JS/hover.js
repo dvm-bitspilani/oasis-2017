@@ -1,6 +1,7 @@
 $(document).ready(function(){
 	$('img').on('mouseover',function(){
 		
+		$('.overlay').fadeOut()
 
 		$('.shade').next().addClass('hidden');
 		$('.shade').next().removeClass('overlay');
@@ -8,7 +9,8 @@ $(document).ready(function(){
 		$(this).addClass('shade');
 		$(this).next().removeClass('hidden');
 		$(this).next().addClass('overlay');
-		
+		$('.overlay').fadeIn()
+				
 		
 	});
 	// $('img').on('mouseout',function(){
