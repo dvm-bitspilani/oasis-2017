@@ -8,7 +8,7 @@ from instamojo_wrapper import Instamojo
 import re
 from instaconfig import *
 
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN,endpoint='https://test.instamojo.com/api/1.1/')
 
 
 @csrf_exempt
@@ -112,7 +112,7 @@ def index(request):
 					response = api.payment_request_create(buyer_name= g_l,
 						email= email,
 						phone= number,
-						amount = 250,
+						amount = 10,
 						purpose="Pitch Perfect",
 						redirect_url= request.build_absolute_uri(reverse("API Request"))
 						)
@@ -229,7 +229,7 @@ def index(request):
 						buyer_name= g_l,
 						email = email,
 						phone = number,
-						amount = 250,
+						amount = 10,
 						purpose = "Street Dance",
 						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
@@ -297,7 +297,7 @@ def index(request):
 						buyer_name = name,
 						email = email,
 						phone = number,
-						amount = 250,
+						amount = 10,
 						purpose = "StandUp SandBox",
 						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
@@ -322,32 +322,193 @@ def index(request):
 def apirequest(request):
 
 	import requests
-	payid=str(request.GET['payment_id'])
+	payid=str(request.GET['payment_request_id'])
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
-	r = requests.get('https://www.instamojo.com/api/1.1/payments/',
+	r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),
                 	 headers=headers)
 	json_ob = r.json()
-	payments = json_ob['payments'][0]
-	purpose = payments['purpose']
-	email = payments['buyer_email']
+	print json_ob
+	if (json_ob['success']):
+		payment_request = json_ob['payment_request']
+		purpose = payment_request['purpose']
+		email = payment_request['email']
 
-	if "Pitch" in purpose:
+		if "Pitch" in purpose:
 
-		pitch_perfect = PitchPerfect.objects.get(email_address=email)
-		pitch_perfect.paid = True
-		pitch_perfect.save()
+			pitch_perfect = PitchPerfect.objects.get(email_address=email)
+			pitch_perfect.paid = True
+			pitch_perfect.save()
 
-	if "Street" in purpose:
+		if "Street" in purpose:
 
-		street_dance = StreetDance.objects.get(email_address=email)
-		street_dance.paid = True
-		street_dance.save()
+			street_dance = StreetDance.objects.get(email_address=email)
+			street_dance.paid = True	
+			street_dance.save()
 
-	if "StandUp" in purpose:
+		if "StandUp" in purpose:
 
-		stand_up = StandUp.objects.get(email_address=email)
-		stand_up.paid = True
-		stand_up.save()
+			stand_up = StandUp.objects.get(email_address=email)
+			stand_up.paid = True
+			stand_up.save()
 
-	return render(request, 'preregistrations/index.html', {'message':'Payment Successful'})
+		return render(request, 'preregistrations/index.html', {'message':'Payment Successful'})
+	else:
+		return render(request, 'preregistrations/index.html', {'message':'Payment unSuccessful'}) 
+
+
+@staff_member_required
+def get_excel_sheet(request):
+	from django.http import HttpResponse, HttpResponseRedirect
+	import xlsxwriter
+	from models import StandUp, StreetDance, PitchPerfect, Rocktaves, RapWars
+	# if request.POST:
+	try:
+		import cStringIO as StringIO
+	except ImportError:
+		import StringIO
+
+	output = StringIO.StringIO()
+	workbook = xlsxwriter.Workbook(output)
+	worksheet = workbook.add_worksheet('new-spreadsheet')
+	date_format = workbook.add_format({'num_format': 'mmmm d yyyy'})
+	worksheet.write(0, 0, "Generated:")
+	from time import gmtime, strftime
+	generated = strftime("%d-%m-%Y %H:%M:%S UTC", gmtime())
+	worksheet.write(0, 1, generated)
+
+	x=2
+	stand = StandUp.objects.filter(paid=True).order_by('email_address')
+	su_list = [{'obj': i} for i in stand]
+	if su_list:
+		worksheet.write(x, 0, "StandUp Soapbox")
+		x+=1
+		worksheet.write(x, 0, "S.No.")
+		worksheet.write(x, 1, "Name")
+		worksheet.write(x, 2, "City")
+		worksheet.write(x, 3, "Phone No.")
+		worksheet.write(x, 4, "Gender")
+		worksheet.write(x, 5, "Email ID")
+		x+=1
+		for i, row in enumerate(su_list):
+			worksheet.write(i+x, 0, i)			
+			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+		x+=len(su_list)+2
+
+	
+	street = StreetDance.objects.filter(paid=True).order_by('email_address')
+	sd_list = [{'obj': i} for i in street]
+	if sd_list:
+		worksheet.write(x, 0, "Street Dance")
+		x+=1
+		worksheet.write(x, 0, "S.No.")		
+		worksheet.write(x, 1, "Group Leader")
+		worksheet.write(x, 2, "City")
+		worksheet.write(x, 3, "College")
+		worksheet.write(x, 4, "Phone No.")
+		worksheet.write(x, 5, "Email ID")
+		worksheet.write(x, 6, "Members")
+		x+=1
+		for i, row in enumerate(sd_list):
+			worksheet.write(i+x, 0, i)
+			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
+			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
+			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
+			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+			worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
+		x+=len(sd_list)+2
+
+
+	pitch = PitchPerfect.objects.filter(paid=True).order_by('email_address')
+	pp_list = [{'obj': i} for i in pitch]
+	if pp_list:
+		worksheet.write(x, 0, "Pitch Perfect")
+		x+=1
+		worksheet.write(x, 0, "S.No.")		
+		worksheet.write(x, 1, "Group Leader")
+		worksheet.write(x, 2, "City")
+		worksheet.write(x, 3, "College")
+		worksheet.write(x, 4, "Phone No.")
+		worksheet.write(x, 5, "Email ID")
+		worksheet.write(x, 6, "Members")
+		x+=1
+		for i, row in enumerate(pp_list):
+			worksheet.write(i+x, 0, i)
+			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
+			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
+			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
+			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+			worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
+
+		x+=len(pp_list)+2
+
+	
+	rock = Rocktaves.objects.order_by('email_address')
+	ro_list = [{'obj': i} for i in rock]
+	if ro_list:
+		worksheet.write(x, 0, "Rocktaves")
+		x+=1
+		worksheet.write(x, 0, "S.No.")
+		worksheet.write(x, 1, "Name")
+		worksheet.write(x, 2, "City")
+		worksheet.write(x, 3, "Phone No.")
+		worksheet.write(x, 4, "Gender")
+		worksheet.write(x, 5, "Email ID")
+		x+=1
+		for i, row in enumerate(ro_list):
+			worksheet.write(i+x, 0, i)			
+			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+		x+=len(ro_list)+2	
+
+	rap = RapWars.objects.order_by('email_address')
+	rw_list = [{'obj': i} for i in rap]
+	if rw_list:
+		worksheet.write(x, 0, "Rap Wars")
+		x+=1
+		worksheet.write(x, 0, "S.No.")
+		worksheet.write(x, 1, "Name")
+		worksheet.write(x, 2, "City")
+		worksheet.write(x, 3, "Phone No.")
+		worksheet.write(x, 4, "Gender")
+		worksheet.write(x, 5, "Email ID")
+		x+=1
+		for i, row in enumerate(rw_list):
+			worksheet.write(i+x, 0, i)			
+			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+		x+=len(rw_list)+2
+
+
+
+	workbook.close()
+	filename = 'ExcelReport.xlsx'
+	output.seek(0)
+	response = HttpResponse(output.read(), content_type="application/ms-excel")
+	response['Content-Disposition'] = 'attachment; filename=%s' % filename
+	return response
+
+def deepgetattr(obj, attr, default = None):
+    
+    attributes = attr.split(".")
+    for i in attributes:
+        try:
+            obj = getattr(obj, i)
+        except AttributeError:
+            if default:
+                return default
+            else:
+                raise
+    return obj
