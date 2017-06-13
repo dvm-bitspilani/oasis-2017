@@ -15,6 +15,7 @@
 	<link rel="stylesheet" href="{% static 'preregistrations/CSS/particle.css' %}">
 	<link href="https://fonts.googleapis.com/css?family=Oswald|Passion+One:700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Architects+Daughter|Orbitron:700" rel="stylesheet">
+  <script src="{% static 'preregistrations/JS/jquery.min.js' %}"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -437,6 +438,17 @@
     </div>
   </div>
   </div>
+  {% if message %}
+    <div class="thank-you">{{ message }}</div>
+  	<script>
+  		$(document).ready(function(){
+  			$('.thank-you').fadeIn();
+  			var k = setTimeout(function(){
+  				$('.thank-you').fadeOut();
+  			},3000)
+  		})
+  	</script>
+  {% endif %}
 </div>
 </div>
 
@@ -445,7 +457,7 @@
               new WOW().init();
               </script>
 
-<script src="{% static 'preregistrations/JS/jquery.min.js' %}"></script>
+
 <script src="{% static 'preregistrations/JS/hover.js' %}"></script>
 <script src="{% static 'preregistrations/JS/lightbox.js' %}"></script>
 <script src="{% static 'preregistrations/JS/jquery.particleground.min.js' %}"></script>
