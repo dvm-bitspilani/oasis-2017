@@ -93,22 +93,25 @@ $(document).ready(function(){
 
 		function info_dom(json){
 			var message;
+
 			if(json.status == 1){
       			message = 'Hi '+json['email'] +'!.' + ' You have entered name:'+      json['name'];
    			}
-     		 else if(json.status == 2){
+     		else if(json.status == 2){
      		   message = 'Enter a valid phone number.'
     		}
-		      else if(json.status == 3){
+		    else if(json.status == 3){
 		        message = 'Enter a valid email address.'
 		    }
 		    else if(json.status == 5){
 		    	location.href = json.url;
 		    	message = "Succesfully submitted"
 		    }
-		    else{
+		    else if(json.status == 	0){
 		      message = 'Email already registered'
 		    }
+		    // console.log(json.status)
+		    // console.log(message)
 			$('.msg').text(message);
 			$('.msg').fadeIn();
 
