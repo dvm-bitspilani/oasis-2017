@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from models import Rocktaves, StandUp, StreetDance, PitchPerfect, RapWars
@@ -6,8 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from instamojo_wrapper import Instamojo
 import re
+from instaconfig import *
 
-#api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
 
 
 @csrf_exempt
@@ -21,7 +22,7 @@ def index(request):
 		########## Rocktaves ##########
 		if int(event_id) == 0:
 
-			email = request.POST['email']
+			email = request.POST['email'].replace('%40','@')
 
 			try:
 				Rocktaves.objects.get(email_address = email)
@@ -71,10 +72,10 @@ def index(request):
 
 		if int(event_id) == 1:
 
-			g_l = request.POST['group+lead']
+			g_l = request.POST['group_lead']
 
-			g_m = request.POST['group+memb']
-			email = request.POST['email']
+			g_m = request.POST['group_memb']
+			email = request.POST['email'].replace('%40','@')
 
 			try:
 				PitchPerfect.objects.get(email_address = email)
@@ -88,7 +89,7 @@ def index(request):
 				return JsonResponse(data)
 
 			mobile_number = request.POST['phone']
-			email = request.POST['email']
+			# email = request.POST['email'].replace('%40','@')
 
 			if len(mobile_number) == 10:
 				try:
@@ -113,10 +114,13 @@ def index(request):
 						phone= number,
 						amount = 250,
 						purpose="Pitch Perfect",
-						redirect_url= request.build_absolute_url(reverse("API Request"))
+						redirect_url= request.build_absolute_uri(reverse("API Request"))
 						)
-					
-					return HttpResponseRedirect(response['payment_request']['longurl'])
+					# print  email	, response['payment_request']['longurl']			
+					data = {'status':5,
+					'url': response['payment_request']['longurl'] 
+					}
+					return JsonResponse(data)
 
 				except ValueError:
 					data = {'status':2}
@@ -133,7 +137,7 @@ def index(request):
 
 		if int(event_id) == 2:
 
-			email = request.POST['email']
+			email = request.POST['email'].replace('%40','@')
 
 			try:
 				RapWars.objects.get(email_address = email)
@@ -185,12 +189,12 @@ def index(request):
 		if int(event_id) == 3:
 
 			
-			g_l = request.POST['group+lead']
+			g_l = request.POST['group_lead']
 
-			g_m = request.POST['group+memb']
+			g_m = request.POST['group_memb']
 			
 
-			email = request.POST['email']
+			email = request.POST['email'].replace('%40','@')
 
 			try:
 				StreetDance.objects.get(email_address = email)
@@ -227,10 +231,12 @@ def index(request):
 						phone = number,
 						amount = 250,
 						purpose = "Street Dance",
-						redirect_url = request.build_absolute_url(reverse("API Request"))
+						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
-					
-					return HttpResponseRedirect(response['payment_request']['longurl'])
+					data={'status':5,
+						'url':response['payment_request']['longurl']
+						}
+					return JsonResponse(data)
 
 					
 
@@ -249,7 +255,7 @@ def index(request):
 
 		if int(event_id) == 4:
 		
-			email = request.POST['email']
+			email = request.POST['email'].replace('%40','@')
 
 			try:
 				StandUp.objects.get(email_address = email)
@@ -293,10 +299,13 @@ def index(request):
 						phone = number,
 						amount = 250,
 						purpose = "StandUp SandBox",
-						redirect_url = request.build_absolute_url(reverse("API Request"))
+						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
 					
-					return HttpResponseRedirect(response['payment_request']['longurl'])
+					data={'status':5,
+						'url':response['payment_request']['longurl']
+						}
+					return JsonResponse(data)
 
 					
 				except ValueError:

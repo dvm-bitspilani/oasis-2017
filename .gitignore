@@ -2,3 +2,4 @@
 *.pyc
 oasis2017/config.py
 oasis2017/email_config.py
+preregistrations/instaconfig.py
