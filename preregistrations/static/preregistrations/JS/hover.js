@@ -13,10 +13,8 @@ $(document).ready(function(){
 				
 		
 	});
-	// $('img').on('mouseout',function(){
-	// 	$(this).stop(true).removeClass('shade');
-	// 	$(this).next().stop(true).addClass('hidden');
-	// 	$(this).next().stop(true).removeClass('overlay');
-		
-	// });
+
+
+
+
 })
