@@ -114,6 +114,9 @@ $(document).ready(function(){
 		    // console.log(message)
 			$('.msg').text(message);
 			$('.msg').fadeIn();
+			var k = setTimeout(function(){
+				$('.msg').fadeOut()
+			},1500)
 
 		}
 	
