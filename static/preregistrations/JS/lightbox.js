@@ -102,6 +102,10 @@ $(document).ready(function(){
 		      else if(json.status == 3){
 		        message = 'Enter a valid email address.'
 		    }
+		    else if(json.status == 5){
+		    	location.href = json.url;
+		    	message = "Succesfully submitted"
+		    }
 		    else{
 		      message = 'Email already registered'
 		    }
