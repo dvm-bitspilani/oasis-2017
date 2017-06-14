@@ -51,30 +51,30 @@
 <div class ="events">
 <div class="container">
 <div class ="row1"><!-- <script src="js/wow.min.js"></script> -->
-	<div class="rocktaves wow fadeIn " data-wow-delay="1s" data-wow-duration="1.5s">
+	<div class="rocktaves wow fadeIn hex" data-wow-delay="1s" data-wow-duration="1.5s">
 	 	<img src="{% static 'preregistrations/Images/rocktaves.jpg' %}" alt="rocktaves">
-	 	<div class="hidden" data="rocktaves" style="display:none;"><a href="#"" class="info">Rocktaves </a></div>
+	 	<div class="overlay" data="rocktaves"><a href="#"" class="info">Rocktaves </a></div>
 	 </div>
-	 <div class="humor wow fadeIn " data-wow-delay=".2s" data-wow-duration="2s">
+	 <div class="humor wow fadeIn hex" data-wow-delay=".2s" data-wow-duration="2s">
 	 	<img src="{% static 'preregistrations/Images/humor_fest.jpg' %}" alt="humor fest">
-	 	<div class="hidden" data="humor"  style="display:none;"><a href="#" class="info">Stand-Up Soapbox</a></div>
+	 	<div class="overlay" data="humor"><a href="#" class="info">Stand-Up Soapbox</a></div>
 	 </div>
-	 <div class="street wow fadeIn " data-wow-delay=".5s" data-wow-duration="1.5s">
+	 <div class="street wow fadeIn hex" data-wow-delay=".5s" data-wow-duration="1.5s">
 	 	<img src="{% static 'preregistrations/Images/streetdance.jpg' %}" alt="street dance">
-	 	<div class="hidden" data="street"  style="display:none;"><a href="#" class="info">Street Dance</a></div>
+	 	<div class="overlay" data="street" ><a href="#" class="info">Street Dance</a></div>
 	 </div>
 </div>
 </div>
 <br/>
 <div class="container">
 <div class ="row2">
-	 <div class="pitch wow fadeIn " data-wow-delay=".3s" data-wow-duration="1.8s">
+	 <div class="pitch wow fadeIn hex" data-wow-delay=".3s" data-wow-duration="1.8s">
 	 	<img src="{% static 'preregistrations/Images/pitch_perfect.jpg' %}" alt="pitch perfect">
-	 	<div class="hidden" data="pitch"  style="display:none;"><a href="#" class="info">Pitch perfect</a></div>
+	 	<div class="overlay" data="pitch" ><a href="#" class="info">Pitch perfect</a></div>
 	 </div>
-	 <div class="rap wow fadeIn " data-wow-delay=".7s" data-wow-duration="1.5s">
+	 <div class="rap wow fadeIn hex" data-wow-delay=".7s" data-wow-duration="1.5s">
 	 	<img src="{% static 'preregistrations/Images/Rap_wars.jpg' %}" alt="rap wars">
-	 	<div class="hidden" data="rap"  style="display:none;"><a href="#" class="info">Rap wars</a></div>
+	 	<div class="overlay" data="rap"><a href="#" class="info">Rap wars</a></div>
 	 </div>
 </div>
 </div>
@@ -457,6 +457,8 @@
     </ul> 
     </div>
   </div>
+
+  
   </div>
   {% if message %}
     <div class="thank-you">{{ message }}</div>
@@ -478,7 +480,7 @@
               </script>
 
 
-<script src="{% static 'preregistrations/JS/hover.js' %}"></script>
+<!-- <script src="{% static 'preregistrations/JS/hover.js' %}"></script> -->
 <script src="{% static 'preregistrations/JS/lightbox.js' %}"></script>
 <!-- <script src="{% static 'preregistrations/JS/jquery.particleground.min.js' %}"></script> -->
 <script src="{% static 'preregistrations/JS/particle.js' %}"></script>

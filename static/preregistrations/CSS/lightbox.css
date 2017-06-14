@@ -37,21 +37,24 @@ a{
 
 }
 
-.msg{
+/*.msg{
 	position: relative;
 	color: #fff;
-	background: rgba(255,255,255,.3);
+	background: transparent;
 	font-size: 22px;
 	text-align: center;
 	margin: 0 auto;
 	display: none;
-}
+	padding: 20px;
+	width:700px;
 
-.thank-you{
+
+}*/
+
+.thank-you, .msg{
 	display: none;
 	width: 200px;
 	position: absolute;
-	left: calc(50vw - 100px);
 	top: 0;
     padding: 20px;
     margin: 20px 0;
@@ -60,4 +63,11 @@ a{
     border: 1px solid #fff;
     border-radius: 6px;
     line-height: 25px;
-    font-size: 20px;}
+    font-size: 20px;
+}
+
+.msg{
+	width: 700px;
+	background-color: #eee;
+	left: calc(50vw - 350px);
+}

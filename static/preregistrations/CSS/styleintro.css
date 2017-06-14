@@ -16,6 +16,7 @@
     display: block;
     margin: 100px auto;
     /*margin-top: 80px;*/
+    border-radius: 6px;
     overflow: auto;
     overflow-x: hidden;
 }
@@ -43,7 +44,7 @@
 	margin: 30px 30px 50px 50px;
 	display: block;
 	font-family: 'Montserrat', sans-serif;;
-	
+	line-height: 30px;
 	font-size: 1.2em;
 	clear:both;
 }
@@ -52,4 +53,8 @@
 	font-weight: 600;
 	font-size: 1.25em;
 	margin: 30px 0;
+}
+
+.intro li{
+	margin: 7px 0 0 15px;
 }

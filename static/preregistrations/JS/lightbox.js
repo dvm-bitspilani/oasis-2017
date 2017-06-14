@@ -95,7 +95,7 @@ $(document).ready(function(){
 			var message;
 
 			if(json.status == 1){
-      			message = 'Hi '+json['email'] +'!.' + ' You have entered name:'+      json['name'];
+      			message = 'Hi '+json['name'] +'!.' + ' You have entered email: '+ json['email'];
    			}
      		else if(json.status == 2){
      		   message = 'Enter a valid phone number.'
