@@ -7,23 +7,24 @@
 
 .intro{
 	width: 75%;
-	height: 700px;
-	background: rgba(173,216,230,0.9) ;
-	border: 10px solid rgb(48,48,48);
-	border-radius: 10px;
-	border-top-left-radius: 80px;
-	border-bottom-right-radius: 80px;
-	display: block;
-	margin: auto;
-	margin-top: 80px;
-	overflow:auto;
-	overflow-x: hidden;
+    /* height: 700px; */
+    background: #eee;
+    /* border: 10px solid rgb(48,48,48); */
+    /* border-radius: 10px; */
+    /* border-top-left-radius: 80px; */
+    /* border-bottom-right-radius: 80px; */
+    display: block;
+    margin: 100px auto;
+    /*margin-top: 80px;*/
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .intro .cont1{
 	display: inline-block;
-	width: auto;
-	height: 100px;
+    width: auto;
+    margin: 0 20px 20px;
+    height: 100px;
 }
 
 .intro .cont1-1{

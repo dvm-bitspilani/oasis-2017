@@ -6,6 +6,7 @@
 	bottom:0;
 	background: rgba(0,0,0,0.7);
 	display:none;
+	overflow-y: auto;
 }
 
 #rocktaves_register,
@@ -20,7 +21,8 @@
 
 .close{
 	color: #000;
- 	margin-top: 10px;
+ 	margin-top: 20px;
+ 	font-weight: 100;
  	margin-right: 15px;
  	float: right;
  	font-size: 25px;
