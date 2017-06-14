@@ -24,13 +24,15 @@
  	margin-right: 15px;
  	float: right;
  	font-size: 25px;
- 	font-family: 'Passion One', cursive;
+ 	font-family: 'Montserrat', sans-serif;
  	cursor:pointer;
 }
 
 a{
 	color: #fff;
 	text-decoration: none;	
+	font-family: 'Montserrat', sans-serif;
+
 }
 
 .msg{

@@ -33,7 +33,7 @@
 	font-size: 2.5em;
 	text-decoration: underline;
 	font-style: italic;
-	font-family: 'Orbitron', sans-serif;
+	font-family: 'Montserrat', sans-serif;
 	letter-spacing: -.03em;
 	word-spacing: -.05em;
 }
@@ -41,7 +41,7 @@
 .intro .cont2{
 	margin: 30px 30px 50px 50px;
 	display: block;
-	font-family: 'Architects Daughter', cursive;
+	font-family: 'Montserrat', sans-serif;;
 	
 	font-size: 1.2em;
 	clear:both;
