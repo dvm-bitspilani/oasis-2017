@@ -1,7 +1,7 @@
 
 .mirage{
-	height: 300px;
-	width: 700px;
+	height: 250px;
+    width: 500px;
 	display: block;
 	margin: auto;
 }
@@ -20,7 +20,7 @@ body
 {	
 	font-family: 'Montserrat', sans-serif;
 	background-color: #0a2846;
-	
+
 	overflow-x: hidden;
 }
 
@@ -161,4 +161,34 @@ background: rgb(48,48,48);
 	}
 }
 
+
+.links{
+	display: flex;
+	justify-content: center;
+	font-variant: small-caps;
+	font-size: 25px;
+	margin-bottom: 40px;
+}
+
+.link{
+	padding: 30px;
+}
+
+
+.youtube-video-container{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: absolute;
+
+	top:0;
+	bottom: 0;
+	right:0;
+	left:0;
+}
+
+.player{
+	margin:0 auto;
+	width: 560px;
+}
 

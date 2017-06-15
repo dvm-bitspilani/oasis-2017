@@ -15,7 +15,9 @@
 #pitch_info,#humor_info,
 #rocktaves_info,
 #rap_info,
-#street_info{
+#street_info,
+#contacts_info,
+.youtube-video-container{
 	display:none;
 }
 

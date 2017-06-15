@@ -58,3 +58,24 @@
 .intro li{
 	margin: 7px 0 0 15px;
 }
+
+.contact_data{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	padding: 0 40px;
+}
+
+.contactinfo{
+	display:flex;
+	width: 50%;
+	flex-direction: column;
+	padding: 40px ;
+	text-align: center;
+	font-family: 'Montserrat', sans-serif;
+}
+
+.contact_dept{
+	color: #000088;
+	padding: 10px;
+}

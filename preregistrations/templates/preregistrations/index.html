@@ -48,6 +48,10 @@
     <img  src="{% static 'preregistrations/Images/Mirage logo white.png' %}" alt="Mirage">
   </div>
 </div>
+<div class="links">
+	<div class="link"><div data="contacts"><a href="#" class="info">Contacts</a></div></div>
+	<div class="link"><a href="#" class="youtube">After movie</a></div></div>
+</div>
 <div class ="events">
 <div class="container">
 <div class ="row1"><!-- <script src="js/wow.min.js"></script> -->
@@ -458,8 +462,119 @@
     </div>
   </div>
 
-  
+<div class="intro" id="contacts_info">
+  	<div class="close">X</div>
+  	<div class="cont1">Contacts</div>
+  	
+        <div class="contact_data" id="c_data">
+
+              <div class="contactinfo">
+                <div class="contact_dept">Registration and Other Enquiries</div>
+                <!-- <div style="position:relative"><img src="./img/stuccan/shetty.jpg" class="contact_img">
+                  <a href="" target="_blank">
+                    <div class="fb_link">
+                    </div>
+                  </a>
+                </div> -->
+                <div class="contact_det"><b>ASIM SHAH</b>
+                  <br>Ph : 9828529994 <br>pcr [at] bits-oasis [dot] org</div>
+                </div>
+            <div class="contactinfo">
+              <div class="contact_dept">Sponsorship and Marketing</div>
+              <!-- <div style="position:relative"><img src="./img/stuccan/aditya_ruia.jpg" class="contact_img">
+                <a href="" target="_blank">
+                  <div class="fb_link">
+                  </div>
+                </a>
+              </div> -->
+              <div class="contact_det"><b>SIDDHANT NARULA</b>
+                <br>Ph : 9982200768
+                <br>sponsorship [at] bits-oasis [dot] org</div>
+              </div>
+              <div class="contactinfo">
+                <div class="contact_dept">Controls</div>
+                <!-- <div style="position:relative"><img src="./img/stuccan/mudit.jpg" class="contact_img">
+                  <a href="" target="_blank">
+                    <div class="fb_link">
+                    </div>
+                  </a>
+                </div> -->
+                <div class="contact_det"><b>NISHANT VERMA</b>
+                  <br>Ph : 8058877118
+                  <br>controls [at] bits-oasis [dot] org</div>
+                </div>
+                <div class="contactinfo">
+                  <div class="contact_dept">Website and Online Payments</div>
+                  <!-- <div style="position:relative"><img src="./img/stuccan/tarun.jpg" class="contact_img">
+                    <a href="" target="_blank">
+                      <div class="fb_link">
+                      </div>
+                    </a>
+                  </div> -->
+                  <div class="contact_det"><b>ARJUN TYAGI</b>
+                    <br>Ph : 8875052545
+                    <br>webmaster [at] bits-oasis [dot] org</div>
+                  </div>
+                  <div class="contactinfo">
+                    <div class="contact_dept">Reception and Accommodation</div>
+                    <!-- <div style="position:relative"><img src="./img/stuccan/ketul.jpg" class="contact_img">
+                      <a href="" target="_blank">
+                        <div class="fb_link">
+                        </div>
+                      </a>
+                    </div> -->
+                    <div class="contact_det"><b>ARNAV KUNDRA</b>
+                      <br>Ph : 9928026633
+                      <br>recnacc [at] bits-oasis [dot] org</div>
+                    </div>
+                    <div class="contactinfo">
+                      <div class="contact_dept">Art, Design and Publicity</div>
+                      <!-- <div style="position:relative"><img src="./img/stuccan/abhishek.jpg" class="contact_img">
+                        <a href="" target="_blank">
+                          <div class="fb_link">
+                          </div>
+                        </a>
+                      </div> -->
+                      <div class="contact_det"><b>GAUTAM CHANDRAHASA</b>
+                        <br>Ph : 9982084940
+                        <br>adp [at] bits-oasis [dot] org</div>
+                      </div>
+                        <div class="contactinfo">
+                          <div class="contact_dept">President</div>
+                          <!-- <div style="position:relative"><img src="./img/stuccan/prateek.jpg" class="contact_img">
+                            <a href="" target="_blank">
+                              <div class="fb_link">
+                              </div>
+                            </a>
+                          </div> -->
+                          <div class="contact_det"><b>PRATEEK BOTHRA</b>
+                            <br>Ph : 8058956664
+                            <br> president [at] bits-oasis [dot] org</div>
+                          </div>
+                          <div class="contactinfo">
+                            <div class="contact_dept">General Secretary</div>
+                            <!-- <div style="position:relative"><img src="./img/stuccan/manas.jpg" class="contact_img">
+                              <a href="" target="_blank">
+                                <div class="fb_link">
+                                </div>
+                              </a>
+                            </div> -->
+                            <div class="contact_det"><b>MANAS LUTHRA</b>
+                              <br>Ph : 7689969333
+                              <br> gensec [at] bits-oasis [dot] org</div>
+                            </div>
+                      
+                    </div>
+        
+                    
+
   </div>
+
+  <div id="youtube" class="youtube-video-container">
+                    	<div class="player"></div>
+                    </div>
+ 
+  
   {% if message %}
     <div class="thank-you">{{ message }}</div>
   	<script>
@@ -471,7 +586,7 @@
   		})
   	</script>
   {% endif %}
-</div>
+  </div>
 </div>
 
 <script src="{% static 'preregistrations/JS/wow.min.js' %}"></script>
@@ -479,11 +594,10 @@
               new WOW().init();
               </script>
 
-
 <!-- <script src="{% static 'preregistrations/JS/hover.js' %}"></script> -->
 <script src="{% static 'preregistrations/JS/lightbox.js' %}"></script>
 <!-- <script src="{% static 'preregistrations/JS/jquery.particleground.min.js' %}"></script> -->
-<script src="{% static 'preregistrations/JS/particle.js' %}"></script>
+<!-- <script src="{% static 'preregistrations/JS/particle.js' %}"></script> -->
 </body>
 
 </html>

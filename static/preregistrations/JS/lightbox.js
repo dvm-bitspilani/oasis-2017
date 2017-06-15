@@ -14,7 +14,9 @@ $(document).ready(function(){
 	});
 
 	$('.info').click(function(){
+		$('#'+open).fadeOut();
 		$('.backdrop').fadeIn();
+
 		$('#'+$(this).parent().attr('data')+'_info').fadeIn();
 		open = $(this).parent().attr('data')+'_info';
 
@@ -33,7 +35,7 @@ $(document).ready(function(){
 	$(document).on('click', function(event) {
     	if ($(event.target).has('#'+open).length) {
         	$('.backdrop').fadeOut();
-			$('#'+open).fadeOut();
+        	$('#'+open).fadeOut();
     	}
 	});
 
@@ -124,4 +126,17 @@ $(document).ready(function(){
 			console.log(xhr.status + ' ' + xhr.response);
 		};
 	});
+
+	$(".youtube").click(function(){
+			$(".backdrop").fadeIn(1000);
+			$('.youtube-video-container').css({'display':'flex'});
+			$(".player").html('<iframe width="560" height="315" src="https://www.youtube.com/embed/rh7WkyNXNRE" frameborder="0" allowfullscreen></iframe>');
+			open="youtube"
+	});
+
+	$('.youtube-video-container').click(()=>{
+		$(".player iframe").remove();
+		$('.backdrop').fadeOut();
+	})
+	
 });
