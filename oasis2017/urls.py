@@ -6,7 +6,7 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^',include("preregistrations.urls"))
+    url(r'^mirage/',include("preregistrations.urls"))
 ]
 
 urlpatterns += staticfiles_urlpatterns()

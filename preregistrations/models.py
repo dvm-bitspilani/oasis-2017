@@ -25,7 +25,6 @@ class StandUp(models.Model):
 	phone = models.CharField(default='' , blank = False, max_length=13)
 	gender = models.CharField(max_length=6)
 	email_address = models.EmailField(unique=True)
-	paid = models.BooleanField(default=False)
 
 	def __unicode__(self):
 
@@ -75,6 +74,7 @@ class RapWars(models.Model):
 	phone = models.CharField(default='' , blank = False, max_length=13)
 	gender = models.CharField(max_length=6)
 	email_address = models.EmailField(unique=True)
+	paid = models.BooleanField(default=False)
 
 	def __unicode__(self):
 

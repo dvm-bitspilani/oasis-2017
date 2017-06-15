@@ -8,13 +8,15 @@ from instamojo_wrapper import Instamojo
 import re
 from instaconfig import *
 
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/')
 
 
 @csrf_exempt
 def index(request):
 
 	if request.method == 'POST':
+
+		
 
 		event_id = request.POST['form_id']
 
@@ -112,11 +114,11 @@ def index(request):
 					response = api.payment_request_create(buyer_name= g_l,
 						email= email,
 						phone= number,
-						amount = 10,
+						amount = 300,
 						purpose="Pitch Perfect",
 						redirect_url= request.build_absolute_uri(reverse("API Request"))
 						)
-					# print  email	, response['payment_request']['longurl']			
+					print  email	, response['payment_request']['longurl']			
 					data = {'status':5,
 					'url': response['payment_request']['longurl'] 
 					}
@@ -170,10 +172,18 @@ def index(request):
 					rapwars.email_address = email
 					rapwars.save()
 					name = request.POST['name']
-					data = {'status':1,'email':email, 'name':name, 'Event':'RapWars'}
-						
+					response = api.payment_request_create(buyer_name= name,
+						email= email,
+						phone= number,
+						amount = 300,
+						purpose="RapWars",
+						redirect_url= request.build_absolute_uri(reverse("API Request"))
+						)
+					print  email	, response['payment_request']['longurl']			
+					data = {'status':5,
+					'url': response['payment_request']['longurl'] 
+					}
 					return JsonResponse(data)
-
 				except ValueError:
 					data = {'status':2}
 					return JsonResponse(data)
@@ -229,7 +239,7 @@ def index(request):
 						buyer_name= g_l,
 						email = email,
 						phone = number,
-						amount = 10,
+						amount = 300,
 						purpose = "Street Dance",
 						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
@@ -290,21 +300,6 @@ def index(request):
 					name = request.POST['name']
 					data = {'status':1,'email':email, 'name':name, 'Event':'StandUp SoapBox'}
 					
-
-					name = request.POST['name']
-
-					response = api.payment_request_create(
-						buyer_name = name,
-						email = email,
-						phone = number,
-						amount = 10,
-						purpose = "StandUp SandBox",
-						redirect_url = request.build_absolute_uri(reverse("API Request"))
-						)
-					
-					data={'status':5,
-						'url':response['payment_request']['longurl']
-						}
 					return JsonResponse(data)
 
 					
@@ -325,7 +320,7 @@ def apirequest(request):
 	payid=str(request.GET['payment_request_id'])
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
-	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),
+	r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),
                 	 headers=headers)
 	json_ob = r.json()
 	print json_ob
@@ -346,11 +341,11 @@ def apirequest(request):
 			street_dance.paid = True	
 			street_dance.save()
 
-		if "StandUp" in purpose:
+		if "Rap" in purpose:
 
-			stand_up = StandUp.objects.get(email_address=email)
-			stand_up.paid = True
-			stand_up.save()
+			rap_wars = RapWars.objects.get(email_address=email)
+			rap_wars.paid = True
+			rap_wars.save()
 
 		return render(request, 'preregistrations/index.html', {'message':'Payment Successful'})
 	else:
@@ -378,7 +373,7 @@ def get_excel_sheet(request):
 	worksheet.write(0, 1, generated)
 
 	x=2
-	stand = StandUp.objects.filter(paid=True).order_by('email_address')
+	stand = StandUp.objects.order_by('email_address')
 	su_list = [{'obj': i} for i in stand]
 	if su_list:
 		worksheet.write(x, 0, "StandUp Soapbox")
@@ -470,7 +465,7 @@ def get_excel_sheet(request):
 			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
 		x+=len(ro_list)+2	
 
-	rap = RapWars.objects.order_by('email_address')
+	rap = RapWars.objects.filter(paid=True).order_by('email_address')
 	rw_list = [{'obj': i} for i in rap]
 	if rw_list:
 		worksheet.write(x, 0, "Rap Wars")
