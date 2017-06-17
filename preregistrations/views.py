@@ -8,8 +8,8 @@ from instamojo_wrapper import Instamojo
 import re
 from instaconfig import *
 
-# api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+# api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 
 @csrf_exempt
@@ -295,8 +295,8 @@ def apirequest(request):
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
 	
-   	# r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
-	r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)    
+   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
+	# r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)    
     ### when in development
 	json_ob = r.json()
 	print json_ob
