@@ -8,8 +8,8 @@ from instamojo_wrapper import Instamojo
 import re
 from instaconfig import *
 
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
-#api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+# api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 
 @csrf_exempt
@@ -27,16 +27,8 @@ def index(request):
 
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				Rocktaves.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
+			if Rocktaves.objects.filter(email_address = email):
+				return JsonResponse({'status':0})
 
 			mobile_number = request.POST['phone']
 
@@ -80,16 +72,15 @@ def index(request):
 			g_m = request.POST['group_memb']
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				PitchPerfect.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
+			user = PitchPerfect.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else: 
+					user.delete()
 
-			if user_exists:
 
-				data = {'status':0}
-				return JsonResponse(data)
+
 
 			mobile_number = request.POST['phone']
 			# email = request.POST['email'].replace('%40','@')
@@ -141,19 +132,13 @@ def index(request):
 		if int(event_id) == 2:
 
 			email = request.POST['email'].replace('%40','@')
-
-			try:
-				RapWars.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				print "Exists"
-				return JsonResponse(data)
-
+			
+			user = RapWars.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else :
+					user.delete()
 			mobile_number = request.POST['phone']
 
 			if len(mobile_number) == 10:
@@ -207,17 +192,12 @@ def index(request):
 
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				StreetDance.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
-
+			user = StreetDance.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else:
+					user.delete()
 			mobile_number = request.POST['phone']
 
 			if len(mobile_number) == 10:
@@ -268,16 +248,9 @@ def index(request):
 		
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				StandUp.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
+			if StandUp.objects.filter(email_address = email):
 
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
+				return JsonResponse({'status':0})
 
 			mobile_number = request.POST['phone']
 
@@ -322,10 +295,9 @@ def apirequest(request):
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
 	
-   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),
-                	 headers=headers)
-	#r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),
-    #            	 headers=headers)    ### when in development
+   	# r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
+	r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)    
+    ### when in development
 	json_ob = r.json()
 	print json_ob
 	if (json_ob['success']):
