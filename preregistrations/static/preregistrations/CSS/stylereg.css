@@ -178,3 +178,39 @@ button a:hover{
 
 }
 
+@media (max-width : 768px){
+	.register_here{
+		width: 100%;
+	/*	margin-left: 1.8em;
+		padding-left: 3em;
+		line-height: 2em;*/
+		border-radius: 0;
+	}
+
+	.input-field label, .input-field input{
+		display: block;
+	}
+
+	.input-field input,.input-field select{
+		width: 100%
+	}
+
+	.input-field .gender-wrap label,
+	.input-field .gender-wrap input{
+		display: inline-block;
+		width: auto;
+
+		margin:0;
+	}
+
+	.input-field .gender-wrap input{
+		padding: 20px;
+	}
+
+	.gender-wrap{
+		display: block;
+		width: 100%;
+	}
+
+}
+

@@ -20,7 +20,7 @@ body
 {	
 	font-family: 'Montserrat', sans-serif;
 	background-color: #0a2846;
-
+	background-size:cover;
 	overflow-x: hidden;
 }
 
@@ -159,6 +159,13 @@ background: rgb(48,48,48);
 	.events{
 		margin-left:0;
 	}
+
+	.register_here{
+		width: 100%;
+	/*	margin-left: 1.8em;
+		padding-left: 3em;
+		line-height: 2em;*/
+	}
 }
 
 
@@ -174,6 +181,13 @@ background: rgb(48,48,48);
 	padding: 30px;
 }
 
+.link a:hover{
+	color: #a9a9ab;
+}
+
+/*.events .overlay a{
+	color: rgb(250,99,64);
+}*/
 
 .youtube-video-container{
 	display: flex;
@@ -192,3 +206,37 @@ background: rgb(48,48,48);
 	width: 560px;
 }
 
+
+
+.background-overlay{
+	position: absolute;
+	z-index: -1;
+	background-size: cover;
+	/*background-position: center;
+	background-attachment: fixed;
+	background-repeat: no-repeat;*/
+	top:0;
+	height:100%;
+	width:100%;
+	bottom:0;
+	filter: brightness(.2) blur(3px);
+}
+
+/*#wrapper,body, html{
+	height: 100%;
+	border: 10px solid #fff;
+}
+*/
+
+
+.background-overlay img{
+	width: 100%;
+	height:100%;
+	position:absolute;
+}
+
+.image{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}

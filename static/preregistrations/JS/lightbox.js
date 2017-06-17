@@ -130,7 +130,13 @@ $(document).ready(function(){
 	$(".youtube").click(function(){
 			$(".backdrop").fadeIn(1000);
 			$('.youtube-video-container').css({'display':'flex'});
-			$(".player").html('<iframe width="560" height="315" src="https://www.youtube.com/embed/rh7WkyNXNRE" frameborder="0" allowfullscreen></iframe>');
+			var width = 560;
+			var height = 315;
+			if($(window).width() < 768 ){
+				width = 300;
+				height = 200;
+			}
+			$(".player").html('<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/rh7WkyNXNRE" frameborder="0" allowfullscreen></iframe>');
 			open="youtube"
 	});
 
@@ -139,4 +145,13 @@ $(document).ready(function(){
 		$('.backdrop').fadeOut();
 	})
 	
+
+	// console.log($('#main-container').height())
+	// console.log($('body').height())
+
+	window.onscroll= function(){
+		// console.log(window.pageYOffset);
+		var top = window.pageYOffset;
+		$('.background-overlay').css({'top':top})
+	};
 });
