@@ -1,5 +1,5 @@
 .shade{
-	filter: blur(1px);
+/*	filter: blur(1px);*/
 }
 
 @import url('https://fonts.googleapis.com/css?family=Lato');
@@ -30,9 +30,9 @@
 	background: rgba(0,0,0,.3); 
 }
 
-.hex:hover .shade{
+/*.hex:hover .shade{
 	filter: blur(0);
-}
+}*/
 
 .rocktaves,
 .humor,

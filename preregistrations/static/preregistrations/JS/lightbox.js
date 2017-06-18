@@ -57,10 +57,15 @@ $(document).ready(function(){
 			
 			// console.log(key);
 			// console.log(value);
-			data_JSON[key] = value;
+			// console.log(value)
+			var new_value1 = value.split("+").join(" ")
+			var new_value2 = new_value1.replace(/%40/g,"@");
+			// var new_value3 = decodeURIComponent(value)
+			// console.log(new_value3)
+			data_JSON[key] = new_value2;
 		});
 		
-		// console.log(data_JSON);
+		console.log(data_JSON);
 
 
 		function getCookie(name) {

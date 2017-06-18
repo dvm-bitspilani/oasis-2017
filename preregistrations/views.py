@@ -92,6 +92,7 @@ def index(request):
 
 					
 
+					number_of_members = int(request.POST['number_of_members'])
 					pitch_perfect = PitchPerfect()
 					pitch_perfect.g_leader = g_l
 					pitch_perfect.members = g_m
@@ -99,6 +100,7 @@ def index(request):
 					pitch_perfect.college = request.POST['college']
 					pitch_perfect.phone = '+91' + mobile_number
 					pitch_perfect.email_address = email
+					pitch_perfect.number_of_members = number_of_members
 					pitch_perfect.save()
 					name = g_l
 					#data = {'status':1,'email':email, 'name':name, 'Event':'Pitch Perfect'}
@@ -106,7 +108,7 @@ def index(request):
 					response = api.payment_request_create(buyer_name= g_l,
 						email= email,
 						phone= number,
-						amount = 300,
+						amount = 300*(number_of_members+1),
 						purpose="Pitch Perfect",
 						redirect_url= request.build_absolute_uri(reverse("API Request"))
 						)
@@ -205,6 +207,7 @@ def index(request):
 
 					number = int(mobile_number)
 					
+					number_of_members = int(request.POST['number_of_members'])
 					street_dance = StreetDance()
 					street_dance.g_leader = g_l
 					street_dance.members = g_m
@@ -212,6 +215,7 @@ def index(request):
 					street_dance.college = request.POST['college']
 					street_dance.phone = '+91' + mobile_number
 					street_dance.email_address = email
+					street_dance.number_of_members = number_of_members
 					street_dance.save()
 					name = g_l
 					data = {'status':1,'email':email, 'name':name, 'Event':'Street Dance'}
@@ -220,7 +224,7 @@ def index(request):
 						buyer_name= g_l,
 						email = email,
 						phone = number,
-						amount = 300,
+						amount = 300*(number_of_members+1),
 						purpose = "Street Dance",
 						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)

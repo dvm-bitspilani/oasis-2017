@@ -42,6 +42,7 @@ class StreetDance(models.Model):
 	phone = models.CharField(default='' , blank = False, max_length=13)
 	email_address = models.EmailField(unique=True)
 	paid = models.BooleanField(default=False)
+	number_of_members = models.IntegerField(default=0,null=True)
 
 	def __unicode__(self):
 
@@ -59,6 +60,7 @@ class PitchPerfect(models.Model):
 	phone = models.CharField(default='' , blank = False, max_length=13)
 	email_address = models.EmailField(unique=True)
 	paid = models.BooleanField(default=False)
+	number_of_members = models.IntegerField(default=0,null=True)
 
 	def __unicode__(self):
 

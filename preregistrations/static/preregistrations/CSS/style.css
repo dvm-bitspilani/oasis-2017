@@ -219,7 +219,7 @@ background: rgb(48,48,48);
 	height:100%;
 	width:100%;
 	bottom:0;
-	filter: brightness(.2) blur(3px);
+	filter: brightness(.2)/* blur(3px)*/;
 }
 
 /*#wrapper,body, html{
