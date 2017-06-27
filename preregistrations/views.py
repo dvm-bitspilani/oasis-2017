@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, Http404
 from models import Rocktaves, StandUp, StreetDance, PitchPerfect, RapWars
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from instamojo_wrapper import Instamojo
 import re
 from instaconfig import *
+
 
 api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
 #api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
@@ -357,7 +358,7 @@ def apirequest(request):
 
 
 @staff_member_required
-def get_excel_sheet(request):
+def get_excel_sheet(request, event):
 	from django.http import HttpResponse, HttpResponseRedirect
 	import xlsxwriter
 	from models import StandUp, StreetDance, PitchPerfect, Rocktaves, RapWars
@@ -375,125 +376,139 @@ def get_excel_sheet(request):
 	from time import gmtime, strftime
 	generated = strftime("%d-%m-%Y %H:%M:%S UTC", gmtime())
 	worksheet.write(0, 1, generated)
-
 	x=2
-	stand = StandUp.objects.order_by('email_address')
-	su_list = [{'obj': i} for i in stand]
-	if su_list:
-		worksheet.write(x, 0, "StandUp Soapbox")
-		x+=1
-		worksheet.write(x, 0, "S.No.")
-		worksheet.write(x, 1, "Name")
-		worksheet.write(x, 2, "City")
-		worksheet.write(x, 3, "Phone No.")
-		worksheet.write(x, 4, "Gender")
-		worksheet.write(x, 5, "Email ID")
-		x+=1
-		for i, row in enumerate(su_list):
-			worksheet.write(i+x, 0, i)			
-			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
-			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
-			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
-			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
-			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
-		x+=len(su_list)+2
+	
+	if re.match(event, 'StandUp'):
+
+		stand = StandUp.objects.order_by('email_address')
+		su_list = [{'obj': i} for i in stand]
+		if su_list:
+			worksheet.write(x, 0, "StandUp Soapbox")
+			x+=1
+			worksheet.write(x, 0, "S.No.")
+			worksheet.write(x, 1, "Name")
+			worksheet.write(x, 2, "City")
+			worksheet.write(x, 3, "Phone No.")
+			worksheet.write(x, 4, "Gender")
+			worksheet.write(x, 5, "Email ID")
+			x+=1
+			for i, row in enumerate(su_list):
+				worksheet.write(i+x, 0, i)			
+				worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+				worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+				worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+				worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+				worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+			x+=len(su_list)+2
+
+	elif re.match(event, 'StreetDance'):
+		street = StreetDance.objects.filter(paid=True).order_by('email_address')
+		sd_list = [{'obj': i} for i in street]
+		if sd_list:
+			worksheet.write(x, 0, "Street Dance")
+			x+=1
+			worksheet.write(x, 0, "S.No.")		
+			worksheet.write(x, 1, "Group Leader")
+			worksheet.write(x, 2, "City")
+			worksheet.write(x, 3, "College")
+			worksheet.write(x, 4, "Phone No.")
+			worksheet.write(x, 5, "Email ID")
+			worksheet.write(x, 6, "Members")
+			x+=1
+			for i, row in enumerate(sd_list):
+				worksheet.write(i+x, 0, i)
+				worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
+				worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+				worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
+				worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
+				worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+				worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
+			x+=len(sd_list)+2
+
+
+	elif re.match(event, 'PitchPerfect'):
+
+		pitch = PitchPerfect.objects.filter(paid=True).order_by('email_address')
+		pp_list = [{'obj': i} for i in pitch]
+		if pp_list:
+			worksheet.write(x, 0, "Pitch Perfect")
+			x+=1
+			worksheet.write(x, 0, "S.No.")		
+			worksheet.write(x, 1, "Group Leader")
+			worksheet.write(x, 2, "City")
+			worksheet.write(x, 3, "College")
+			worksheet.write(x, 4, "Phone No.")
+			worksheet.write(x, 5, "Email ID")
+			worksheet.write(x, 6, "Members")
+			x+=1
+			for i, row in enumerate(pp_list):
+				worksheet.write(i+x, 0, i)
+				worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
+				worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+				worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
+				worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
+				worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+				worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
+	
+			x+=len(pp_list)+2
 
 	
-	street = StreetDance.objects.filter(paid=True).order_by('email_address')
-	sd_list = [{'obj': i} for i in street]
-	if sd_list:
-		worksheet.write(x, 0, "Street Dance")
-		x+=1
-		worksheet.write(x, 0, "S.No.")		
-		worksheet.write(x, 1, "Group Leader")
-		worksheet.write(x, 2, "City")
-		worksheet.write(x, 3, "College")
-		worksheet.write(x, 4, "Phone No.")
-		worksheet.write(x, 5, "Email ID")
-		worksheet.write(x, 6, "Members")
-		x+=1
-		for i, row in enumerate(sd_list):
-			worksheet.write(i+x, 0, i)
-			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
-			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
-			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
-			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
-			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
-			worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
-		x+=len(sd_list)+2
+	elif re.match(event, 'Rocktaves'):
 
-
-	pitch = PitchPerfect.objects.filter(paid=True).order_by('email_address')
-	pp_list = [{'obj': i} for i in pitch]
-	if pp_list:
-		worksheet.write(x, 0, "Pitch Perfect")
-		x+=1
-		worksheet.write(x, 0, "S.No.")		
-		worksheet.write(x, 1, "Group Leader")
-		worksheet.write(x, 2, "City")
-		worksheet.write(x, 3, "College")
-		worksheet.write(x, 4, "Phone No.")
-		worksheet.write(x, 5, "Email ID")
-		worksheet.write(x, 6, "Members")
-		x+=1
-		for i, row in enumerate(pp_list):
-			worksheet.write(i+x, 0, i)
-			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'g_leader', 'NA'))
-			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
-			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'college', 'NA'))
-			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'phone', 'NA'))
-			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
-			worksheet.write(i+x, 6, deepgetattr(row['obj'], 'members', 'NA'))
-
-		x+=len(pp_list)+2
+		rock = Rocktaves.objects.order_by('email_address')
+		ro_list = [{'obj': i} for i in rock]
+		if ro_list:
+			worksheet.write(x, 0, "Rocktaves")
+			x+=1
+			worksheet.write(x, 0, "S.No.")
+			worksheet.write(x, 1, "Name")
+			worksheet.write(x, 2, "City")
+			worksheet.write(x, 3, "Phone No.")
+			worksheet.write(x, 4, "Gender")
+			worksheet.write(x, 5, "Email ID")
+			x+=1
+			for i, row in enumerate(ro_list):
+				worksheet.write(i+x, 0, i)			
+				worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+				worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+				worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+				worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+				worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+			x+=len(ro_list)+2	
 
 	
-	rock = Rocktaves.objects.order_by('email_address')
-	ro_list = [{'obj': i} for i in rock]
-	if ro_list:
-		worksheet.write(x, 0, "Rocktaves")
-		x+=1
-		worksheet.write(x, 0, "S.No.")
-		worksheet.write(x, 1, "Name")
-		worksheet.write(x, 2, "City")
-		worksheet.write(x, 3, "Phone No.")
-		worksheet.write(x, 4, "Gender")
-		worksheet.write(x, 5, "Email ID")
-		x+=1
-		for i, row in enumerate(ro_list):
-			worksheet.write(i+x, 0, i)			
-			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
-			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
-			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
-			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
-			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
-		x+=len(ro_list)+2	
+	elif re.match(event, 'RapWars'):
 
-	rap = RapWars.objects.filter(paid=True).order_by('email_address')
-	rw_list = [{'obj': i} for i in rap]
-	if rw_list:
-		worksheet.write(x, 0, "Rap Wars")
-		x+=1
-		worksheet.write(x, 0, "S.No.")
-		worksheet.write(x, 1, "Name")
-		worksheet.write(x, 2, "City")
-		worksheet.write(x, 3, "Phone No.")
-		worksheet.write(x, 4, "Gender")
-		worksheet.write(x, 5, "Email ID")
-		x+=1
-		for i, row in enumerate(rw_list):
-			worksheet.write(i+x, 0, i)			
-			worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
-			worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
-			worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
-			worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
-			worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
-		x+=len(rw_list)+2
+		rap = RapWars.objects.filter(paid=True).order_by('email_address')
+		rw_list = [{'obj': i} for i in rap]
+		if rw_list:
+			worksheet.write(x, 0, "Rap Wars")
+			x+=1
+			worksheet.write(x, 0, "S.No.")
+			worksheet.write(x, 1, "Name")
+			worksheet.write(x, 2, "City")
+			worksheet.write(x, 3, "Phone No.")
+			worksheet.write(x, 4, "Gender")
+			worksheet.write(x, 5, "Email ID")
+			x+=1
+			for i, row in enumerate(rw_list):
+				worksheet.write(i+x, 0, i)			
+				worksheet.write(i+x, 1, deepgetattr(row['obj'], 'name', 'NA'))
+				worksheet.write(i+x, 2, deepgetattr(row['obj'], 'city', 'NA'))
+				worksheet.write(i+x, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+				worksheet.write(i+x, 4, deepgetattr(row['obj'], 'gender', 'NA'))
+				worksheet.write(i+x, 5, deepgetattr(row['obj'], 'email_address', 'NA'))
+			x+=len(rw_list)+2
 
+
+
+	else:
+
+		raise Http404("Event name not among : StandUp, Rocktaves, RapWars, StreetDance, PitchPerfect")
 
 
 	workbook.close()
-	filename = 'ExcelReport.xlsx'
+	filename = 'ExcelReport' + event + '.xlsx'
 	output.seek(0)
 	response = HttpResponse(output.read(), content_type="application/ms-excel")
 	response['Content-Disposition'] = 'attachment; filename=%s' % filename
