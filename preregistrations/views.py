@@ -10,7 +10,7 @@ from instaconfig import *
 
 
 api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
-#api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+# api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 
 @csrf_exempt
@@ -28,16 +28,8 @@ def index(request):
 
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				Rocktaves.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
+			if Rocktaves.objects.filter(email_address = email):
+				return JsonResponse({'status':0})
 
 			mobile_number = request.POST['phone']
 
@@ -81,16 +73,15 @@ def index(request):
 			g_m = request.POST['group_memb']
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				PitchPerfect.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
+			user = PitchPerfect.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else: 
+					user.delete()
 
-			if user_exists:
 
-				data = {'status':0}
-				return JsonResponse(data)
+
 
 			mobile_number = request.POST['phone']
 			# email = request.POST['email'].replace('%40','@')
@@ -102,6 +93,7 @@ def index(request):
 
 					
 
+					number_of_members = int(request.POST['number_of_members'])
 					pitch_perfect = PitchPerfect()
 					pitch_perfect.g_leader = g_l
 					pitch_perfect.members = g_m
@@ -109,6 +101,7 @@ def index(request):
 					pitch_perfect.college = request.POST['college']
 					pitch_perfect.phone = '+91' + mobile_number
 					pitch_perfect.email_address = email
+					pitch_perfect.number_of_members = number_of_members
 					pitch_perfect.save()
 					name = g_l
 					#data = {'status':1,'email':email, 'name':name, 'Event':'Pitch Perfect'}
@@ -116,7 +109,7 @@ def index(request):
 					response = api.payment_request_create(buyer_name= g_l,
 						email= email,
 						phone= number,
-						amount = 300,
+						amount = 300*(number_of_members+1),
 						purpose="Pitch Perfect",
 						redirect_url= request.build_absolute_uri(reverse("API Request"))
 						)
@@ -142,19 +135,13 @@ def index(request):
 		if int(event_id) == 2:
 
 			email = request.POST['email'].replace('%40','@')
-
-			try:
-				RapWars.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				print "Exists"
-				return JsonResponse(data)
-
+			
+			user = RapWars.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else :
+					user.delete()
 			mobile_number = request.POST['phone']
 
 			if len(mobile_number) == 10:
@@ -208,17 +195,12 @@ def index(request):
 
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				StreetDance.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
-
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
-
+			user = StreetDance.objects.filter(email_address = email)
+			if user:
+				if user[0].paid:
+					return JsonResponse({'status':0})
+				else:
+					user.delete()
 			mobile_number = request.POST['phone']
 
 			if len(mobile_number) == 10:
@@ -226,6 +208,7 @@ def index(request):
 
 					number = int(mobile_number)
 					
+					number_of_members = int(request.POST['number_of_members'])
 					street_dance = StreetDance()
 					street_dance.g_leader = g_l
 					street_dance.members = g_m
@@ -233,6 +216,7 @@ def index(request):
 					street_dance.college = request.POST['college']
 					street_dance.phone = '+91' + mobile_number
 					street_dance.email_address = email
+					street_dance.number_of_members = number_of_members
 					street_dance.save()
 					name = g_l
 					data = {'status':1,'email':email, 'name':name, 'Event':'Street Dance'}
@@ -241,7 +225,7 @@ def index(request):
 						buyer_name= g_l,
 						email = email,
 						phone = number,
-						amount = 300,
+						amount = 300*(number_of_members+1),
 						purpose = "Street Dance",
 						redirect_url = request.build_absolute_uri(reverse("API Request"))
 						)
@@ -269,16 +253,9 @@ def index(request):
 		
 			email = request.POST['email'].replace('%40','@')
 
-			try:
-				StandUp.objects.get(email_address = email)
-				user_exists = True
-			except:
-				user_exists = False
+			if StandUp.objects.filter(email_address = email):
 
-			if user_exists:
-
-				data = {'status':0}
-				return JsonResponse(data)
+				return JsonResponse({'status':0})
 
 			mobile_number = request.POST['phone']
 
@@ -323,10 +300,9 @@ def apirequest(request):
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
 	
-   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),
-                	 headers=headers)
-	#r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),
-    #            	 headers=headers)    ### when in development
+   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
+	# r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)    
+    ### when in development
 	json_ob = r.json()
 	print json_ob
 	if (json_ob['success']):

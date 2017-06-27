@@ -68,6 +68,11 @@ a{
     font-size: 20px;
 }
 
+.thank-you{
+	left: calc(50vw - 100px);
+}
+
+
 .msg{
 	width: 700px;
 	background-color: #eee;
