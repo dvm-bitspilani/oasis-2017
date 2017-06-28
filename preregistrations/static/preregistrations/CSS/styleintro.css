@@ -24,7 +24,7 @@
 .intro .cont1{
 	display: inline-block;
     width: auto;
-    margin: 0 20px 20px;
+    /*margin: 0 20px 20px;*/
     height: 100px;
 }
 
