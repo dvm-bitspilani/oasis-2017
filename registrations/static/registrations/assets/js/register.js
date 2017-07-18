@@ -114,15 +114,25 @@ var event_list = [];
 
 
 function make_list(json){
-	college_list = json['college_list'];
-	event_list = json['event_list'];
-
+	college_list = get_list_from_string(json['college_list']);
+	event_list = get_list_from_string(json['event_list']);
 	show_event_options();
 }
 
+function get_list_from_string(string){
+	var list = [];
+	string_pairs = string.match(/"name": "(\S+|$)"/g);
+	string_pairs.forEach(function(ele, ind){
+		list.push(ele.split('"')[3])
+	})
+	return list
+	
+}
+
 function show_event_options(){
-	console.log('called')
+	// console.log('called')
 	var event_options = '';
+	console.log(typeof event_list)
 	event_list.forEach(function(ele){
 		event_options += '<option>'+ele+'</option>';
 	})
@@ -166,6 +176,7 @@ function display(list, handler){
 
 $('#college').unbind('keyup').keyup(function(){
 	var handler = $(this);
+	// console.log(college_list)
 	display(iterate(college_list, handler), handler);
 
 })
