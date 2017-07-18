@@ -59,7 +59,7 @@ $('.submit').click(function(){
 
 
 	$.ajax({
-		url: 'form_submit',
+		url: './',
 		data: data_json,
 		type: 'POST',
 		success: ajax_success,
@@ -100,7 +100,7 @@ events_colleges_ajax();
 function events_colleges_ajax(){
 
 	$.ajax({
-		url: 'events_colleges',
+		url: './register',
 		type: 'GET',
 		success: make_list,
 		error: function(xhr, error_message, error_code){console.log(error_message)},
@@ -114,10 +114,8 @@ var event_list = [];
 
 
 function make_list(json){
-	var key_names = {'colleges': college_list, 'events': event_list};
-	key_names.forEach(function(ele, index){
-		key_names[ele].push(json[ele]);
-	})
+	college_list = json['college_list'];
+	event_list = json['event_list'];
 
 	show_event_options();
 }
