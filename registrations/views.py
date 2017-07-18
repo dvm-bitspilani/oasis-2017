@@ -4,6 +4,7 @@ from models import IntroReg, College
 from events.models import Event
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core import serializers
 
 def index(request):
 
@@ -191,6 +192,6 @@ def deepgetattr(obj, attr, default = None):
     return obj
 
 def register(request):
-	college_list = College.objects.all()
-	event_list = Event.objects.all()
-	return JsonResponse({'college_list':college_list, 'event_list':event_list})
+	college_list_json = serializers.serialize("json", College.objects.all())
+	event_list_json = serializers.serialize("json", Event.objects.all())
+	return JsonResponse({'college_list':college_list_json, 'event_list':event_list_json})
