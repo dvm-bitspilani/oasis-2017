@@ -193,5 +193,4 @@ def deepgetattr(obj, attr, default = None):
 def register(request):
 	college_list = College.objects.all()
 	event_list = Event.objects.all()
-	data = JsonResponse({'college_list':college_list, 'event_list':event_list})
-	return render(request, 'registrations/index.html', data)
+	return JsonResponse({'college_list':college_list, 'event_list':event_list})
