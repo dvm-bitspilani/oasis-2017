@@ -1,5 +1,452 @@
+{% load static %}
+<!DOCTYPE html>
 <html>
+	<head>
+		<title>OASIS 2017 | Intro</title>
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/fonts.css'%}">
+
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/animate.css'%}">
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/skeleton.css'%}">
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/scroll.css'%}">
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/popup.css'%}">
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/info.css'%}">
+		<link rel="stylesheet" href="{% static 'registrations/assets/css/regstyle.css'%}">
+		
+		<style id="keep_at_end"></style>
+		<meta charset="UTF-8">
+	</head>
 	<body>
-		Hi
+		<!--   nav bar -->
+		<div class="wrapper">
+		<section class="left-tab">
+			<div class="heading_left_tab">
+				<img class="animated fadeInDown" src="{% static 'registrations/assets/img/monogram.png'%}" width="125">
+				<h1 class="animated fadeInDown"><b>OASIS'17</b></h1>
+				<div id="realms" class="animated fadeInUp">
+					<span>&#x30fb;</span>
+					<span><label>REALMS</label><label>OF</label><label>FICTION</label></span>
+					<span>&#x30fb;</span>
+				</div>
+				<div id="dates">31<sup>st</sup> Oct - 4<sup>th</sup> Nov </div>
+			</div>
+			<div>
+				<nav>
+					<div id="pointers">
+						<div id="pointerLeft" class="pl1">&#x30fb;</div>
+						<div id="pointerRight" class="pr1">&#x30fb;</div>
+					</div>
+					<a class="animated flipInY" data="about">ABOUT US</a>
+					<a class="animated flipInY" data="sponsors">SPONSORS</a>
+					<a class="animated flipInY" data="contact">CONTACT US</a>
+					<a class="animated flipInY" data="register">REGISTER</a>
+				</nav>
+			</div>
+			<div>
+				<div id="timer"> <span>90</span> Days to go </div>
+				<div>
+					<span class="animated fadeInDown">
+						<a class="social" id="facebook" href="https://www.facebook.com/oasis.bitspilani/">&#x271a;</a>
+						<a class="social" id="twitter" href="https://twitter.com/bitsoasis">&#x271a;</a>
+					<a class="social" id="youtube" href="https://www.youtube.com/channel/UCf40GISJivaYZK2pPOyt1kw">&#x271a;</a>
+					</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- main content -->
+		<section class="container">
+			<div class="slider-container">
+				
+				<div class="slider">
+					<a class="bar">
+						<div class="button animated fadeInUp">
+							<div class="overlay"><div class="uppertext">OASIS'17</div><div class="seperator"></div><p>TEASER</p></div>
+							<div class="uppertext">OASIS'17</div><div class="seperator"></div><p>TEASER</p>
+						</div>
+					</a>
+					<div class="popup" id="1">
+						<img src="{% static 'registrations/assets/img/cross.svg'%}" id="cross" />
+						<div class ="video-container">
+							<iframe src="https://www.youtube.com/embed/FN71wnk58Hg?ecver=1" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+					<a class="bar">
+						<div class="button animated fadeInUp">
+							<div class="overlay"><div class="uppertext">OASIS'16</div><div class="seperator"></div><p>AFTERMOVIE</p></div>
+							<div class="uppertext">OASIS'16</div><div class="seperator"></div><p>AFTERMOVIE</p>
+						</div>
+					</a>
+					<div class="popup" id="2">
+						<img src="{% static 'registrations/assets/img/cross.svg'%}" id="cross" />
+						<div class ="video-container">
+							<iframe src="https://www.youtube.com/embed/rh7WkyNXNRE?ecver=1" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+					<a class="bar">
+						<div class="button animated fadeInUp">
+							<div class="overlay"><div class="uppertext">OASIS'16</div><div class="seperator"></div><p>PROMO</p></div>
+							<div class="uppertext">OASIS'16</div><div class="seperator"></div><p>PROMO</p>
+						</div>
+					</a>
+					<div class="popup" id="3">
+						<img src="{% static 'registrations/assets/img/cross.svg'%}" id="cross" />
+						<div class ="video-container">
+							<iframe src="https://www.youtube.com/embed/-Bk1ybD9npc?ecver=1" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+					<a class="bar">
+						<div class="button animated fadeInUp">
+							<div class="overlay"><div class="uppertext">OASIS'15</div><div class="seperator"></div><p>AFTERMOVIE</p></div>
+							<div class="uppertext">OASIS'15</div><div class="seperator"></div><p>AFTERMOVIE</p>
+						</div>
+					</a>
+					<div class="popup" id="4">
+						<img src="{% static 'registrations/assets/img/cross.svg'%}" id="cross" />
+						<div class ="video-container">
+							<iframe  src="https://www.youtube.com/embed/oQtWSvYR1vc?ecver=1" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+					<a class="bar">
+						<div class="button animated fadeInUp">
+							<div class="overlay"><div class="uppertext">OASIS'14</div><div class="seperator"></div><p>AFTERMOVIE</p></div>
+							<div class="uppertext">OASIS'14</div><div class="seperator"></div><p>AFTERMOVIE</p>
+						</div>
+					</a>
+					<div class="popup" id="5">
+						<img src="{% static 'registrations/assets/img/cross.svg'%}" id="cross" />
+						<div class ="video-container">
+							<iframe src="https://www.youtube.com/embed/-PqOI7SpZRg?ecver=1" frameborder="0" allowfullscreen></iframe>
+						</div>
+
+					</div>
+			</div>
+
+			</div>
+			<section class="info-container">
+				<div class='msg'><p></p></div>
+				<div class="info" data="contact">
+					<div class="cross"></div>
+					<div class="movable">
+						<div class="shapes">
+				<!-- 		<img src="Assets/Exports/octa3.png" class="o31 shape">
+						
+							<img src="Assets/Exports/octa3.png" class="o32 shape">
+						
+							<img src="Assets/Exports/octa4.png" class="o41 shape">
+						
+							<img src="Assets/Exports/octa1.png" class="o11 shape">
+						
+							<img src="Assets/Exports/octa2.png" class="o21 shape">
+
+							<img src="Assets/Exports/octa1.png" class="o12 shape"> -->
+
+					   <!-- <img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+				-->			<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+						</div>	
+						<div class="main">
+							<div class="image-main"></div>
+							<div class="content">
+								<h2>CONTACT US</h2>
+								<div class="contact_data" id="c_data">
+
+              <div class="contactinfo">
+                <div class="contact_dept">Registration and Other Enquiries</div>
+                <!-- <div style="position:relative"><img src="./img/stuccan/shetty.jpg" class="contact_img">
+                  <a href="" target="_blank">
+                    <div class="fb_link">
+                    </div>
+                  </a>
+                </div> -->
+                <div class="contact_det"><b>ASIM SHAH</b>
+                  <br>Ph : 9828529994 <br>pcr [at] bits-oasis [dot] org</div>
+                </div>
+            <div class="contactinfo">
+              <div class="contact_dept">Sponsorship and Marketing</div>
+              <!-- <div style="position:relative"><img src="./img/stuccan/aditya_ruia.jpg" class="contact_img">
+                <a href="" target="_blank">
+                  <div class="fb_link">
+                  </div>
+                </a>
+              </div> -->
+              <div class="contact_det"><b>SIDDHANT NARULA</b>
+                <br>Ph : 9982200768
+                <br>sponsorship [at] bits-oasis [dot] org</div>
+              </div>
+              <div class="contactinfo">
+                <div class="contact_dept">Controls</div>
+                <!-- <div style="position:relative"><img src="./img/stuccan/mudit.jpg" class="contact_img">
+                  <a href="" target="_blank">
+                    <div class="fb_link">
+                    </div>
+                  </a>
+                </div> -->
+                <div class="contact_det"><b>NISANTH VARMA</b>
+                  <br>Ph : 8058877118
+                  <br>controls [at] bits-oasis [dot] org</div>
+                </div>
+                <div class="contactinfo">
+                  <div class="contact_dept">Website and Online Payments</div>
+                  <!-- <div style="position:relative"><img src="./img/stuccan/tarun.jpg" class="contact_img">
+                    <a href="" target="_blank">
+                      <div class="fb_link">
+                      </div>
+                    </a>
+                  </div> -->
+                  <div class="contact_det"><b>ARJUN TYAGI</b>
+                    <br>Ph : 8875052545
+                    <br>webmaster [at] bits-oasis [dot] org</div>
+                  </div>
+                  <div class="contactinfo">
+                    <div class="contact_dept">Reception and Accommodation</div>
+                    <!-- <div style="position:relative"><img src="./img/stuccan/ketul.jpg" class="contact_img">
+                      <a href="" target="_blank">
+                        <div class="fb_link">
+                        </div>
+                      </a>
+                    </div> -->
+                    <div class="contact_det"><b>ARNAV KUNDRA</b>
+                      <br>Ph : 9928026633
+                      <br>recnacc [at] bits-oasis [dot] org</div>
+                    </div>
+                    <div class="contactinfo">
+                      <div class="contact_dept">Art, Design and Publicity</div>
+                      <!-- <div style="position:relative"><img src="./img/stuccan/abhishek.jpg" class="contact_img">
+                        <a href="" target="_blank">
+                          <div class="fb_link">
+                          </div>
+                        </a>
+                      </div> -->
+                      <div class="contact_det"><b>GOWTAM CHANDRAHASA</b>
+                        <br>Ph : 9982084940
+                        <br>adp [at] bits-oasis [dot] org</div>
+                      </div>
+                        
+                      
+                    </div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="info" data="about">
+					<div class="cross"></div>
+					<div class="movable">
+						<div class="shapes">
+				<!-- 		<img src="Assets/Exports/octa3.png" class="o31 shape">
+						
+							<img src="Assets/Exports/octa3.png" class="o32 shape">
+						
+							<img src="Assets/Exports/octa4.png" class="o41 shape">
+						
+							<img src="Assets/Exports/octa1.png" class="o11 shape">
+						
+							<img src="Assets/Exports/octa2.png" class="o21 shape">
+
+							<img src="Assets/Exports/octa1.png" class="o12 shape"> -->
+
+					   <!-- <img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+				-->			<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+						</div>	
+						<div class="main">
+							<div class="image-main"></div>
+							<div class="content">
+								<h2>ABOUT US</h2>
+								<p>Snatches of whatever your teacher’s been droning on about for the past hour, would weave in and out of your fantasies, to be interrupted when she hurls her chalk at you.<br>
+
+Hours made to stand outside the class and silly impositions would follow. 
+<br>
+
+Middle school was dumb. Your attention span hasn't really changed much here in college though, has it?
+<br>
+It’s only fair. Who wouldn’t be wrestling orcs at Amon Hen, or duelling the Dark Lord in the Battle of Hogwarts? Perhaps battle in the Lannisters’ army, in their fight to keep the Iron throne, all the while ignoring the lecturer as he tries to give you an actual future? Yeah, we thought so. 
+<br>
+Join us this Oasis ‘17, the 46th edition of BITS Pilani’s annual cultural festival from the 31st October to the 3rd November, with some of the biggest music acts such as Parikrama and Amit Trivedi, and public figures such as Salman Khurshid and Kiran Bedi all a part of its proud history. From games, to mouth watering food stalls and exhilarating concerts, we promise them all.
+<br>
+Join us, as we bring to life these Realms of Fiction, from Gotham and Winterfell to Avalon and Vice City. 
+<br>
+
+Oasis ‘17. Bigger than ever.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="info" data="sponsors">
+					<div class="cross"></div>
+					<div class="movable">
+						<div class="shapes">
+				<!-- 		<img src="Assets/Exports/octa3.png" class="o31 shape">
+						
+							<img src="Assets/Exports/octa3.png" class="o32 shape">
+						
+							<img src="Assets/Exports/octa4.png" class="o41 shape">
+						
+							<img src="Assets/Exports/octa1.png" class="o11 shape">
+						
+							<img src="Assets/Exports/octa2.png" class="o21 shape">
+
+							<img src="Assets/Exports/octa1.png" class="o12 shape"> -->
+
+					   <!-- <img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+							<img src="Assets/Exports/octa3.png" class="o33 shape">
+				-->			<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+							<div class="o33 shape"></div>
+						</div>	
+						<div class="main">
+							<div class="image-main"></div>
+							<div class="content">
+								<h2>SPONSORS</h2>
+								<p><a href="https://bits-oasis.org/sponsors">Click here to view previous sponsors</a></p>
+								<p><a href="./assets/Oasis17-Marketing-Brochure.pdf" target="_blank">Click here to view oasis brochure</a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="info" data="register">
+					<div class="cross"></div>
+					<div class="register_here" >
+			<div class="cont1">
+				<!--<div class="close">X</div>-->
+				<div class="cont1-1 animated fadeInDown"> Register </div>
+			</div>
+			<div class="cont2">
+				<form class="register-form animated fadeIn" id="form2" method="POST" onsubmit="return false;">
+             		 <div class="input-field">
+               			 <label>Name</label>
+               			 <input name="name" type="text" placeholder="Name" required="" />
+                     <div class="sub-info">(As to be printed on reward/certificate)</div>
+             		 </div>
+             		 <div class="input-field">
+               			 <label>Gender</label>
+               			 <div class="gender-wrap">
+               			 	<div class="radio-field">
+                 		 	<input name="gender" type="radio" value="M" />
+                 			 <label>Male</label>
+                 			 </div>
+                 			 <div class="radio-field">
+                  			<input name="gender" type="radio" value="F" />
+                  			<label>Female</label>
+                  			</div>	
+               			</div>
+             		 </div>
+             		 <div class="input-field">
+               			 <label>Email</label>
+
+               			 <input name="email" type="email" placeholder="abc@gmail.com" required="" />
+             		 </div>
+             		 <div class="input-field">
+               			 <label>Current City</label>
+               			 <input name="city" type="text" placeholder="City Name" required="" />
+              		</div>
+              		 <div class="input-field">
+               			 <label>College</label>
+               			 <input name="college" type="text" placeholder="College name" required="" id="college" />
+               			 
+                      <div class="sub-info">(Type only if not found in dropdown list)</div>
+              		</div>
+             		 <div class="input-field">
+             			<label>Phone</label>
+              			<input name="phone" type="text" placeholder="+91-" required="" min="1000000000" max="9999999999"/>
+              		</div>
+                   <div class="input-field">
+                     <label>Are you the head of any cultural society?</label>
+                     <div class="gender-wrap">
+                     	<div class="radio-field">
+                      <input name="cultural" type="radio" value="Y" />
+                       <label>Yes</label>
+                       </div>
+                       <div class="radio-field">
+                        <input name="cultural" type="radio" value="N" />
+                        <label>No</label>
+                        </div>
+                    </div>
+                 </div>
+            		 <div class="input-field">
+             		 	<label> Year of study</label>
+             		 	<select>
+             		 		<option value="1">1 </option>
+             		 		<option value="2">2 </option>
+             		 		<option value="3">3 </option>
+             		 		<option value="4">4 </option>
+             		 		<option value="5">5 </option>
+             		 		<option value="NA">NA </option>
+             		 	</select>
+             		 </div>
+              		
+             		 <div class="input-field">
+             		 	<label> Select events to register</label>
+             		 	<select id='events'>
+             		 		
+             		 	</select>
+             		 </div>
+
+              		<div class="button-field">
+               			 <button  class="register-pay submit animated fadeInUp" >
+               			 	<a href="javascript:void(0)"> APPLY </a> 
+               			 </button>
+             		 </div>
+            		 
+            </form>
+			</div>
+		</div>
+				</div>
+			</section>
+		</section>
+		</div>
+		<div class='dropdown'></div>
+		<script src="{% static 'registrations/assets/js/jquery.min.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/tweenmax.min.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/scroll.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/transition.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/pointer.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/navbar.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/move.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/timer.js' %}"></script>
+		<script src="{% static 'registrations/assets/js/fuzzy.js' %}"></script>
+    	<script src="{% static 'registrations/assets/js/register.js' %}"></script>
+    	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-102775261-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+    	
 	</body>
 </html>
+
