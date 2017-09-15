@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'preregistrations',
     'registrations',
     'events',
+    'regsoft',
 ]
 
 MIDDLEWARE = [

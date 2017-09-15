@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from ckeditor.fields import RichTextField
-
+from registrations.models import *
 
 class Category(models.Model):
 	
@@ -38,3 +38,12 @@ class Event(models.Model):
 
 		return self.name
 
+class Participation(models.Model):
+
+	event = models.ForeignKey(Event, on_delete=models.CASCADE)
+	g_leader = models.ForeignKey('registrations.GroupLeader', on_delete=models.CASCADE)
+	confirmed = models.BooleanField(default=False)
+
+	def __unicode__(self):
+
+		return str(self.event.name)+'-'+str(self.g_l.name)
