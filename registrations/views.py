@@ -66,6 +66,66 @@ def index(request):
 	
 	return render(request, 'registrations/index.html', {'college_list':college_list, 'event_list':event_list})
 
+def register(request):
+
+	if request.POST:
+			
+		name = request.POST['name']
+		gender = request.POST['gender']
+		if gender == "male":
+			gender = 'M'
+		elif gender == "female":
+			gender = 'F'
+		city = request.POST['city']
+		email_id = request.POST['email_id'].lower().strip()
+		college = request.POST['college']
+		if college == 'Others':
+
+			college = College()
+			college.name = request.POST['other_college']
+			college.is_displayed = False
+			college.save()
+
+		phone_no = int(request.POST['phone_no'])
+		events = request.POST.getlist('events')
+		
+		if len(events) == 0:
+			return JsonResponse({'status':1, 'message':'Register for atleast one event'})
+
+		if IntroReg.objects.get(email_id=email_id).exists():
+			return JsonResponse({'status':2,'message':'Email already registered.'})
+		
+		else:
+			participant = IntroReg()
+			participant.name = name
+			participant.gender = gender
+			participant.city = city
+			participant.email_id = email_id
+			participant.college = college
+			participant.phone_no = phone_no
+			participant.literacy = request.POST['literacy']
+			participant.dance = request.POST['dance']
+			participant.music = request.POST['music']
+			participant.theatre = request.POST['theatre']
+			participant.fashion_parade = request.POST['fashion_parade']
+			participant.find_out_about_oasis = request.POST['oasis_info']
+			participant.save()
+			for key in events:
+				event = Event.objects.get(id=int(key))
+				participant.events.add(event)
+			participant.save()
+
+			college_list = College.objects.all()
+			event_list = Event.objects.all()
+
+			data = {'status':0,'email':email, 'name':name, 'mobile_number':mobile_number, 'college_list':college_list, 'event_list':event_list}
+			return JsonResponse(data)
+
+	college_list = College.objects.all()
+	event_list = Event.objects.all()
+	
+	return render(request, 'registrations/index.html', {'college_list':college_list, 'event_list':event_list})
+
 
 @staff_member_required
 def event_list(request, event):

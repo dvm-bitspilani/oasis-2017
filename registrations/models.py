@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 from django.db import models
 from events.models import *
 from django.contrib.auth.models import User
+from datetime import datetime
 
 class College(models.Model):
 
 	name = models.CharField(max_length=200, unique=True)
-	is_displayed = models.BooleanField(default=True)
 	
 	def __unicode__(self):
 		return str(self.name)
@@ -38,77 +38,48 @@ class IntroReg(models.Model):
 	
 		return self.name + ' ' + self.college
 
-class GroupLeader(models.Model):
+def user_directory_path(instance, filename):
+    return 'user_{0}/{1}'.format(instance.user.id, filename)
 
-	GENDERS = (
-
-			('M', 'MALE'),
-			('F', 'FEMALE'),
-		)
-	
-	name = models.CharField(max_length=200)
-	college = models.ForeignKey(College, on_delete=None)
-	city = models.CharField(max_length=100)
-	state = models.CharField(max_length=50)
-	phone = models.BigIntegerField()
-	email = models.EmailField(unique=True)
-	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
-	gender = models.CharField(max_length=10, choices=GENDERS)
-	events = models.ManyToManyField(Event, through=Participation) #events.models
-	email_verified = models.BooleanField(default=False)
-	email_token = models.CharField(max_length=32, null=True, blank=True)
-	pcr_approved = models.BooleanField(default=False)
-	barcode = models.CharField(max_length=50, null=True)
-	
-	def __unicode__(self):
-
-		return self.name + ' ' + self.college
-
-	class Meta:
-
-		verbose_name_plural = 'Group Leaders'
-	
-class Captain(models.Model):
-
-	GENDERS = (
-
-			('M', 'MALE'),
-			('F', 'FEMALE'),
-	)
-
-	name = models.CharField(max_length=200)
-	email = models.EmailField()
-	phone = models.BigIntegerField(default=0)
-	event = models.ForeignKey(Event, on_delete=models.CASCADE, default=None)
-	g_leader = models.ForeignKey(GroupLeader, on_delete=models.CASCADE, default=None)
-	coach = models.CharField(max_length=200)
-	paid = models.BooleanField(default=False)
-	is_single = models.NullBooleanField()
-	total_players = models.IntegerField(default=1)
-	gender = models.CharField(max_length=10, choices=GENDERS)
-	barcode = models.CharField(max_length=50, null=True)
-	pcr_final = models.BooleanField(default=False)
-
-	def __unicode__(self):
-
-		return self.name + '-' + str(self.g_leader.college.name)
-
-	class Meta:
-
-		verbose_name_plural = 'Team Captains'
 
 class Participant(models.Model):
 
+	GENDERS = (
+		('M','Male'),
+		('F','Female'),
+		)
+
 	name = models.CharField(max_length=200)
-	is_captain = models.BooleanField(default=False)
-	captain = models.ForeignKey(Captain, on_delete=models.CASCADE)
-	email = models.EmailField()
+	barcode = models.CharField(max_length=50, null=True)
+	email = models.EmailField(unique=True)
+	# college = models.ForeignKey(College, on_delete=None)
+	city = models.CharField(max_length=100, null=True)
+	state = models.CharField(max_length=50)
+	phone = models.BigIntegerField()
+	gender = models.CharField(max_length=10, choices=GENDERS)
+	profile_pic = models.ImageField(upload_to=user_directory_path)
+	email_verified = models.BooleanField(default=False)
+	email_token = models.CharField(max_length=32, null=True, blank=True)
+	cr_approved = models.BooleanField(default=False)
+	is_cr = models.BooleanField(default=False)
+	pcr_approved = models.BooleanField(default=False)
 	firewallz_passed = models.BooleanField(default=False)
+	group = models.ForeignKey('Group', on_delete=None)
 	room = models.ForeignKey('regsoft.Room', null=True, blank=True)
 	controlz = models.BooleanField('controlz passed', default=False)
-	barcode = models.CharField(max_length=50, null=True)
-	bill = models.ForeignKey('regsoft.Bill' ,null=True, on_delete=None)
+	bill = models.OneToOneField('regsoft.Bill' ,null=True, on_delete=None)
 	recnacc_time = models.DateTimeField(null=True, auto_now=False)
+	is_g_leader = models.BooleanField(default=False)
+	events = models.ManyToManyField(Event, through=Participation)
 
 	def __unicode__(self):
-		return (self.name) + ' ' + str(self.captain.g_leader.college.name) + str(self.captain.event.name) 
+		return (self.name) + ' ' + str(self.captain.g_leader.college.name) + str(self.captain.event.name)
+
+class Group(models.Model):
+
+	amount_paid = models.IntegerField(default=0)
+	amount_deduct = models.IntegerField(default=0)
+	created_time = models.DateTimeField(auto_now=True)
+
+	def __unicode__(self):
+		return self.g_leader.name

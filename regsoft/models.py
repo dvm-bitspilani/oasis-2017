@@ -22,7 +22,6 @@ class Room(models.Model):
 
 class Bill(models.Model):
 
-	g_leader = models.ForeignKey('registrations.GroupLeader', on_delete=models.CASCADE, null=True)
 	amount = models.IntegerField()
 	time_paid = models.DateTimeField(auto_now=True)
 	two_thousands = models.IntegerField(null=True, blank=True, default=0)
