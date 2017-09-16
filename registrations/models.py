@@ -26,7 +26,6 @@ class IntroReg(models.Model):
 	phone_no = models.BigIntegerField()
 	email_id = models.EmailField(unique=True)
 	events = models.ManyToManyField(Event, blank=True)
-	#extra details
 	literary = models.BooleanField(default=False)
 	dance = models.BooleanField(default=False)
 	music = models.BooleanField(default=False)
@@ -52,7 +51,7 @@ class Participant(models.Model):
 	name = models.CharField(max_length=200)
 	barcode = models.CharField(max_length=50, null=True)
 	email = models.EmailField(unique=True)
-	# college = models.ForeignKey(College, on_delete=None)
+	college = models.ForeignKey(College, on_delete=None, null=True)
 	city = models.CharField(max_length=100, null=True)
 	state = models.CharField(max_length=50)
 	phone = models.BigIntegerField()

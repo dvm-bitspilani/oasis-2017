@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django import forms
 from .models import *
 
-gender = (
+genders = (
 
 			('M', 'MALE'),
 			('F', 'FEMALE'),
@@ -18,29 +18,10 @@ class UserForm(forms.ModelForm):
             'password': forms.PasswordInput(attrs={'placeholder':'Password'}), 
         }
 
-class GroupLeaderForm(forms.ModelForm):
+class ParticipantForm(forms.ModelForm):
 	
 	phone = forms.RegexField(regex=r'^\d{10}$')
 
 	class Meta:
-		model = GroupLeader
+		model = Participant
 		fields = ('email', 'city', 'name', 'college', 'state', 'phone', 'gender',)
-
-		widgets = {
-		'email':forms.TextInput(attrs={'placeholder':'Email',}),
-		'gender':forms.Select(choices = gender),
-		'name':forms.TextInput(attrs={'placeholder':'FullName'})
-		}
-
-class TeamCaptainForm(forms.ModelForm):
-	phone = forms.RegexField(regex=r'^\d{10}$')
-
-	class Meta:
-		model = Captain
-
-		fields = ('email', 'name', 'phone', 'gender')
-
-		widgets = {
-		'email':forms.TextInput(attrs={'placeholder':'Email'}),
-		'name':forms.TextInput(attrs={'placeholder':'FullName'})
-		}
