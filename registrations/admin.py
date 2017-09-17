@@ -7,3 +7,5 @@ from events.models import Event
 admin.site.register(College)
 admin.site.register(Participant)
 admin.site.register(IntroReg)
+admin.site.register(PaymentGroup)
+admin.site.register(Group)

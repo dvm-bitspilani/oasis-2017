@@ -12,7 +12,10 @@ from django.contrib.auth.decorators import login_required
 from instamojo_wrapper import Instamojo
 import re
 from preregistrations.instaconfig import *
-
+from django.contrib.auth.models import User
+import string
+from random import sample, choice
+chars = string.letters + string.digits
 
 def index(request):
 	if request.user.is_authenticated():
@@ -253,9 +256,84 @@ def cr_approve(request):
 			except:
 				return redirect(request.META.get('HTTP_REFERER'))
 			for part_id in parts_id:
-				participation = Participation.objects.get(id=part_id)
+				participation = Participation.objects.get(id=part_id, participant__college=participant.college)
 				participation.cr_approved = True
 				participation.save()
+				appr_participant = participation.participant
+				if appr_participant.user is not None:
+					user = appr_participant.user
+					if not user.is_active:
+						user.is_active = True
+						user.save()
+				else:
+					username = appr_participant.name.split(' ')[0] + str(appr_participant.id)
+					password = ''.join(choice(chars) for _ in xrange(8))
+					user = User.objects.create_user(username=username, password=password)
+					appr_participant.user = user
+					appr_participant.save()
+
+					send_to = appr_participant.email
+					name = appr_participant.name
+					body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+			<center><img src="http://bits-bosm.org/2016/static/docs/email_header.jpg"></center>
+			<pre style="font-family:Roboto,sans-serif">
+Hello %s!
+
+Thank you for registering!
+
+Greetings from BITS Pilani!
+
+It gives me immense pleasure in inviting your institute to the 32nd edition of BITS Open Sports Meet (BOSM), the annual national sports meet of Birla Institute of Technology & Science, Pilani, India. This year, BOSM will be held from September 21st to 25th.             
+
+ Applications close on 31st August 2017 at 1700 hrs.            
+
+Please apply as soon as possible to enable us to confirm your participation at the earliest.             
+
+We would be really happy to see your college represented at our sports festival.            
+
+We look forward to seeing you at BOSM 2017.
+
+Your login credentials are as follows:
+Username : %s
+Password : %s
+
+The credentials are randomly generated and hence possess no relation with any entity. Do not share them with anyone.
+P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT BOSM 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
+
+Regards,
+CoSSAcn (Head)
+Dept. of Publications & Correspondence, BOSM 2017
+BITS Pilani
++91-9929022741
+pcr@bits-bosm.org
+</pre>
+			'''%(name, username, password)
+					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+					from_email = Email('register@bits-oasis.org')
+					to_email = Email(send_to)
+					subject = "Registration for OASIS '17 REALMS OF FICTION"
+					content = Content('text/html', body)
+
+					try:
+						mail = Mail(from_email, subject, to_email, content)
+						response = sg.client.mail.send.post(request_body=mail.get())
+					except :
+						appr_participant.user = None
+						appr_participant.save()
+						user.delete()
+						context = {
+							'status': 0,
+							'error_heading': "Error sending mail",
+							'message': "Sorry! Error in sending email. Please try again.",
+						}
+						return render(request, 'registrations/message.html', context)
+
+			context = {
+				'error_heading': "Emails sent",
+				'message': "Login credentials have been mailed to the corresponding new participants.",
+			}
+			return render(request, 'registrations/message.html', context)
+
 
 		if 'disapprove' == data['action']:
 			try:
@@ -267,7 +345,10 @@ def cr_approve(request):
 				participation.cr_approved = False
 				participation.pcr_approved = False
 				participation.save()
-	
+				appr_participant = participation.participant
+				user = appr_participant.user
+				user.is_active = False
+				user.save()
 	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
 
 @login_required
@@ -337,7 +418,53 @@ def cr_payment(request):
 			'message': "Sorry! You are not an approved college representative.",
 			}
 			return render(request, 'registrations/message.html', context)
-		#	part_list = 
+		data = request.POST
+		part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
+		group = PaymentGroup()
+		group.amount_paid = 950*len(part_list)
+		group.save()
+		for part in part_list:
+			part.payment_group = group
+			part.save()
+		name = participant.name
+		email = participant.email
+		phone = participant.phone
+		purpose = 'Payment ' + str(group.id)
+		response = api.payment_request_create(buyer_name= name,
+						email= email,
+						phone= number,
+						amount = group.amount_paid,
+						purpose=purpose,
+						redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
+						)
+	# print  email	, response['payment_request']['longurl']			
+	try:
+		url = response['payment_request']['longurl']
+		return HttpResponseRedirect(url)
+	except:
+		group.delete()
+		context = {
+			'error_heading': "Payment error",
+			'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+			}
+		return render(request, 'registrations/message.html')
+
+
+@login_required
+def upload_docs(request):
+	participant = Participant.object.get(user=request.user)
+	if request.method == 'POST':
+		form = UploadForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+		else:
+			context = {
+			'status': 0,
+			'error_heading': "Error",
+			'message': "Sorry! Some errors were encountered. Please try again.",
+			}
+			return render(request, 'registrations/message.html', context)
+	return render(request, 'registrations/upload_form.html', {'participant':participant})
 
 def apirequest(request):
 	import requests
@@ -352,10 +479,18 @@ def apirequest(request):
 	if (json_ob['success']):
 		payment_request = json_ob['payment_request']
 		purpose = payment_request['purpose']
-		email = payment_request['email']
-		participant = Participant.objects.get(email=email)
-		participant.paid = True
-		participant.save()
+		try:
+			group_id = int(purpose.split(' ')[1])
+			payment_group = PaymentGroup.objects.get(id=group_id)
+			for part in payment_group.participant_set.all():
+				part.paid = True
+				part.save()
+
+		except:		
+			email = payment_request['email']
+			participant = Participant.objects.get(email=email)
+			participant.paid = True
+			participant.save()
 		message = "Payment successful"
 		return render(request, 'registrations/message.html', )
 	

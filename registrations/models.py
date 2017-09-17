@@ -40,6 +40,10 @@ class IntroReg(models.Model):
 def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
+class PaymentGroup(models.Model):
+
+	amount_paid = models.IntegerField(default=0)
+	created_time = models.DateTimeField(auto_now=True)
 
 class Participant(models.Model):
 
@@ -58,6 +62,7 @@ class Participant(models.Model):
 	gender = models.CharField(max_length=10, choices=GENDERS)
 	year_of_study = models.CharField(max_length=3, null=True)
 	head_of_society = models.BooleanField(default=False)
+	user = models.OneToOneField(User, null=True, on_delete=None)
 	profile_pic = models.ImageField(upload_to=user_directory_path, null=True)
 	verify_docs = models.FileField(upload_to=user_directory_path, null=True, default=None)
 	email_verified = models.BooleanField(default=False)
@@ -65,6 +70,7 @@ class Participant(models.Model):
 	is_cr = models.BooleanField(default=False)
 	pcr_approved = models.BooleanField(default=False)
 	paid = models.BooleanField(default=False)
+	payment_group = models.ForeignKey(PaymentGroup, on_delete=None, null=True)
 	pcr_final = models.BooleanField(default=False)
 	firewallz_passed = models.BooleanField(default=False)
 	group = models.ForeignKey('Group', on_delete=None)
@@ -80,7 +86,6 @@ class Participant(models.Model):
 
 class Group(models.Model):
 
-	amount_paid = models.IntegerField(default=0)
 	amount_deduct = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
 
