@@ -62,6 +62,8 @@ class Participant(models.Model):
 	cr_approved = models.BooleanField(default=False)
 	is_cr = models.BooleanField(default=False)
 	pcr_approved = models.BooleanField(default=False)
+	paid = models.BooleanField(default=False)
+	pcr_final = models.BooleanField(default=False)
 	firewallz_passed = models.BooleanField(default=False)
 	group = models.ForeignKey('Group', on_delete=None)
 	room = models.ForeignKey('regsoft.Room', null=True, blank=True)

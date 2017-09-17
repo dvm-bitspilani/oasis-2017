@@ -1,87 +1,113 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import JsonResponse
 from models import *
 from events.models import *
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from .forms import *
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
+from django.contrib.auth.decorators import login_required
 
 def index(request):
+	if request.user.is_authenticated():
+		user = request.user
+		participant = Participant.objects.get(user=user)
+		return render(request, 'registrations/profile.html', {'participant':participant,})
+	else:
+		if request.method == 'POST':
+			username = request.POST['username']
+			password = request.POST['password']
+			user = authenticate(username=username, password=password)
+			if user is not None:
+				if user.is_active:
+					login(request, user)
+					
+					return HttpResponseRedirect(reverse('registrations:index'))
+				else:
+					context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .'}
+					return JsonResponse({'status':0, 'context':context})
+			else:
+				context = {'error_heading' : "Invalid Login Credentials", 'message' :  'Invalid Login Credentials. Please try again'}
+				return JsonResponse({'status':0, 'context':context})
 
-	if request.POST:
-		
-		name = request.POST['name']
-		gender = request.POST['gender']
-		if gender == "male":
-			gender = 'M'
-		elif gender == "female":
-			gender = 'F'
-		city = request.POST['city']
-		email_id = request.POST['email_id'].lower().strip()
-		college = request.POST['college']
-		if college == 'Others':
-
-			college = College()
-			college.name = request.POST['other_college']
-			college.is_displayed = False
-			college.save()
-
-		phone_no = int(request.POST['phone_no'])
-		events = request.POST.getlist('events')
-		
-		if len(events) == 0:
-			return JsonResponse({'status':1, 'message':'Register for atleast one event'})
-
-		if IntroReg.objects.get(email_id=email_id).exists():
-			return JsonResponse({'status':2,'message':'Email already registered.'})
-		
 		else:
-			participant = IntroReg()
-			participant.name = name
-			participant.gender = gender
-			participant.city = city
-			participant.email_id = email_id
-			participant.college = college
-			participant.phone_no = phone_no
-			participant.literacy = request.POST['literacy']
-			participant.dance = request.POST['dance']
-			participant.music = request.POST['music']
-			participant.theatre = request.POST['theatre']
-			participant.fashion_parade = request.POST['fashion_parade']
-			participant.find_out_about_oasis = request.POST['oasis_info']
-			participant.save()
-			for key in events:
-				event = Event.objects.get(id=int(key))
-				participant.events.add(event)
-			participant.save()
+			return render(request, 'registrations/login.html')
 
-			college_list = College.objects.all()
-			event_list = Event.objects.all()
+# def prereg(request):
 
-			data = {'status':0,'email':email, 'name':name, 'mobile_number':mobile_number, 'college_list':college_list, 'event_list':event_list}
-			return JsonResponse(data)
+# 	if request.POST:
+		
+# 		name = request.POST['name']
+# 		gender = request.POST['gender']
+# 		if gender == "male":
+# 			gender = 'M'
+# 		elif gender == "female":
+# 			gender = 'F'
+# 		city = request.POST['city']
+# 		email_id = request.POST['email_id'].lower().strip()
+# 		college = request.POST['college']
+# 		if college == 'Others':
 
-	college_list = College.objects.all()
-	event_list = Event.objects.all()
+# 			college = College()
+# 			college.name = request.POST['other_college']
+# 			college.is_displayed = False
+# 			college.save()
+
+# 		phone_no = int(request.POST['phone_no'])
+# 		events = request.POST.getlist('events')
+		
+# 		if len(events) == 0:
+# 			return JsonResponse({'status':1, 'message':'Register for atleast one event'})
+
+# 		if IntroReg.objects.get(email_id=email_id).exists():
+# 			return JsonResponse({'status':2,'message':'Email already registered.'})
+		
+# 		else:
+# 			participant = IntroReg()
+# 			participant.name = name
+# 			participant.gender = gender
+# 			participant.city = city
+# 			participant.email_id = email_id
+# 			participant.college = college
+# 			participant.phone_no = phone_no
+# 			participant.literacy = request.POST['literacy']
+# 			participant.dance = request.POST['dance']
+# 			participant.music = request.POST['music']
+# 			participant.theatre = request.POST['theatre']
+# 			participant.fashion_parade = request.POST['fashion_parade']
+# 			participant.find_out_about_oasis = request.POST['oasis_info']
+# 			participant.save()
+# 			for key in events:
+# 				event = Event.objects.get(id=int(key))
+# 				participant.events.add(event)
+# 			participant.save()
+
+# 			college_list = College.objects.all()
+# 			event_list = Event.objects.all()
+
+# 			data = {'status':0,'email':email, 'name':name, 'mobile_number':mobile_number, 'college_list':college_list, 'event_list':event_list}
+# 			return JsonResponse(data)
+
+# 	college_list = College.objects.all()
+# 	event_list = Event.objects.all()
 	
-	return render(request, 'registrations/index.html', {'college_list':college_list, 'event_list':event_list})
+# 	return render(request, 'registrations/index.html', {'college_list':college_list, 'event_list':event_list})
 
 def register(request):
 
 	if request.method == 'POST':
 
-		uform = UserForm(data=request.POST)
-		pform = GroupLeaderForm(data=request.POST)
-
-		if uform.is_valid() and pform.is_valid():
-
-			user = uform.save()
-			user.set_password(user.password)
-			user.is_active = False
-			user.save()
-			g_l_profile = pform.save(commit=False)
-			g_l_profile.user = user
-			g_l_profile.save()
+		pform = ParticipantForm(data=request.POST)
+		data = request.POST
+		try:
+			Participant.objects.get(email=data['email'])
+			return JsonResponse({'status':0, 'message':'Email already registered.'})
+		except:
+			pass
+		if pform.is_valid():
+			participant = pform.save()
 
 			send_to = request.POST["email"]
 			name = request.POST["name"]
@@ -115,71 +141,190 @@ BITS Pilani
 +91-9929022741
 pcr@bits-bosm.org
 </pre>
-			'''%(name, str(request.build_absolute_uri(reverse("registrations:index"))) + 'email_confirm/' + generate_email_token(GroupLeader.objects.get(email=send_to)) + '/')
+			'''%(name, str(request.build_absolute_uri(reverse("registrations:index"))) + 'email_confirm/' + generate_email_token(Participant.objects.get(email=send_to)) + '/')
 
 			# email = EmailMultiAlternatives("Registration for BOSM '17", 'Click '+ str(request.build_absolute_uri(reverse("registrations:email_confirm", kwargs={'token':generate_email_token(GroupLeader.objects.get(email=send_to))})))  + '/' + ' to confirm.', 
 			# 								'register@bits-bosm.org', [send_to.strip()]
 			# 								)
 			# email.attach_alternative(body, "text/html")
 			sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-			from_email = Email('register@bits-bosm.org')
+			from_email = Email('register@bits-oasis.org')
 			to_email = Email(send_to)
-			subject = "Registration for BOSM '17"
+			subject = "Registration for OASIS '17 REALMS OF FICTION"
 			content = Content('text/html', body)
 
 			try:
 				mail = Mail(from_email, subject, to_email, content)
 				response = sg.client.mail.send.post(request_body=mail.get())
 			except :
-				return render(request, 'registrations/message.html', {'message':"Mail not sent. Please try again"})
-				user.delete()
-
+				participant.delete()
+				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
 
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
-			return render(request, 'registrations/message.html', {'message':message})
+			return JsonResponse({'status':1, 'message':message})
 
 		else:
 
 			message = str(uform.errors) + str(pform.errors)
-			return render(request, 'registrations/message.html', {'message':message, 'url':request.META.get('HTTP_REFERER')})				
+			return JsonResponse({'status':0, 'message':message})				
 
 	else:
 
-		uform = UserForm()
-		pform = GroupLeaderForm()
-
-		return render(request, 'registrations/signup.html', {'uform':uform, 'pform':pform})	
+		return render(request, 'registrations/signup.html')	
 
 
 ############# Helper functions for Django Email ##########
 
-def generate_email_token(gleader):
+def generate_email_token(participant):
 
 	import uuid
 	token = uuid.uuid4().hex
-	registered_tokens = [profile.email_token for profile in GroupLeader.objects.all()]
+	registered_tokens = [profile.email_token for profile in Participant.objects.all()]
 
 	while token in registered_tokens:
 		token = uuid.uuid4().hex
 
-	gleader.email_token = token
-	gleader.save()
+	participant.email_token = token
+	participant.save()
 	
 	return token
 
 def authenticate_email_token(token):
 
 	try:
-		gleader = GroupLeader.objects.get(email_token=token)
-		gleader.email_verified = True
-		gleader.email_token = None
-		gleader.save()
-
-		return gleader
+		participant = Participant.objects.get(email_token=token)
+		participant.email_verified = True
+		participant.save()
+		return participant
 
 	except :
-
 		return False
+
+################################# End of helper functions ###############################
+
+def email_confirm(request):
+	member = authenticate_email_token(token)
+	
+	if member:
+		context = {
+			'error_heading': 1,
+			'message': 'Your email has been verified. Please wait for further correspondence from the Department of PCr, BITS, Pilani',
+		}
+	else:
+		context = {
+			'status': 0,
+			'error_heading': "Invalid Token",
+			'message': "Sorry! This is an invalid token. Email couldn't be verified. Please try again.",
+		}
+	return render(request, 'registrations/message.html', context)
+
+@login_required
+def cr_approve(request):
+	user = request.user
+	participant = Participant.object.get(user=user)
+	if not participant.is_cr:
+		context = {
+		'status': 0,
+		'error_heading': "Invalid Access",
+		'message': "Sorry! You are not an approved college representative.",
+		}
+		return render(request, 'registrations/message.html', context)
+	approved_list = Participant.objects.filter(college=participant.college, pcr_approved=True)
+	disapproved_list = Participant.objects.filter(college=participant.college, pcr_approved=False)
+	if request.method == 'POST':
+		data = request.POST
+		if 'approve' == data['action']:
+			try:
+				parts_id = data.getlist('parts_id')
+			except:
+				return redirect(request.META.get('HTTP_REFERER'))
+			for part_id in parts_id:
+				part = Participant.objects.get(id=part_id)
+				part.cr_approved = True
+				part.save()
+
+		if 'disapprove' == data['action']:
+			try:
+				parts_id = data.getlist('parts_id')
+			except:
+				return redirect(request.META.get('HTTP_REFERER'))
+			for part_id in parts_id:
+				part = Participant.objects.get(id=part_id)
+				part.cr_approved = False
+				part.pcr_approved = False
+				part.save()
+	
+	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
+
+@login_required
+def participant_payment(request, p_id):
+	participant = get_object_or_404(Participant, id=p_id)
+	name = participant.name
+	email = participant.email
+	phone = participant.phone
+	purpose = 'Payment for OASIS \'17'
+	response = api.payment_request_create(buyer_name= name,
+						email= email,
+						phone= number,
+						amount = 950,
+						purpose=purpose,
+						redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
+						)
+	# print  email	, response['payment_request']['longurl']			
+	try:
+		url = response['payment_request']['longurl']
+		return HttpResponseRedirect(url)
+	except:
+		context = {
+			'error_heading': "Payment error",
+			'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+			}
+		return render(request, 'registrations/message.html')
+
+@login_required
+def cr_payment(request):
+	if request.method == 'POST':
+		user = request.user
+		participant = Participant.object.get(user=user)
+		if not participant.is_cr:
+			context = {
+			'status': 0,
+			'error_heading': "Invalid Access",
+			'message': "Sorry! You are not an approved college representative.",
+			}
+			return render(request, 'registrations/message.html', context)
+		#	part_list = 
+
+def apirequest(request):
+	import requests
+	payid=str(request.GET['payment_request_id'])
+	headers = {'X-Api-Key': API_KEY,
+    	       'X-Auth-Token': AUTH_TOKEN}
+	
+   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),
+              	 headers=headers)
+	#r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development
+	json_ob = r.json()
+	if (json_ob['success']):
+		payment_request = json_ob['payment_request']
+		purpose = payment_request['purpose']
+		email = payment_request['email']
+		participant = Participant.objects.get(email=email)
+		participant.paid = True
+		participant.save()
+		message = "Payment successful"
+		return render(request, 'registrations/message.html', )
+	
+	else:
+
+		payment_request = json_ob['payment_request']
+		purpose = payment_request['purpose']
+		email = payment_request['email']
+		context = {
+			'error_heading': "Payment error",
+			'message': "An error was encountered while processing the payment. Please contact PCr, BITS, Pilani.",
+			}
+		return render(request, 'registrations/message.html')
 
 @staff_member_required
 def event_list(request, event):
@@ -304,8 +449,3 @@ def deepgetattr(obj, attr, default = None):
             else:
                 raise
     return obj
-
-def register(request):
-	college_list_json = serializers.serialize("json", College.objects.all())
-	event_list_json = serializers.serialize("json", Event.objects.all())
-	return JsonResponse({'college_list':college_list_json, 'event_list':event_list_json})
