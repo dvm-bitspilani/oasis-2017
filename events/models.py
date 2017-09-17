@@ -40,7 +40,8 @@ class Participation(models.Model):
 
 	event = models.ForeignKey(Event, on_delete=models.CASCADE)
 	participant = models.ForeignKey('registrations.Participant', on_delete=models.CASCADE, null=True)
-	confirmed = models.BooleanField(default=False)
+	pcr_approved = models.BooleanField(default=False)
+	cr_approved = models.BooleanField(default=False)
 
 	def __unicode__(self):	
 		return str(self.event.name)+'-'+str(self.participant.name)

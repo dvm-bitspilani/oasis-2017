@@ -9,6 +9,10 @@ import sendgrid
 import os
 from sendgrid.helpers.mail import *
 from django.contrib.auth.decorators import login_required
+from instamojo_wrapper import Instamojo
+import re
+from preregistrations.instaconfig import *
+
 
 def index(request):
 	if request.user.is_authenticated():
@@ -99,15 +103,30 @@ def register(request):
 
 	if request.method == 'POST':
 
-		pform = ParticipantForm(data=request.POST)
 		data = request.POST
 		try:
 			Participant.objects.get(email=data['email'])
 			return JsonResponse({'status':0, 'message':'Email already registered.'})
 		except:
 			pass
-		if pform.is_valid():
-			participant = pform.save()
+		if len(data['events']) == 0:
+			return JsonResponse({'status':0, 'message':'Select atleast one event'})
+		else:
+			participant = Participant()
+			participant.name = data['name']
+			participant.gender = data['gender']
+			participant.city = data['city']
+			participant.email = data['email']
+			participant.college = College.objects.get(name=data['college'])
+			participant.phone = data['phone']
+			participant.head_of_society = data['head_of_society']
+			participant.year_of_study = data['year_of_study']
+			participant.save()
+			for key in events:
+				event = Event.objects.get(id=int(key))
+				Participation.objects.create(event=event, participant=participant)
+			participant.save()
+
 
 			send_to = request.POST["email"]
 			name = request.POST["name"]
@@ -162,12 +181,7 @@ pcr@bits-bosm.org
 
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
 			return JsonResponse({'status':1, 'message':message})
-
-		else:
-
-			message = str(uform.errors) + str(pform.errors)
-			return JsonResponse({'status':0, 'message':message})				
-
+				
 	else:
 
 		return render(request, 'registrations/signup.html')	
@@ -229,8 +243,8 @@ def cr_approve(request):
 		'message': "Sorry! You are not an approved college representative.",
 		}
 		return render(request, 'registrations/message.html', context)
-	approved_list = Participant.objects.filter(college=participant.college, pcr_approved=True)
-	disapproved_list = Participant.objects.filter(college=participant.college, pcr_approved=False)
+	approved_list = Participation.objects.filter(participant__college=participant.college, cr_approved=True)
+	disapproved_list = Participation.objects.filter(participant__college=participant.college, cr_approved=False)
 	if request.method == 'POST':
 		data = request.POST
 		if 'approve' == data['action']:
@@ -239,9 +253,9 @@ def cr_approve(request):
 			except:
 				return redirect(request.META.get('HTTP_REFERER'))
 			for part_id in parts_id:
-				part = Participant.objects.get(id=part_id)
-				part.cr_approved = True
-				part.save()
+				participation = Participation.objects.get(id=part_id)
+				participation.cr_approved = True
+				participation.save()
 
 		if 'disapprove' == data['action']:
 			try:
@@ -249,10 +263,10 @@ def cr_approve(request):
 			except:
 				return redirect(request.META.get('HTTP_REFERER'))
 			for part_id in parts_id:
-				part = Participant.objects.get(id=part_id)
-				part.cr_approved = False
-				part.pcr_approved = False
-				part.save()
+				participation = Participation.objects.get(id=part_id)
+				participation.cr_approved = False
+				participation.pcr_approved = False
+				participation.save()
 	
 	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
 
@@ -280,6 +294,36 @@ def participant_payment(request, p_id):
 			'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
 			}
 		return render(request, 'registrations/message.html')
+
+@login_required
+def manage_events(request):
+	participant = Participant.objects.get(user=request.user)
+	if request.method == 'POST':
+		data = request.POST
+		if 'add' == data['action']:
+			try:
+				events_id = data.getlist('events_id')
+			except:
+				return redirect(request.META.get('HTTP_REFERER'))
+			for event_id in events_id:
+				event = Event.objects.get(id=event_id)
+				Participation.objects.create(participant=participant, event=event)
+
+		if 'remove' == data['action']:
+			try:
+				events_id = data.getlist('events_id')
+			except:
+				return redirect(request.META.get('HTTP_REFERER'))
+			for event_id in events_id:
+				try:
+					event = Event.objects.get(id=event_id)
+					participation = Participation.objects.get(participant=participant, event=event)
+					participation.delete()
+				except:
+					pass
+	added_list = [participation.event for participation in Participation.objects.filter(participant=participant)]
+	not_added_list = [event for event in Event.objects.all() if event not in added_list]
+	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list}) 
 
 @login_required
 def cr_payment(request):
