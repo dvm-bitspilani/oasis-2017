@@ -7,6 +7,7 @@ from django.conf import settings
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^mirage/',include("preregistrations.urls")),
+    url(r'^api/',include("api.urls")),
     url(r'^registrations/', include("registrations.urls")),
 ]
 
