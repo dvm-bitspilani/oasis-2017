@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-				url(r'^$', views.index, name="index"),
+				url(r'^$', views.prereg, name="prereg"),
 				url(r'^getlist/event/(?P<event>[\w\-]+)$', views.event_list, name="Event Excel Sheet"),
 				url(r'^getlist/college/(?P<pk>[0-9]+)/$', views.college_list, name="College Excel Sheet"),
 				url(r'^register/$', views.register, name="register"),
