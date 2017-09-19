@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^mirage/',include("preregistrations.urls")),
     url(r'^api/',include("api.urls")),
     url(r'^registrations/', include("registrations.urls")),
+    url(r'^pcradmin/', include("pcradmin.urls")),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

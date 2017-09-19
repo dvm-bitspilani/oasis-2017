@@ -1,0 +1,184 @@
+{% extends 'regsoft/base.html' %}
+
+{% block body %}
+
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            {% if cr %}
+
+
+                    
+
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                College Representative
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Verfied</th>
+                                        <th>Verify Profile</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody>
+                                
+                                    <tr>
+                                        <td>cr.name</td>
+                                        <td>cr.phone</td>
+                                        <td>cr.email</td>
+                                        <td>cr.gender</td>
+                                        <td>cr.pcr_approved</td>
+                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <form>
+                                        {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Remove</button>
+                                        }
+                                        </form>
+                                    </tr>
+                                </tbody>
+
+                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+                    <div class="card">
+                        <div class="header">
+                            <h2>
+                                Participants for {{college}}
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Verfied</th>
+                                        <th>Verify Profile</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Verfied</th>
+                                        <th>Verify Profile</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for part in parts %}
+                                    <tr>
+                                        {% for i in part.data %}
+                                        <td>{{i}}</td>
+                                        {% endfor %}
+                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
+                                    </tr>
+                                {% endfor %}
+                                            
+                                </tbody>
+
+                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            {% else %}
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <div class="card">
+                        <div class="header">
+                            <h2>
+                                Choose a Participant as College Representative for {{college.name}}
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Verfied</th>
+                                        <th>Verify Profile</th>
+                                        <th>Select</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Verfied</th>
+                                        <th>Verify Profile</th>
+                                        <th>Select</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for part in parts %}
+                                    <tr>
+                                        {% for i in part.data %}
+                                        <td>{{i}}</td>
+                                        {% endfor %}
+                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
+                                        <td>
+                                            <input name="data" type="radio" id="{{part.id}}" value="{{part.id}}"/>
+                                            <label for="{{part.id}}"></label>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Submit</button>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+
+                   
+                    </table>
+        </div>
+    </div>
+</div>
+
+            </form>
+            
+
+            {% endif %}
+
+</div>
+</div>
+
+{% endblock %}

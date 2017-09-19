@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'registrations',
     'events',
     'regsoft',
+    'pcradmin',
 ]
 
 MIDDLEWARE = [
