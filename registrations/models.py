@@ -64,7 +64,7 @@ class Participant(models.Model):
 	head_of_society = models.BooleanField(default=False)
 	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 	profile_pic = models.ImageField(upload_to=user_directory_path, null=True)
-	verify_docs = models.FileField(upload_to=user_directory_path, null=True, default=None)
+	verify_docs = models.ImageField(upload_to=user_directory_path, null=True, default=None)
 	email_verified = models.BooleanField(default=False)
 	email_token = models.CharField(max_length=32, null=True, blank=True)
 	is_cr = models.BooleanField(default=False)
