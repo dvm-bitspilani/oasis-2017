@@ -260,7 +260,7 @@ pcr@bits-bosm.org
 				return Response({'message':'Error encountered! Please try again.'})
 	return Response({'message':'Login credentials sent to the respective participants.'})
 
-@api_view(['GET', ])
+@api_view(['POST', ])
 @permission_classes((IsAuthenticated, ))
 def cr_disapprove(request):
 	participant = Participant.objects.get(user=request.user)
@@ -275,8 +275,12 @@ def cr_disapprove(request):
 		participation = Participation.objects.get(id=p_id, participant__college=participant.college)
 		participation.cr_approved = False
 		participation.save()
-		appr_participant = participation.participant
-		user = appr_participant.user
-		user.is_active = False
-		user.save()
-	return Response({'message':'Accounts disabled.'})
+	return Response({'message':'Successfully disapproved.'})
+
+@api_view(['GET', ])
+@permission_classes((IsAuthenticated,))
+def get_profile(request):
+	participant = Participant.objects.get(user=request.user)
+	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
+	participant_serializer = ParticipantSerializer(participant, context={'request':request})
+	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
