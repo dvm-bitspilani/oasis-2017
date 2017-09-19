@@ -87,7 +87,6 @@ BITS Pilani
 				return render(request, 'pcradmin/message.html', {'message':'Email not sent'})
 
 
-
 		# return redirect('pcradmin:college_rep')
 	college = get_object_or_404(College, id=id)
 	participants = college.participants.all()
@@ -105,8 +104,19 @@ def verify_profile(request, part_id):
 	part = Participant.objects.get(id=part_id)
 
 	if request.method=='POST':
-		part.pcr_approved = True
+		data = dict(request.POST)['data']
+		if not data:
+			return redirect(request.META.get('HTTP_REFERER'))
+
+		if request.POST['submit'] == 'confirm':
+			Participation.objects.filter(id__in=data, cr_approved=True).update(pcr_approved=True)
+			part.pcr_approved = True
+		else:
+			Participation.objects.filter(id__in=data, cr_approved=True).update(pcr_approved=False)
+			if all([p.pcr_approved for p in Participation.objects.filter(participant=part)]):
+				part.pcr_approved=False
 		part.save()
+
 		return redirect(reverse('select_college_rep', kwargs={'id':part.college.id}))
 	try:
 		profile_url = part.profile_pic.url
@@ -114,8 +124,53 @@ def verify_profile(request, part_id):
 	except:
 		message = 'Profile not complete yet.'
 		return render(request, 'pcradmin/meesage.html', {'message':message})
+	participations = Participant.participation_set.all()
+	events_confirmed = [{'event':p.event, 'id':p.id} for p in participations.filter(pcr_approved=True)]
+	events_unconfirmed = [{'event':p.event, 'id':p.id} for p in participations.filter(pcr_approved=False)]
+	return render(request, 'pcradmin/verify_profile.html',
+	{'profile_url':profile_url, 'docs_url':docs_url, 'part':part, 'confirmed':events_confirmed, 'unconfirmed':events_unconfirmed})
 
-	return render(request, 'pcradmin/verify_profile.html', {'profile_url':profile_url, 'docs_url':docs_url})
+
+@staff_member_required
+def stats(request):
+	if order=='collegewise':
+		rows = []
+		for college in College.objects.all():
+			parts = college.participant_set.all()
+			try:
+				parts.filter(is_cr=True)[0]
+				cr = True
+			except:
+				cr = False
+
+			x1 = parts.count()
+			if x1==0:
+				rows.append({'data':[college.name, cr, '- - - -'], 'link':[]})
+				continue
+			x2=x3=x4=0
+			for part in parts:
+				if Participation.objects.get(participant=part).cr_confirmed:
+					x2+=1
+				if Participation.objects.get(participant=part).pcr_confirmed:
+					x3+=1
+				if part.paid:
+					x4+=1
+			data = str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
+			rows.append({'data':[college.name, cr, data], 'link':[]})
+		headings = ['College', 'CR Selected', 'Stats']
+		title = 'CollegeWise Participants list'
+		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+	if order == 'eventwise':
+		rows = []
+		for event in Event.objects.all():
+			participations = Participation.objects.filter(event=event)
+			parts = [p.participant for p in participations]
+			x1 = parts.count()
+			if x1==0:
+				rows.append({'data':[event.name, event.categoryentry['cr'], '- - - -'], 'link':[]})
+				continue
+			x2=x3=x4=0
+
 
 def user_logout(request):
 	logout(user)
@@ -123,3 +178,4 @@ def user_logout(request):
 
 def contacts(request):
 	return render(requsest, 'pcradmin/contacts.html')
+

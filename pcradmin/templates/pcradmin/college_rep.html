@@ -6,10 +6,6 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
             {% if cr %}
-
-
-                    
-
                     <div class="card">
 
                         <div class="header">
@@ -34,11 +30,11 @@
                                 <tbody>
                                 
                                     <tr>
-                                        <td>cr.name</td>
-                                        <td>cr.phone</td>
-                                        <td>cr.email</td>
-                                        <td>cr.gender</td>
-                                        <td>cr.pcr_approved</td>
+                                        <td>{{cr.name}}</td>
+                                        <td>{{cr.phone}}</td>
+                                        <td>{{cr.email}}</td>
+                                        <td>{{cr.gender}}</td>
+                                        <td>{{cr.pcr_approved}}</td>
                                         <td><a href="{{part.verify}}">Verify Profile</a></td>
                                     </tr>
                                     <tr>
@@ -47,8 +43,7 @@
                                         <td></td>
                                         <form>
                                         {% csrf_token %}
-                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Remove</button>
-                                        }
+                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="delete">Remove</button>
                                         </form>
                                     </tr>
                                 </tbody>

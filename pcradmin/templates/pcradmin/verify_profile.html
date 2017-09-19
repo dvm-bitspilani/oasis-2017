@@ -1,0 +1,140 @@
+{% extends 'pcradmin/base.html' %}
+{% load static %}
+{% block body %}
+<h2>{{part.name}}'s profile</h2>
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Profile Pic</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            <img src="{{ profile_url }}" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Bonafide/College Id</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            <img src="{{ docs_url }}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+        		{% if unconfirmed %}
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                Unconfirmed Participations
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                    <tr>
+                                        <th>Event</th>
+										<th>Select</th>
+                                    </tr>
+                                </thead>
+                                <form action="" method="post">
+                                {% csrf_token %}
+                                <tbody>
+                                	{% for i in unconfirmed %}
+                                    <tr>
+                                        <td>{{i.event}}</td>
+                                        <td>
+	                                        <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+	                                		<label for="{{i.id}}">Select</label>
+                                		</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                       <td></td>
+                                            <td><button type="submit" class="btn btn-primary m-t-15 waves-effect" value="confirm">Confirm</button>
+                                            </td>
+                                    </tr>
+                                </tbody>
+                                </form>
+                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+
+                {% if confirmed %}
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                Confirmed Participations
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                    <tr>
+                                        <th>Event</th>
+										<th>Select</th>
+                                    </tr>
+                                </thead>
+                                <form action="" method="post">
+                                {% csrf_token %}
+                                <tbody>
+                                	{% for i in confirmed %}
+                                    <tr>
+                                        <td>{{i.event}}</td>
+                                        <td>
+	                                        <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+	                                		<label for="{{i.id}}">Select</label>
+                                		</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td></td>
+                                       <td></td>
+                                            <td><button type="submit" class="btn btn-primary m-t-15 waves-effect" value="unconfirm">Unconfirm</button>
+                                            </td>
+                                    </tr>
+                                </tbody>
+                                </form>
+                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+        </div>
+	</div>
+
+
+
+{% endblock %}
