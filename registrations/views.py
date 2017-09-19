@@ -341,14 +341,10 @@ pcr@bits-bosm.org
 			except:
 				return redirect(request.META.get('HTTP_REFERER'))
 			for part_id in parts_id:
-				participation = Participation.objects.get(id=part_id)
+				participation = Participation.objects.get(id=part_id, participant__college=participant.college)
 				participation.cr_approved = False
 				participation.pcr_approved = False
 				participation.save()
-				appr_participant = participation.participant
-				user = appr_participant.user
-				user.is_active = False
-				user.save()
 	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
 
 @login_required
