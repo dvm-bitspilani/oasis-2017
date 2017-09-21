@@ -66,11 +66,11 @@ Please apply as soon as possible to enable us to confirm your participation at t
 
 We would be really happy to see your college represented at our sports festival.            
 
-We look forward to seeing you at BOSM 2016.
+We look forward to seeing you at OASIS 2017.
 
 <a href='%s'>Click Here</a> to verify your email.
 
-P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT BOSM 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
+P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT OASIS 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
 
 Regards,
 CoSSAcn (Head)

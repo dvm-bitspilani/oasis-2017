@@ -446,17 +446,20 @@ def cr_payment(request):
 						redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
 						)
 	# print  email	, response['payment_request']['longurl']			
-	try:
-		url = response['payment_request']['longurl']
-		return HttpResponseRedirect(url)
-	except:
-		group.delete()
-		context = {
-			'error_heading': "Payment error",
-			'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
-			}
-		return render(request, 'registrations/message.html')
+		try:
+			url = response['payment_request']['longurl']
+			return HttpResponseRedirect(url)
+		except:
+			group.delete()
+			context = {
+				'error_heading': "Payment error",
+				'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+				}
+			return render(request, 'registrations/message.html')
 
+	else:
+		participant_list = Participant.objects.filter(college=participant.college, pcr_approved=True)
+		return render(request, 'cr_payment.html', {'participant_list':participant_list})
 
 @login_required
 def upload_docs(request):

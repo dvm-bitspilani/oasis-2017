@@ -39,12 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'preregistrations',
     'registrations',
+    'ckeditor',
     'events',
     'regsoft',
     'pcradmin',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
+    'pcradmin.middleware.PCrAdminMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pcradmin.middleware.PCrAdminMiddleware',
 ]
 
 ROOT_URLCONF = 'oasis2017.urls'
