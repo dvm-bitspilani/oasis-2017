@@ -284,3 +284,15 @@ def get_profile(request):
 	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
 	participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated, ))
+def edit_profile(request):
+	participant = Participant.objects.get(user=request.user)
+	data = request.data
+	participant.name = data['name']
+	participant.phone = data['phone']
+	participant.save()
+	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
+	participant_serializer = ParticipantSerializer(participant, context={'request':request})
+	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})

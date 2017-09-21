@@ -348,6 +348,18 @@ pcr@bits-bosm.org
 	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
 
 @login_required
+def edit_participant(request):
+	participant = Participant.objects.get(user=request.user)
+	if request.method == 'POST':
+		data = request.POST
+		name = data['name']
+		phone = data['phone']
+		participant.name = name
+		participant.phone = phone
+		participant.save()
+	return render(request, 'registrations/participant_edit.html', {'participant':participant})
+
+@login_required
 def participant_payment(request, p_id):
 	participant = get_object_or_404(Participant, id=p_id)
 	name = participant.name
@@ -450,16 +462,39 @@ def cr_payment(request):
 def upload_docs(request):
 	participant = Participant.object.get(user=request.user)
 	if request.method == 'POST':
-		form = UploadForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
-		else:
-			context = {
-			'status': 0,
-			'error_heading': "Error",
-			'message': "Sorry! Some errors were encountered. Please try again.",
-			}
-			return render(request, 'registrations/message.html', context)
+		try:
+			imageform = ImageUploadForm(request.POST, request.FILES)
+			image = participant.profile_pic
+			if image is not None:
+				image.delete(save=True)
+			if imageform.is_valid():
+				imageform.save()
+			else:
+				context = {
+				'status': 0,
+				'error_heading': "Error",
+				'message': "Sorry! Some errors were encountered while uploading the image. Please try again.",
+				}
+				return render(request, 'registrations/message.html', context)
+		except:
+			pass
+		
+		try:
+			docform = DocUploadForm(request.POST, request.FILES)
+			docs = participant.verify_docs
+			if docs is not None:
+				docs.delete(save=True)
+			if docform.is_valid():
+				docform.save()
+			else:
+				context = {
+				'status': 0,
+				'error_heading': "Error",
+				'message': "Sorry! Some errors were encountered while uploading the documents. Please try again.",
+				}
+				return render(request, 'registrations/message.html', context)
+		except:
+			pass
 	return render(request, 'registrations/upload_form.html', {'participant':participant})
 
 def apirequest(request):

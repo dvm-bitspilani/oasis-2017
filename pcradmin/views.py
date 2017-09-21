@@ -113,9 +113,56 @@ def verify_profile(request, part_id):
 		docs_url = part.verify_docs.url
 	except:
 		message = 'Profile not complete yet.'
-		return render(request, 'pcradmin/meesage.html', {'message':message})
+		return render(request, 'pcradmin/message.html', {'message':message})
 
 	return render(request, 'pcradmin/verify_profile.html', {'profile_url':profile_url, 'docs_url':docs_url})
+
+@staff_member_required
+def add_college(request):
+	if request.method == 'POST':
+		name = request.POST['name']
+		College.objects.create(name=name)
+	rows = [{'data':[college.name, college.participant_set.all().count(), college.partcipant_set.filter(pcr_approved=True).count()], 'link':[{'title':'Select College Representative', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}]} for college in College.objects.all()]
+	headings = ['Name', 'Registered Participants' , 'CR-approved Participants', 'PCr approved Participants', 'Select/Modify CR']
+	title = "College List"
+	table = {
+		'rows':rows,
+		'headings':headings,
+		'title':title,
+	}
+	return render(request, 'pcradmin/add_college.html', {'tables':[table, ],})
+
+@staff_member_required
+def pcr_final_confirmation(request):
+	if request.method == 'POST':
+		data = request.POST
+		id_list = data.getlist('college_list')
+		college_list = College.objects.filter(id__in=id_list)
+		for college in college_list:
+			cr = Participant.objects.get(college=college, is_cr=True)
+			send_to = cr.email
+			name = cr.name
+			body = '''
+				<Email Body>
+			'''
+			subject = 'Final Confirmation for OASIS \'17:REALMS OF FICTION'
+			sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+			from_email = Email("no-reply@bits-oasis.org")
+			to_email = Email(send_to)
+			content = Content("text/html", )
+
+			Participant.objects.filter(college=college, pcr_approved=True).update(pcr_final=True)
+
+			try:
+				mail = Mail(from_email, subject, to_email, content)
+				mail.add_attachment(attachment1)
+				mail.add_attachment(attachment2)
+				response = sg.client.mail.send.post(request_body=mail.get())
+			except:
+				return render(request, 'pcradmin/message.html', {'message':'Email sending failed.'})
+		
+		return render(request, 'pcradmin/message.html', {'message':'Emails successfully sent.'})
+
 
 def user_logout(request):
 	logout(user)
