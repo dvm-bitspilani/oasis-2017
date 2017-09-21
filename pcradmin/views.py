@@ -143,34 +143,36 @@ def stats(request):
 			except:
 				cr = False
 
-			x1 = parts.count()
-			if x1==0:
-				rows.append({'data':[college.name, cr, '- - - -'], 'link':[]})
-				continue
-			x2=x3=x4=0
-			for part in parts:
-				if Participation.objects.get(participant=part).cr_confirmed:
-					x2+=1
-				if Participation.objects.get(participant=part).pcr_confirmed:
-					x3+=1
-				if part.paid:
-					x4+=1
-			data = str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
-			rows.append({'data':[college.name, cr, data], 'link':[]})
+			
+			rows.append({'data':[college.name, cr, participants_count(parts)], 'link':[]})
+		row.append({'data':['Total', ' ', participants_count(Participant.objects.all())], 'link':[]})
 		headings = ['College', 'CR Selected', 'Stats']
-		title = 'CollegeWise Participants list'
+		title = 'CollegeWise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+
+
 	if order == 'eventwise':
 		rows = []
 		for event in Event.objects.all():
 			participations = Participation.objects.filter(event=event)
 			parts = [p.participant for p in participations]
-			x1 = parts.count()
-			if x1==0:
-				rows.append({'data':[event.name, event.categoryentry['cr'], '- - - -'], 'link':[]})
-				continue
-			x2=x3=x4=0
-
+			parts_m = [p.participant for p in participations if p.participant.gender=='M']
+			parts_f = [p.participant for p in participations if p.participant.gender=='F']
+			rows.append({'data':[event.name, event.category, participants_count(parts_m), 
+				participants_count(parts_f), participants_count(parts)], 'link':[]})
+		parts = Participant.objects.all()
+		parts_m  = Participant.objects.filter(gender='M')
+		parts_f = Participant.objects.filter(gender='F')
+		rows.append({'data':['Total', ' ', participants_count(parts), participants_count(parts_m), participants_count(parts_f)]})
+		headings = ['Event', 'Category', 'Male', 'Female', 'Total']
+		title = 'Eventwise Participants Stats'
+		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+	if order == 'paidwise':
+		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.paid], 'link':[]} for part in Participant.objects.filter(pcr_approved=True)]
+		headings = ['Name', 'College', 'Sex', 'Phone', 'Email', 'Payment']
+		title = 'Participants\' payment status'
+		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+	
 
 def user_logout(request):
 	logout(user)
@@ -179,3 +181,17 @@ def user_logout(request):
 def contacts(request):
 	return render(requsest, 'pcradmin/contacts.html')
 
+####  helper  ####
+def participants_count(participants):
+	x1 = len(participants)
+	x2=x3=x4=0
+	if x1 == 0:
+		return '- - - -'
+	for part in parts:
+		if Participation.objects.get(participant=part).cr_confirmed:
+			x2+=1
+		if Participation.objects.get(participant=part).pcr_confirmed:
+			x3+=1
+		if part.paid:
+			x4+=1
+	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
