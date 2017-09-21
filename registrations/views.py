@@ -186,8 +186,9 @@ pcr@bits-bosm.org
 			return JsonResponse({'status':1, 'message':message})
 				
 	else:
-
-		return render(request, 'registrations/signup.html')	
+		colleges = College.objects.all()
+		events = Event.objects.all()
+		return render(request, 'registrations/signup.html', {'college_list':colleges, 'event_list':events})	
 
 
 ############# Helper functions for Django Email ##########
