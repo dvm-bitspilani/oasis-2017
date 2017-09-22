@@ -39,6 +39,7 @@ def index(request):
 def create_user(request):
 
 	part_serializer = ParticipantSerializer(data=request.data)
+	print request.data
 	try:
 		Participant.objects.get(email=data['email'])
 		return Response({'message':'Email has already registered.'})

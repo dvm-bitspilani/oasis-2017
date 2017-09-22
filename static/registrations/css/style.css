@@ -1,0 +1,265 @@
+*{
+  margin: 0;
+  padding: 0;
+ 
+}
+body{
+  overflow-x: hidden;
+}
+@font-face{
+  font-family: 'Azosans';
+  src:url('../fonts/Rui Abreu - AzoSans-Regular.otf');
+}
+.wrapper {
+  box-sizing: border-box;
+  font-family: 'Azosans';
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #262626;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 20rem;
+  padding-right: 0px;
+  padding-left: 0px;
+  overflow-y: auto;
+}
+.register-btn{
+  border:none;
+  background:none;
+  outline: none;
+  color: #fdfdfd;
+  background-color: #fc0c84;
+  font-size: 180%;
+  padding: 10;
+  width: auto;
+  position: fixed;
+  top:20px;
+  right: 20px;
+  font-family: 'Azosans' !important; 
+
+}
+form{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.field {
+  transform: scale(0.8);
+  margin-bottom: 7rem;
+  opacity: 0.5;
+  transition: 0.5s ease all;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  /*align-items: center;*/
+}
+
+.field label {
+  display: block;
+  text-align: left;
+  width: 100%;
+  /*font-weight: bold;*/
+  font-size: 300%;
+  color: #fdfdfd;
+  /*margin-bottom: 10px;*/
+}
+
+.field input {
+  display: inline;
+  border: none;
+  box-shadow: none;
+  background: none;
+  outline: none;
+}
+.field .input{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.field p{
+  color:#a3a3a3;
+  font-size: 25px;
+}
+.field input[type="text"]{
+  width:100%;
+  /*margin-right: 10px;*/
+  /*font-size: 150%;*/
+  font-size: 300%;
+  color: #a3a3a3;
+  margin-top: 10px;
+  /*font-weight: bold;*/
+  border-bottom: 0.5px solid #a3a3a3;
+}
+.field input[type="text"]:focus{
+  border-bottom: none;
+}
+select{
+  background:none;
+  border:none;
+  outline: none;
+  width: 60%;
+  padding: 10px;
+  font-size: 300%;
+  color: #a3a3a3;
+  margin-right:5%;
+  border-bottom: 1px #a3a3a3 solid;
+}
+.events-box{
+  width: 60%;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  height: auto;
+}
+.event{
+  font-size: 300%;
+  color: #fff;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+/*.field input[type="button"]{
+  width:auto;
+  font-size: 300%;
+  border: 8px solid #594157;
+  background-color: #726DA8; 
+}*/
+.field .radio-input{
+  display: flex;
+  font-size:300%;
+  color: #594157;
+  align-items: center; 
+}
+.field .radio-input p{
+  margin-right: 10%;
+  font-size: 150%;
+  color: #a3a3a3
+}
+#submit-button{
+  border:none;
+  outline: none;
+  background: none;
+  background-color: #fc0c84;
+  font-size:200%;
+  padding: 5px;
+  font-size: bold;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: #fdfdfd;
+  margin-top:50px; 
+  cursor: pointer; 
+  position: relative;
+  right: 0;
+  font-family: 'Azosans' !important; 
+}
+.field.active {
+  opacity: 1;
+  transform: scale(1);
+}
+.submit{
+  width:70%;
+  height:auto;
+  display:flex;
+  flex-direction:row-reverse;
+}
+#back-btn{
+  background:none;
+  outline: none;
+  border:none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+#next-btn,#submit-btn{
+  background:none;
+  cursor: pointer;
+  border:none;
+  outline: none;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: #fc0c84;
+  width: 50px;
+  height: 50px;
+  display: none;
+}
+#minus-btn,#event-select-btn{
+  background:none;
+  cursor: pointer;
+  border:none;
+  outline: none;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: #fc0c84;
+  width: 24px;
+  height: 24px;
+}
+#minus-btn img,#event-select-btn img{
+  display: inherit;
+  width: 100%;
+  height: 100%;
+}
+#back-btn img,#next-btn img,#submit-btn img,#minus-btn img{
+  width: 100%;
+  height: 100%;
+}
+#submit-btn,#event-select-btn{
+  background-color: #0cfc9c;
+}
+
+@media screen and (max-width : 992px)
+{
+  body{
+    overflow: hidden;
+  }
+  .events-box{
+    width: 100%;
+  }
+  select{
+    width: 100%;
+  }
+  .wrapper{
+      padding: 0;
+  }
+  .submit{
+    display: none;
+  }
+  #next-btn{
+    display: block;   
+  }
+}
+
+#resp_msg{
+  width: auto;
+  line-height: 30px;
+  
+  color: #000;
+  position: fixed;
+  font-size: 25px;
+  text-align: center;
+  top: 10vh;
+  
+  
+  /* height: 30px; */
+  /* border: 1px solid #000; */
+  display:none;
+}
+
+#resp_msg p{
+  border-radius: 3px;
+  background: rgba(255,255,255, 0.9);
+  padding: 10px;  
+  
+}
