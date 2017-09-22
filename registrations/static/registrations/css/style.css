@@ -62,12 +62,13 @@ form{
   /*align-items: center;*/
 }
 
-.field label {
+.field > label {
   display: block;
   text-align: left;
   width: 100%;
+  /*margin-bottom: -20px;*/
   /*font-weight: bold;*/
-  font-size: 300%;
+  font-size: 2em;
   color: #fdfdfd;
   /*margin-bottom: 10px;*/
 }
@@ -86,13 +87,13 @@ form{
 }
 .field p{
   color:#a3a3a3;
-  font-size: 25px;
+  font-size: 2em;
 }
 .field input[type="text"]{
   width:100%;
   /*margin-right: 10px;*/
   /*font-size: 150%;*/
-  font-size: 300%;
+  font-size: 3em;
   color: #a3a3a3;
   margin-top: 10px;
   /*font-weight: bold;*/
@@ -107,7 +108,7 @@ select{
   outline: none;
   width: 60%;
   padding: 10px;
-  font-size: 300%;
+  font-size: 3em;
   color: #a3a3a3;
   margin-right:5%;
   border-bottom: 1px #a3a3a3 solid;
@@ -137,10 +138,25 @@ select{
   color: #594157;
   align-items: center; 
 }
-.field .radio-input p{
+.field .radio-input label{
   margin-right: 10%;
   font-size: 150%;
-  color: #a3a3a3
+  color: #a3a3a3;
+  -webkit-transition: all 0.3s linear;
+     -moz-transition: all 0.3s linear;
+      -ms-transition: all 0.3s linear;
+       -o-transition: all 0.3s linear;
+          transition: all 0.3s linear;
+}
+.field .radio-input input:checked + label{
+  color: #34ffb7;
+}
+.field .radio-input input + label:focus{
+  box-shadow:none;
+  outline: none;
+}
+.field .radio-input input:not(:checked) + label:focus{
+  color: #5a5a5a;
 }
 #submit-button{
   border:none;
@@ -218,6 +234,12 @@ select{
 #submit-btn,#event-select-btn{
   background-color: #0cfc9c;
 }
+.submit:focus , .submit:click{
+  transform: scale(1.2);
+}
+#events{
+  display: none;
+}
 
 @media screen and (max-width : 992px)
 {
@@ -262,4 +284,30 @@ select{
   background: rgba(255,255,255, 0.9);
   padding: 10px;  
   
+}
+
+input[type="radio"]{
+  display: none;
+}
+
+@media only screen and (max-width: 768px){
+  .field{
+    margin-bottom: 0;
+  }
+  .field label{
+    font-size: 1.5em;
+  }
+  .field p{
+    font-size: 1em;
+  }
+  .field input[type=text]{
+    font-size: 1.5em;
+  }
+
+  .field .radio-input label{
+    font-size: .8em;
+  }
+  select{
+    font-size: 1.5em;
+  }
 }
