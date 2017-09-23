@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^mirage/',include("preregistrations.urls")),
     url(r'^api/',include("api.urls")),
-    url(r'^registrations/', include("registrations.urls")),
+    url(r'^register/', include("registrations.urls")),
     url(r'^pcradmin/', include("pcradmin.urls")),
 ]
 
