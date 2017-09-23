@@ -12,7 +12,7 @@ var fields,wrapper;
 var halfHeight = $(window).height()/2;
 
 // To make a field active
-function changeActiveField(){
+function changeActiveField(index){
   $('.active').removeClass('active');
   var activeField = $('.field:eq(' + index + ')')
   console.log(activeField, "change")
@@ -35,7 +35,7 @@ function scrollToActiveField(field){
     screen.animate({scrollTop: $(field).offset().top + $(field).height()/2 - $(window).height()/2}, 300)
     // console.log("scrollToActiveField")
     scrollCheck = 0;
-    // changeActiveField();
+    // changeActiveField(index);
   }
 }
 
@@ -86,7 +86,7 @@ wrapper = $('.wrapper');
           if (scroll >= $(fields[i]).offset().top + topPadding) 
           {
               index = i;
-              changeActiveField();
+              changeActiveField(index);
               continue;
           }
         }
@@ -95,7 +95,7 @@ wrapper = $('.wrapper');
           if((scroll + halfHeight > $(fields[i]).offset().top ) && (scroll + halfHeight < $(fields[i]).offset().top + $(fields[i]).height()))
           { 
               index = i;
-              changeActiveField();
+              changeActiveField(index);
           }
         }
       }
@@ -155,64 +155,9 @@ wrapper = $('.wrapper');
       console.log("click")
     })
     // To make the first field active
-    changeActiveField();
+    changeActiveField(index);
 $('#submit-button').click(function(){
-    console.log("form submitted!")
-    var data = {}
-    var inputs = $('input');
-    var baseUrl = window.location.href;
-    // $.each(inputs,function(index,key){
-    //   data[key.name] = key.value;
-    //   console.log(key)
-    // })
-    $('#register-form').serializeArray().forEach(function(element) {
-      if(element.name!="events")
-        data[element.name] = element.value;
-      else{
-        if(data.events){
-          data.events.push(element.value)
-        }else{
-          data.events = [element.value];
-        }
-      }
-      console.log(element)
-    }, this);
-    var n = $('input[name=phone]')[0].value;
-    // console.log(n.match('\/d+\'));
-    var r = new RegExp("^\d{10}$");
-    console.log("phone", n, (n.match(/^\d{10}$/)));
-    var b = (n.match(/^\d{10}$/));
-    if(b && b.length == 1){
-      console.log("true");
-    // data["college"] = $('#college').val();
-    console.log(data)
-    var events = {};
-    // $.each($('.event'),function(index,key){
-    //   events[index] = key.attr("value"); 
-    // })
-    // data["events"] = events;
-    $.ajax({
-      method:"POST",
-      url:baseUrl,
-      data:data,
-    }).done(function(response){
-      console.log(response.message);
-      $('#resp_msg p').text(response.message);
-      // $('#resp_msg').css('left',$(window).width() - $('#resp_msg').width());
-      $('#resp_msg').fadeIn();
-      setTimeout(function(){
-        $('#resp_msg').fadeOut();
-      }, 3000);
-    });
-    }
-    else{
-      $('#resp_msg p').text("please enter a valid phone number");
-      // $('#resp_msg').css('left',$(window).width() - $('#resp_msg').width());
-      $('#resp_msg').fadeIn();
-      setTimeout(function(){
-        $('#resp_msg').fadeOut();
-      }, 3000);
-    }
+    submitFormData(changeActiveField);
   })
 })
 }
@@ -240,10 +185,12 @@ var fields = $('.field');
       $(this).parent().remove();  
     })
 })
-function changeActiveField(){
+function changeActiveField(index){
+
       $('.active').css({"display":"none"});
       $('.active').removeClass('active');
       $(fields[index]).fadeIn(400);
+      console.log($(fields[index]))
       $(fields[index]).addClass('active');
 }
   fields = $('.field');
@@ -254,7 +201,7 @@ function changeActiveField(){
       $('#next-btn').css({"display":"none"});
       $('#submit-btn').css({"display":"block"});
     }
-    changeActiveField();
+    changeActiveField(index);
   })
 
   var input = $('.field input');
@@ -266,7 +213,7 @@ function changeActiveField(){
         $('#next-btn').css({"display":"none"});
         $('#submit-btn').css({"display":"block"});
       }
-      changeActiveField();
+      changeActiveField(index);
     }
     })
   $('#back-btn').click(function(){
@@ -276,36 +223,88 @@ function changeActiveField(){
       $('#submit-btn').css({"display":"none"});
     }
     index--;
-    changeActiveField();
+    changeActiveField(index);
   }
   })
 
-  changeActiveField();
+  changeActiveField(index);
 
   $('#submit-btn').click(function(){
+    submitFormData(changeActiveField);
+  })
+})
+}
+var disabled = false;
+
+function submitFormData(func){
+  if(!disabled){
+    // console.log("form submitted!")
     var data = {}
     var inputs = $('input');
     var baseUrl = window.location.href;
-    $.each(inputs,function(index,key){
-      data[key.name] = key.value;
-    })
-    
-    data["college"] = $('#college').val();
+    // $.each(inputs,function(index,key){
+    //   data[key.name] = key.value;
+    //   console.log(key)
+    // })
+    var flag = 0;
+    $('#register-form').serializeArray().forEach(function(element, index) {
+      console.log(element.value == "", element)
+      if(element.value == "" && !flag){
+        flag = 1;
+        
+        showMsg('please fill the form', 3000);
 
-    var events = {};
-    $.each($('.event'),function(index,key){
-      console.log(index,key);
-      events[index] = key.attr("value"); 
-    })
-    data["events"] = events;
-   
-    $.ajax({
-      method:"POST",
-      url:baseUrl,
-      data:data,
-    }).done(function(response){
-      console.log(response.data['message']);
-    });
-  })
-})
+        return func(index-1);
+      }
+      if(element.name!="events")
+        data[element.name] = element.value;
+      else{
+        if(data.events){
+          data.events.push(element.value)
+        }else{
+          data.events = [element.value];
+        }
+      }
+      
+    }, this);
+    if(flag)return;
+    var n = $('input[name=phone]')[0].value;
+    // console.log(n.match('\/d+\'));
+    var r = new RegExp("^\d{10}$");
+    // console.log("phone", n, (n.match(/^\d{10}$/)));
+    var b = (n.match(/^\d{10}$/));
+    if(b && b.length == 1){
+      
+      disabled = true;
+      $('#submit-button').css('background', '#666');
+
+      $.ajax({
+        method:"POST",
+        url:baseUrl,
+        data:data,
+      }).done(function(response){
+        $('#submit-button').css('background', '#fc0c84');
+        disabled = false;
+        console.log(response);
+        showMsg(response.message, 3000);
+        if(response.status == 0){
+          func(8);
+          
+        }
+      });
+    }
+    else{
+      showMsg("please enter a valid phone number", 3000);
+      func(3)
+    }
+  }
+}
+
+function showMsg(text, time){
+  $('#resp_msg p').text(text);
+      
+      $('#resp_msg').fadeIn();
+      setTimeout(function(){
+        $('#resp_msg').fadeOut();
+      }, time);
 }

@@ -264,7 +264,8 @@ select{
 }
 
 #resp_msg{
-  width: auto;
+  width: 90vw;
+  
   line-height: 30px;
   
   color: #000;
@@ -272,6 +273,7 @@ select{
   font-size: 25px;
   text-align: center;
   top: 10vh;
+  left: 5vw;
   
   
   /* height: 30px; */
@@ -283,6 +285,7 @@ select{
   border-radius: 3px;
   background: rgba(255,255,255, 0.9);
   padding: 10px;  
+
   
 }
 
