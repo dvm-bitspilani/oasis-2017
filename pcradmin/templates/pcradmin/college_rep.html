@@ -1,10 +1,19 @@
-{% extends 'regsoft/base.html' %}
+{% extends 'pcradmin/base.html' %}
 
 {% block body %}
-
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
             {% if cr %}
                     <div class="card">
 
@@ -35,21 +44,14 @@
                                         <td>{{cr.email}}</td>
                                         <td>{{cr.gender}}</td>
                                         <td>{{cr.pcr_approved}}</td>
-                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <form>
-                                        {% csrf_token %}
-                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="delete">Remove</button>
-                                        </form>
-                                    </tr>
+                                        <td><a href="{% url 'pcradmin:verify_profile' cr.id %}">Verify Profile</a></td>
                                 </tbody>
-
-                   
                             </table>
+                                        <form action="" method="post">
+                                        {% csrf_token %}
+                                            <input type="hidden" name="data" value="{{cr.id}}" id="{{cr.id}}"><label for="{{cr.id}}"></label>
+                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="delete" name="submit">Remove</button>
+                                        </form>
                         </div>
                     </div>
                 </div>
@@ -58,7 +60,7 @@
                     <div class="card">
                         <div class="header">
                             <h2>
-                                Participants for {{college}}
+                                Participants of {{college}}
                             </h2>
                         </div>
                     <div class="body">
@@ -71,6 +73,7 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
+                                        <th>Profile Complete</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </thead>
@@ -81,6 +84,7 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
+                                        <th>Profile Complete</th>                                      
                                         <th>Verify Profile</th>
                                     </tr>
                                 </tfoot>
@@ -90,7 +94,7 @@
                                         {% for i in part.data %}
                                         <td>{{i}}</td>
                                         {% endfor %}
-                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
+                                        <td><a href="{% url 'pcradmin:verify_profile' part.id %}">Verify Profile</a></td>
                                     </tr>
                                 {% endfor %}
                                             
@@ -123,7 +127,7 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
-                                        <th>Verify Profile</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </thead>
@@ -134,7 +138,7 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
-                                        <th>Verify Profile</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </tfoot>
@@ -144,26 +148,17 @@
                                         {% for i in part.data %}
                                         <td>{{i}}</td>
                                         {% endfor %}
-                                        <td><a href="{{part.verify}}">Verify Profile</a></td>
                                         <td>
                                             <input name="data" type="radio" id="{{part.id}}" value="{{part.id}}"/>
                                             <label for="{{part.id}}"></label>
                                         </td>
                                     </tr>
                                 {% endfor %}
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Submit</button>
-                                        <td></td>
-                                    </tr>
                                 </tbody>
 
                    
                     </table>
+                                            <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="select" name="submit">Submit</button>
         </div>
     </div>
 </div>

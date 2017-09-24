@@ -21,6 +21,8 @@
     <link href="{% static 'pcradmin/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css' %}" rel="stylesheet">
 
     <link href="{% static 'pcradmin/css/style.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'pcradmin/css/materialize.min.css' %}" rel="stylesheet"> -->
+
     {% block head %}
     {% endblock %}
     <link href="{% static 'pcradmin/css/themes/all-themes.css' %}" rel="stylesheet" />
@@ -54,7 +56,7 @@
             <div class="navbar-header">
                 <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
                 <a href="javascript:void(0);" class="bars"></a>
-                <a class="navbar-brand" href="{% url 'pcradmin:home' %}">PCrAdmin | Oasis'17</a>
+                <a class="navbar-brand" href="{% url 'pcradmin:index' %}">PCrAdmin | Oasis'17</a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
@@ -91,7 +93,7 @@
                 <ul class="list">
                     <li class="header">MAIN NAVIGATION</li>
                     <li class="active">
-                        <a href="{% url 'pcradmin:home' %}">
+                        <a href="{% url 'pcradmin:index' %}">
                             <i class="material-icons">home</i>
                             <span>Home</span>
                         </a>
@@ -103,7 +105,11 @@
                                 <span>Colleges</span>
                                 </a>
                     </li>
-            
+                    <li class="active">
+                        <a href="{% url 'pcradmin:add_college' %}">
+                            <span>Add College</span>
+                        </a>
+                    </li>
                     
                     <li class="header">LABELS</li>
                     <li>
@@ -193,6 +199,7 @@
 
     <!-- Waves Effect Plugin Js -->
     <script src="{% static 'pcradmin/plugins/node-waves/waves.js' %}"></script>
+    <!-- <script src="{% static 'pcradmin/js/materialize.min.js' %}"></script> -->
 
 
     <script src="{% static 'pcradmin/plugins/jquery-countto/jquery.countTo.js' %}"></script>

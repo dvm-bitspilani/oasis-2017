@@ -82,7 +82,7 @@ class Participant(models.Model):
 	events = models.ManyToManyField(Event, through=Participation)
 
 	def __unicode__(self):
-		return (self.name) + ' ' + str(self.captain.g_leader.college.name) + str(self.captain.event.name)
+		return (self.name) + ' - ' + str(self.college.name)
 
 class Group(models.Model):
 

@@ -3,7 +3,45 @@
 
 {% block body %}
 
-{% for table in tables %}
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Add College
+        </h2>
+    </div>
+
+    <div class="body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <label for="name">Name of the College</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="name" class="form-control" placeholder="Name of the College" name="name">
+                </div>
+            </div>
+            
+            <br>
+            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add College</button>
+        </form>
+        </div>
+    </div>
+</div>
+</div>
+
+
 
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -46,10 +84,8 @@
                         </table>
                     </div>
                 </div>
-                <a href="{% url 'pcradmin:add_college' %}" class = "btn btn-primary btn-lg m-l-15 waves-effect">Add College</a>
             </div>
         </div>
     </div>
 
-{% endfor %}
 {% endblock %}
