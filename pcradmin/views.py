@@ -46,7 +46,11 @@ def select_college_rep(request, id):
 	if request.method == 'POST':
 		data = request.POST
 		print data
-		part_id = data['data']
+		try:
+			part_id = data['data']
+		except:
+			messages.warning(request,'Select a Participant')
+			return redirect(request.META.get('HTTP_REFERER'))
 		if 'delete' == data['submit']:
 			part = Participant.objects.get(id=part_id)
 			user = part.user
@@ -64,7 +68,10 @@ def select_college_rep(request, id):
 			part.is_cr=True
 			part.save()
 			user = part.user
-			if user is None:
+			if not user == None:
+				messages.warning(request,'College Representative already selected')
+				return redirect(request.META.get('HTTP_REFERER'))
+			if user == None:
 				username = part.name.split(' ')[0] + str(part_id)
 				length = 8
 				password = ''.join(choice(chars) for _ in xrange(length)) 
@@ -95,7 +102,7 @@ BITS Pilani
 			try:
 				mail = Mail(from_email, subject, to_email, content)
 				response = sg.client.mail.send.post(request_body=mail.get())
-				messages.warning(request,'Email sent to' + part.name)
+				messages.warning(request,'Email sent to ' + part.name)
 			except :
 				part.user = None
 				part.is_cr = False
@@ -164,7 +171,9 @@ def verify_profile(request, part_id):
 ################################ STATS ########################################3
 
 @staff_member_required
-def stats(request):
+def stats(request, order=None):
+	if order==None:
+		return render(request, 'pcradmin/stats_home.html')
 	if order=='collegewise':
 		rows = []
 		for college in College.objects.all():
@@ -211,6 +220,8 @@ def add_college(request):
 	if request.method == 'POST':
 		try:
 			name = request.POST['name']
+			if name=='':
+				raise Exception
 		except:
 			messages.warning(request, 'Please Don\'t leave the name field empty')
 			return redirect(request.META.get('HTTP_REFERER'))

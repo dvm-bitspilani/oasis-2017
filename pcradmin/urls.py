@@ -9,7 +9,7 @@ urlpatterns = [
 	url(r'^verify_profile/(?P<part_id>\d+)/$', views.verify_profile, name='verify_profile'),
 	url(r'^add_college/$', views.add_college, name='add_college'),
 	url(r'^logout/$', views.user_logout, name='user-logout'),
-
+	url(r'^stats/(?P<order>\w+)/$', views.stats, name='stats'),
 
 	url(r'^contacts/$', views.contacts, name='contacts'),
 

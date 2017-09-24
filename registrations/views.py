@@ -111,6 +111,12 @@ def index(request):
 	if request.method == 'POST':
 
 		data = request.POST
+<<<<<<< HEAD
+=======
+		email = data['email']
+		if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+			return JsonResponse({'status':0, 'message':'Please enter a valid email address.'})
+>>>>>>> 218dcf7c6d1471ada29b520bf2142f570041cfa8
 		try:
 			Participant.objects.get(email=data['email'])
 			return JsonResponse({'status':0, 'message':'Email already registered.'})
