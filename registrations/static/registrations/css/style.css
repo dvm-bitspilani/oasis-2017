@@ -36,12 +36,13 @@ body{
   color: #fdfdfd;
   background-color: #fc0c84;
   font-size: 180%;
-  padding: 10;
+  
   width: auto;
   position: fixed;
   top:20px;
   right: 20px;
   font-family: 'Azosans' !important; 
+  padding: 5px 10px;
 
 }
 form{

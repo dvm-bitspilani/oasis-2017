@@ -1,8 +1,9 @@
 
 // JS for Desktops and large screens
 if($(window).width() >= 992){
-  
-console.log("big js");
+
+ // console.log($("#back-btn"))
+// console.log("big js");
 
   /*Animating the form*/
 var scrollCheck = 0;
@@ -15,7 +16,7 @@ var halfHeight = $(window).height()/2;
 function changeActiveField(index){
   $('.active').removeClass('active');
   var activeField = $('.field:eq(' + index + ')')
-  console.log(activeField, "change")
+  // console.log(activeField, "change")
   activeField.addClass('active'); 
   activeField.find('input').focus();
   // console.log("changeActiveField")
@@ -24,9 +25,9 @@ function changeActiveField(index){
 
 // To scroll to a particular field 
 function scrollToActiveField(field){  
-  console.log($(field),$(field).index() )
+  // console.log($(field),$(field).index() )
   var newIndex = $(field).index() - 1;
-  console.log(newIndex)
+  // console.log(newIndex)
   if(newIndex != index){
     index = newIndex;
     var offset = $(field).offset().top;
@@ -40,7 +41,8 @@ function scrollToActiveField(field){
 }
 
 $(document).ready(function(){
-console.log($('#select_info'));
+   $("#back-btn").css('display', "none");
+// console.log($('#select_info'));
 $('#select_info').text('(Press Ctrl+ ( command on mac ) to add more than one event)');
 // $.ajax({
 //   method:"GET",
@@ -106,22 +108,22 @@ wrapper = $('.wrapper');
     var inputs = $('.field input');
 
     inputs.focus(function(){
-      console.log("focuscallback")
-      console.log("inputs",this)
+      // console.log("focuscallback")
+      // console.log("inputs",this)
       scrollToActiveField($(this).parent().parent());
     });
 
     var target_labels = $('.field input[type=radio] + label');
     target_labels.focus(function(){
-      console.log("focuscallback")
-      console.log("labels ...",$(this).parent().parent())
+      // console.log("focuscallback")
+      // console.log("labels ...",$(this).parent().parent())
       scrollToActiveField($(this).parent().parent());
     });
 
     var select = $('.field select');
     select.focus(function(){
-      console.log("focuscallback")
-      console.log("select ...",$(this).parent().parent())
+      // console.log("focuscallback")
+      // console.log("select ...",$(this).parent().parent())
       scrollToActiveField($(this).parent().parent());
     })
 
@@ -164,7 +166,7 @@ $('#submit-button').click(function(){
 // JS for small and mobile screens
 if($(window).width() < 992){
 $(document).ready(function(){
-console.log("small js");
+// console.log("small js");
 var index = 0;
 var fields = $('.field');
 
@@ -256,7 +258,7 @@ function submitFormData(func){
 
         return func(index-1);
       }
-      if(element.name!="events")
+      if(element.name!="states[]")
         data[element.name] = element.value;
       else{
         if(data.events){
@@ -277,7 +279,7 @@ function submitFormData(func){
       
       disabled = true;
       $('#submit-button').css('background', '#666');
-
+      console.log(data);
       $.ajax({
         method:"POST",
         url:baseUrl,
@@ -308,3 +310,16 @@ function showMsg(text, time){
         $('#resp_msg').fadeOut();
       }, time);
 }
+
+$(document).ready(function() {
+    $('#event-select').select2({
+    	'placeholder': 'Search event name',
+    	width: "resolve",
+    });
+     $('#college').select2({
+    	'placeholder': 'Search college name',
+    	width: "resolve",
+    });
+});
+
+console.clear();
