@@ -1,8 +1,11 @@
 
 // JS for Desktops and large screens
 if($(window).width() >= 992){
-  
+
+ // console.log($("#back-btn"))
 // console.log("big js");
+
+
 
   /*Animating the form*/
 var scrollCheck = 0;
@@ -40,6 +43,7 @@ function scrollToActiveField(field){
 }
 
 $(document).ready(function(){
+   $("#back-btn").css('display', "none");
 // console.log($('#select_info'));
 $('#select_info').text('(Press Ctrl+ ( command on mac ) to add more than one event)');
 // $.ajax({

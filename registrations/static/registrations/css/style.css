@@ -36,12 +36,13 @@ body{
   color: #fdfdfd;
   background-color: #fc0c84;
   font-size: 180%;
-  padding: 10;
+  
   width: auto;
   position: fixed;
   top:20px;
   right: 20px;
   font-family: 'Azosans' !important; 
+  padding: 5px 10px;
 
 }
 form{
@@ -349,7 +350,8 @@ span[role=combobox] {
 }
 
 .select2-search__field{
-  
+  background: #333 !important;
+  font-size: 1.2em !important;
 }
 
 .select2-results__option[aria-selected=true]{
@@ -362,4 +364,9 @@ span[role=combobox] {
   color: #fff;
   top: 0 !important;
   font-family: 'Azosans' !important;
+}
+
+.select2-dropdown--below{
+	top :20px !important;
+	
 }
