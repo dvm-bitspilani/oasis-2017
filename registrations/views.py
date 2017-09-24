@@ -15,9 +15,10 @@ from preregistrations.instaconfig import *
 from django.contrib.auth.models import User
 import string
 from random import sample, choice
+from sg_config import *
 chars = string.letters + string.digits
 
-def index(request):
+def home(request):
 	if request.user.is_authenticated():
 		user = request.user
 		participant = Participant.objects.get(user=user)
@@ -42,10 +43,12 @@ def index(request):
 		else:
 			return render(request, 'registrations/login.html')
 
+@csrf_exempt
 def prereg(request):
 
 	if request.POST:
-		
+		print request.POST
+		print hello
 		name = request.POST['name']
 		gender = request.POST['gender']
 		if gender == "male":
@@ -102,37 +105,44 @@ def prereg(request):
 	
 	return render(request, 'registrations/index.html', {'college_list':college_list, 'event_list':event_list})
 
-def register(request):
+@csrf_exempt
+def index(request):
 
 	if request.method == 'POST':
 
 		data = request.POST
+		print data
 		try:
 			Participant.objects.get(email=data['email'])
 			return JsonResponse({'status':0, 'message':'Email already registered.'})
 		except:
 			pass
-		if len(data['events']) == 0:
+		print data.getlist('events[]')
+		if len(data.getlist('events[]')) == 0:
 			return JsonResponse({'status':0, 'message':'Select atleast one event'})
 		else:
 			participant = Participant()
-			participant.name = data['name']
-			participant.gender = data['gender']
-			participant.city = data['city']
-			participant.email = data['email']
-			participant.college = College.objects.get(name=data['college'])
-			participant.phone = data['phone']
-			participant.head_of_society = data['head_of_society']
-			participant.year_of_study = data['year_of_study']
+			participant.name = str(data['name'])
+			participant.gender = str(data['gender'])
+			participant.city = str(data['city'])
+			participant.email = str(data['email'])
+			participant.college = College.objects.get(name=str(data['college']))
+			participant.phone = int(data['phone'])
+			if str(data['head_of_society']) == 'True':
+				participant.head_of_society = True
+			else:
+				participant.head_of_society = False
+			participant.year_of_study = int(data['year_of_study'])
 			participant.save()
-			for key in events:
+			for key in data.getlist('events[]'):
+				print int(key)
 				event = Event.objects.get(id=int(key))
 				Participation.objects.create(event=event, participant=participant)
 			participant.save()
 
 
-			send_to = request.POST["email"]
-			name = request.POST["name"]
+			send_to = str(request.POST["email"])
+			name = str(request.POST["name"])
 			body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
 			<center><img src="http://bits-bosm.org/2016/static/docs/email_header.jpg"></center>
 			<pre style="font-family:Roboto,sans-serif">
@@ -174,20 +184,22 @@ pcr@bits-bosm.org
 			to_email = Email(send_to)
 			subject = "Registration for OASIS '17 REALMS OF FICTION"
 			content = Content('text/html', body)
-
+			print from_email, to_email
 			try:
 				mail = Mail(from_email, subject, to_email, content)
 				response = sg.client.mail.send.post(request_body=mail.get())
 			except :
 				participant.delete()
+				print "message"
 				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
-
+			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
 			return JsonResponse({'status':1, 'message':message})
 				
 	else:
-
-		return render(request, 'registrations/signup.html')	
+		colleges = College.objects.all()
+		events = Event.objects.all()
+		return render(request, 'registrations/signup.html', {'college_list':colleges, 'event_list':events})	
 
 
 ############# Helper functions for Django Email ##########
@@ -219,7 +231,7 @@ def authenticate_email_token(token):
 
 ################################# End of helper functions ###############################
 
-def email_confirm(request):
+def email_confirm(request, token):
 	member = authenticate_email_token(token)
 	
 	if member:

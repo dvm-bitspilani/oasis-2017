@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'events',
     'regsoft',
     'pcradmin',
+    'ems',
     'rest_framework'
 ]
 
