@@ -80,24 +80,24 @@ wrapper = $('.wrapper');
       var scroll = $(window).scrollTop();
       for(var i = 0;i < fields.length;i++)
       {
-        if(i == fields.length - 1)
-        {
-          // console.log($(fields[i]).offset().top) 
-          if (scroll >= $(fields[i]).offset().top + topPadding) 
-          {
-              index = i;
-              changeActiveField(index);
-              continue;
-          }
-        }
-        else{
+        // if(i == fields.length - 1)
+        // {
+        //   // console.log($(fields[i]).offset().top) 
+        //   if (scroll >= $(fields[i]).offset().top + topPadding) 
+        //   {
+        //       index = i;
+        //       changeActiveField(index);
+        //       continue;
+        //   }
+        // }
+        // else{
           // if((scroll >= $(fields[i]).offset().top - halfHeight + topPadding) && (scroll <= $(fields[i+1]).offset().top - halfHeight+topPadding))
           if((scroll + halfHeight > $(fields[i]).offset().top ) && (scroll + halfHeight < $(fields[i]).offset().top + $(fields[i]).height()))
           { 
               index = i;
               changeActiveField(index);
           }
-        }
+        // }
       }
     }
   })
