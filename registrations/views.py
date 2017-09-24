@@ -144,7 +144,7 @@ def index(request):
 			send_to = str(request.POST["email"])
 			name = str(request.POST["name"])
 			body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-			<center><img src="http://bits-oasis.org/2017/static/registrations/logo.png"></center>
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
 
