@@ -5,6 +5,8 @@ if($(window).width() >= 992){
  // console.log($("#back-btn"))
 // console.log("big js");
 
+
+
   /*Animating the form*/
 var scrollCheck = 0;
 var index = 0;  
@@ -312,14 +314,14 @@ function showMsg(text, time){
 }
 
 $(document).ready(function() {
-    $('#event-select').select2({
-    	'placeholder': 'Search event name',
-    	width: "resolve",
-    });
-     $('#college').select2({
-    	'placeholder': 'Search college name',
-    	width: "resolve",
-    });
+  $('#event-select').select2({
+    'placeholder': 'Search event name',
+    width: "resolve",
+  });
+   $('#college').select2({
+    'placeholder': 'Search college name',
+    width: "resolve",
+  });
 });
 
 console.clear();

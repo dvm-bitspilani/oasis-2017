@@ -111,7 +111,9 @@ def index(request):
 	if request.method == 'POST':
 
 		data = request.POST
-		print data
+		email = data['email']
+		if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+			return JsonResponse({'status':0, 'message':'Please enter a valid email address.'})
 		try:
 			Participant.objects.get(email=data['email'])
 			return JsonResponse({'status':0, 'message':'Email already registered.'})
@@ -144,7 +146,7 @@ def index(request):
 			send_to = str(request.POST["email"])
 			name = str(request.POST["name"])
 			body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-			<center><img src="http://bits-bosm.org/2016/static/docs/email_header.jpg"></center>
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
 
@@ -152,26 +154,24 @@ Thank you for registering!
 
 Greetings from BITS Pilani!
 
-It gives me immense pleasure in inviting your institute to the 32nd edition of BITS Open Sports Meet (BOSM), the annual national sports meet of Birla Institute of Technology & Science, Pilani, India. This year, BOSM will be held from September 21st to 25th.             
-
- Applications close on 31st August 2017 at 1700 hrs.            
+It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
 
 Please apply as soon as possible to enable us to confirm your participation at the earliest.             
 
-We would be really happy to see your college represented at our sports festival.            
+We would be really happy to see your college represented at our fest.            
 
-We look forward to seeing you at BOSM 2017.
+We look forward to seeing you at OASIS 2017.
 
 <a href='%s'>Click Here</a> to verify your email.
 
-P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT BOSM 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
+P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT OASIS 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
 
 Regards,
-CoSSAcn (Head)
-Dept. of Publications & Correspondence, BOSM 2017
+StuCCAn (Head)
+Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9929022741
-pcr@bits-bosm.org
++91-9828529994
+pcr@bits-oasis.org
 </pre>
 			'''%(name, str(request.build_absolute_uri(reverse("registrations:index"))) + 'email_confirm/' + generate_email_token(Participant.objects.get(email=send_to)) + '/')
 
@@ -190,7 +190,6 @@ pcr@bits-bosm.org
 				response = sg.client.mail.send.post(request_body=mail.get())
 			except :
 				participant.delete()
-				print "message"
 				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
 			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
