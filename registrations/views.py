@@ -111,7 +111,6 @@ def index(request):
 	if request.method == 'POST':
 
 		data = request.POST
-		print data
 		try:
 			Participant.objects.get(email=data['email'])
 			return JsonResponse({'status':0, 'message':'Email already registered.'})
@@ -144,7 +143,7 @@ def index(request):
 			send_to = str(request.POST["email"])
 			name = str(request.POST["name"])
 			body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png"></center>
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
 
@@ -188,7 +187,6 @@ pcr@bits-oasis.org
 				response = sg.client.mail.send.post(request_body=mail.get())
 			except :
 				participant.delete()
-				print "message"
 				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
 			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
