@@ -26,7 +26,7 @@
     {% block head %}
     {% endblock %}
     <link href="{% static 'pcradmin/css/themes/all-themes.css' %}" rel="stylesheet" />
-    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
     
 </head>
 
@@ -72,7 +72,7 @@
             <!-- User Info -->
             <div class="user-info">
                 <div class="image">
-                    <img src="{% static 'pcradmin/images/user.png' %}" width="60" height="60" alt="User" />
+                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" width="60" height="60" alt="User" />
                 </div>
                 <div class="info-container">
                     <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><strong>{{request.user.username}}</strong></div>
@@ -110,7 +110,28 @@
                             <span>Add College</span>
                         </a>
                     </li>
-                    
+
+                    <li class="active">
+                        <a href="javascript:void(0);" class="menu-toggle">
+                            <span>Statistics</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="{% url 'pcradmin:stats' 'collegewise' %}"><span>Collegewise</span></a>
+                            </li>
+                            <li>
+                                <a href="{% url 'pcradmin:stats' 'eventwise' %}"><span>Eventewise</span></a>
+                            </li>
+                            <li>
+                                <a href="{% url 'pcradmin:stats' 'paidwise' %}"><span>Paymentwise</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'pcradmin:view_final' %}">
+                            <span>Final Confirmation</span>
+                        </a>
+                    </li>
                     <li class="header">LABELS</li>
                     <li>
                         <a href="{% url 'pcradmin:contacts' %}">
@@ -130,7 +151,7 @@
             <!-- Footer -->
             <div class="legal">
                 <div class="copyright">
-                    &copy; for BOSM'17  <a href="javascript:void(0);">DVM, BITS Pilani</a>
+                    &copy; for OASIS'17  <a href="javascript:void(0);">DVM, BITS Pilani</a>
                 </div>
                 <div class="version">
                     <b>Thanks, </b> AdminBSB

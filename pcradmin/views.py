@@ -37,7 +37,7 @@ def index(request):
 @staff_member_required
 def college(request):
 	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.all().count()],'link':[{'title':'Select', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}] } for college in College.objects.all()]
-	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Total Participants','Confirmed', 'Select']}]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Select']}]
 	return render(request, 'pcradmin/tables.html', {'tables':tables})
 
 @staff_member_required
@@ -45,7 +45,6 @@ def select_college_rep(request, id):
 	college = get_object_or_404(College, id=id)
 	if request.method == 'POST':
 		data = request.POST
-		print data
 		try:
 			part_id = data['data']
 		except:
@@ -179,15 +178,16 @@ def stats(request, order=None):
 		for college in College.objects.all():
 			parts = college.participant_set.all()
 			try:
-				parts.filter(is_cr=True)[0]
-				cr = True
+				p=parts.filter(is_cr=True)[0]
+				cr = 'True (' + p.name + ')'
 			except:
 				cr = False
 
-			
-			rows.append({'data':[college.name, cr, participants_count(parts)], 'link':[]})
-		row.append({'data':['Total', ' ', participants_count(Participant.objects.all())], 'link':[]})
-		headings = ['College', 'CR Selected', 'Stats']
+			parts_m = parts.filter(gender='M')
+			parts_f = parts.filter(gender='F')
+			rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[]})
+		rows.append({'data':['Total', ' ',participants_count(Participant.objects.filter(gender='M')), participants_count(Participant.objects.filter(gender='F')), participants_count(Participant.objects.all())], 'link':[]})
+		headings = ['College', 'CR Selected', 'Male', 'Female','Stats']
 		title = 'CollegeWise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
@@ -196,21 +196,21 @@ def stats(request, order=None):
 		rows = []
 		for event in Event.objects.all():
 			participations = Participation.objects.filter(event=event)
-			parts = [p.participant for p in participations]
-			parts_m = [p.participant for p in participations if p.participant.gender=='M']
-			parts_f = [p.participant for p in participations if p.participant.gender=='F']
+			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations])
+			parts_m = Participant.objects.filter(id__in=[p.participant.id for p in participations if p.participant.gender=='M'])
+			parts_f = Participant.objects.filter(id__in=[p.participant.id for p in participations if p.participant.gender=='F'])
 			rows.append({'data':[event.name, event.category, participants_count(parts_m), 
 				participants_count(parts_f), participants_count(parts)], 'link':[]})
 		parts = Participant.objects.all()
 		parts_m  = Participant.objects.filter(gender='M')
 		parts_f = Participant.objects.filter(gender='F')
-		rows.append({'data':['Total', ' ', participants_count(parts), participants_count(parts_m), participants_count(parts_f)]})
+		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)]})
 		headings = ['Event', 'Category', 'Male', 'Female', 'Total']
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
-		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.paid], 'link':[]} for part in Participant.objects.filter(pcr_approved=True)]
-		headings = ['Name', 'College', 'Sex', 'Phone', 'Email', 'Payment']
+		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(pcr_approved=True, paid=True)]
+		headings = ['Name', 'College', 'Sex', 'Phone', 'Email']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	
@@ -239,10 +239,18 @@ def add_college(request):
 	return render(request, 'pcradmin/add_college.html', {'table':table})
 
 @staff_member_required
-def pcr_final_confirmation(request):
+def view_final(request):
+	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.all().count()],'link':[{'title':'Select', 'url':reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Select']}]
+	return render(request, 'pcradmin/tables.html', {'tables':tables})
+
+
+@staff_member_required
+def final_confirmation(request, c_id):
+	college = College.objects.get(id=c_id)
 	if request.method == 'POST':
 		data = request.POST
-		id_list = data.getlist('college_list')
+		id_list = dict(data)['data']
 		college_list = College.objects.filter(id__in=id_list)
 		for college in college_list:
 			cr = Participant.objects.get(college=college, is_cr=True)
@@ -255,7 +263,7 @@ def pcr_final_confirmation(request):
 			sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
 			from_email = Email("no-reply@bits-oasis.org")
 			to_email = Email(send_to)
-			content = Content("text/html", )
+			content = Content("text/html",body)
 
 			Participant.objects.filter(college=college, pcr_approved=True).update(pcr_final=True)
 
@@ -268,7 +276,8 @@ def pcr_final_confirmation(request):
 				return render(request, 'pcradmin/message.html', {'message':'Email sending failed.'})
 		
 		return render(request, 'pcradmin/message.html', {'message':'Emails successfully sent.'})
-
+	parts = college.participant_set.filter(pcr_approved=True, paid=True)
+	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
 
 def user_logout(request):
 	logout(user)
@@ -278,19 +287,13 @@ def contacts(request):
 	return render(requsest, 'pcradmin/contacts.html')
 
 ####  HELPER FUNCTIONS  ####
-def participants_count(participants):
-	x1 = len(participants)
-	x2=x3=x4=0
+def participants_count(parts):
+	x1 = len(parts)
 	if x1 == 0:
-		return '- - - -'
-	for part in parts:
-		if Participation.objects.get(participant=part).cr_confirmed:
-			x2+=1
-		if Participation.objects.get(participant=part).pcr_confirmed:
-			x3+=1
-		if part.paid:
-			x4+=1
-	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
+		return '- - -'
+	x3=parts.filter(pcr_approved=True).count()
+	x4=parts.filter(paid=True).count()
+	return str(x1) + ' | ' + str(x3) + ' | ' + str(x4)
 
 def is_profile_complete(part):
 	try:
