@@ -318,7 +318,7 @@ input[type="radio"]{
   }
 
   .select2-search__field{
-  	width: calc(75vw-20px) !important;
+  	/*width: calc(75vw-20px) !important;*/
   }
 }
 
@@ -357,7 +357,7 @@ span[role=combobox] {
 .select2-search__field{
   background: #333 !important;
   font-size: 1.2em !important;
-  width: calc(60vw - 20px) !important;
+  /*width: calc(60vw - 20px) !important;*/
 }
 
 .select2-results__option[aria-selected=true]{
