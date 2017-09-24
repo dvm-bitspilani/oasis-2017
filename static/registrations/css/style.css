@@ -107,12 +107,13 @@ select{
   background:none;
   border:none;
   outline: none;
-  width: 60%;
+  width: 600px;
   padding: 10px;
   font-size: 3em;
   color: #a3a3a3;
   margin-right:5%;
   border-bottom: 1px #a3a3a3 solid;
+  
 }
 .events-box{
   width: 60%;
@@ -315,6 +316,10 @@ input[type="radio"]{
     font-size: 1.5em;
     width: 75vw;
   }
+
+  .select2-search__field{
+  	width: calc(75vw-20px) !important;
+  }
 }
 
 .select2-selection__rendered, .select2-search__field{
@@ -352,6 +357,7 @@ span[role=combobox] {
 .select2-search__field{
   background: #333 !important;
   font-size: 1.2em !important;
+  width: calc(60vw - 20px) !important;
 }
 
 .select2-results__option[aria-selected=true]{
@@ -366,7 +372,14 @@ span[role=combobox] {
   font-family: 'Azosans' !important;
 }
 
-.select2-dropdown--below{
+/*.select2-dropdown--below{
 	top :20px !important;
 	
 }
+
+
+.field:nth-of-type(9) .select2-dropdown--below{
+	top :0px !important;
+	
+}
+*/
