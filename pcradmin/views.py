@@ -32,7 +32,7 @@ from django.contrib import messages
 
 @staff_member_required
 def index(request):
-	return render(request, 'pcradmin/index.html')
+	return redirect('pcradmin:college')
 
 @staff_member_required
 def college(request):
@@ -60,7 +60,8 @@ def select_college_rep(request, id):
 		elif 'select' == data['submit']:
 			try:
 				Participant.objects.get(college=college,is_cr=True)
-				return render(request, 'registrations/message.html', {'message':'You already have one College Representative selected. Delete him to modify.'})
+				messages.warning(request,'College Representative already selected.')
+				return redirect(request.META.get('HTTP_REFERER'))			
 			except:
 				pass
 			part = Participant.objects.get(id=part_id)
@@ -68,7 +69,7 @@ def select_college_rep(request, id):
 			part.save()
 			user = part.user
 			if not user == None:
-				messages.warning(request,'College Representative already selected')
+				messages.warning(request,'College Representative already selected.')
 				return redirect(request.META.get('HTTP_REFERER'))
 			if user == None:
 				username = part.name.split(' ')[0] + str(part_id)
@@ -186,7 +187,8 @@ def stats(request, order=None):
 			parts_m = parts.filter(gender='M')
 			parts_f = parts.filter(gender='F')
 			rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[]})
-		rows.append({'data':['Total', ' ',participants_count(Participant.objects.filter(gender='M')), participants_count(Participant.objects.filter(gender='F')), participants_count(Participant.objects.all())], 'link':[]})
+		parts = Participant.objects.all()
+		rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts)], 'link':[]})
 		headings = ['College', 'CR Selected', 'Male', 'Female','Stats']
 		title = 'CollegeWise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
@@ -197,38 +199,96 @@ def stats(request, order=None):
 		for event in Event.objects.all():
 			participations = Participation.objects.filter(event=event)
 			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations])
-			parts_m = Participant.objects.filter(id__in=[p.participant.id for p in participations if p.participant.gender=='M'])
-			parts_f = Participant.objects.filter(id__in=[p.participant.id for p in participations if p.participant.gender=='F'])
+			parts_m = parts.filter(gender='M')
+			parts_f = parts.filter(gender='F')
 			rows.append({'data':[event.name, event.category, participants_count(parts_m), 
 				participants_count(parts_f), participants_count(parts)], 'link':[]})
-		parts = Participant.objects.all()
-		parts_m  = Participant.objects.filter(gender='M')
-		parts_f = Participant.objects.filter(gender='F')
+		parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.all() if p.participation_set.all().count()>0])
+		parts_m  = parts.filter(gender='M')
+		parts_f = parts.filter(gender='F')
 		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)]})
 		headings = ['Event', 'Category', 'Male', 'Female', 'Total']
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
 		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(pcr_approved=True, paid=True)]
-		headings = ['Name', 'College', 'Sex', 'Phone', 'Email']
+		headings = ['Name', 'College', 'Gender', 'Phone', 'Email']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
-	
+
+@staff_member_required
+def master_stats(request):
+
+	if request.method == 'POST':
+		data = request.POST
+		print data
+		try:
+			college_name = data['college']
+		except:
+			pass
+		try:
+			event_name = data['event']
+		except:
+			pass
+		if not college_name and not event_name:
+			return redirect(request.META.get('HTTP_REFERRER'))
+		if college_name and event_name:
+			college = College.objects.get(name=college_name)
+			event = Event.objects.get(name=event_name)
+			participations = Participation.objects.filter(event=event)
+			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations], college=college)
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
+			title = 'Participants\' registered for %s event from %s college.' %(event_name, college_name)
+
+		elif not college_name:
+			participations = Participation.objects.filter(event=Event.objects.get(name=event_name))
+			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations])
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
+			title = 'Participants\' registered for %s event.' %(event_name)
+			# return render(request, 'pcradmin/master_stats.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+
+		else:
+			college = College.objects.get(name=college_name)
+			parts = college.participant_set.all()
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
+			title = 'Participants\' registered from %s college.' %(college_name)
+		table = {
+			'rows':rows,
+			'headings':headings,
+			'title':title,
+			}
+		events = Event.objects.all()
+		colleges = College.objects.all()		
+		return render(request, 'pcradmin/master_stats.html', {'tables':[table, ], 'colleges':colleges, 'events':events})
+	events = Event.objects.all()
+	colleges = College.objects.all()		
+	return render(request, 'pcradmin/master_stats.html', { 'colleges':colleges, 'events':events})
 
 @staff_member_required
 def add_college(request):
 	if request.method == 'POST':
-		try:
-			name = request.POST['name']
-			if name=='':
-				raise Exception
-		except:
-			messages.warning(request, 'Please Don\'t leave the name field empty')
-			return redirect(request.META.get('HTTP_REFERER'))
-		College.objects.create(name=name)
-		messages.warning(request, 'College Succecfully added')
-		return redirect('pcradmin:add_college')
-	rows = [{'data':[college.name, college.participant_set.all().count(),  college.participant_set.filter(pcr_approved=True).count()], 'link':[{'title':'Select College Representative', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}]} for college in College.objects.all()]
+		data = request.POST
+		if data['submit'] == 'add':
+			try:
+				name = request.POST['name']
+				if name=='':
+					raise Exception
+			except:
+				messages.warning(request, 'Please Don\'t leave the name field empty')
+				return redirect(request.META.get('HTTP_REFERER'))
+			College.objects.create(name=name)
+			messages.warning(request, 'College succesfully added')
+			return redirect('pcradmin:add_college')
+		
+		elif data['submit'] == 'delete':
+				college = College.objects.get(id=data['data'])
+				college.delete()
+				messages.warning(request, 'College succesfully deleted')
+				return redirect('pcradmin:add_college')
+	rows = [{'data':[college.name, college.participant_set.all().count(),  college.participant_set.filter(pcr_approved=True).count()], 'id':college.id, 'link':[{'title':'Select College Representative', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}]} for college in College.objects.all()]
 	headings = ['Name', 'Registered Participants' , 'PCr approved Participants', 'Select/Modify CR']
 	title = "College List"
 	table = {
@@ -250,12 +310,16 @@ def final_confirmation(request, c_id):
 	college = College.objects.get(id=c_id)
 	if request.method == 'POST':
 		data = request.POST
-		id_list = dict(data)['data']
-		college_list = College.objects.filter(id__in=id_list)
-		for college in college_list:
-			cr = Participant.objects.get(college=college, is_cr=True)
-			send_to = cr.email
-			name = cr.name
+		try:
+			id_list = dict(data)['data']
+		except:
+			messages.warning(request,'Select a Participant')
+			return redirect(request.META.get('HTTP_REFERER'))
+		parts = Participant.objects.filter(id__in=id_list)
+		for part in parts:
+
+			send_to = part.email
+			name = part.name
 			body = '''
 				<Email Body>
 			'''
@@ -265,18 +329,20 @@ def final_confirmation(request, c_id):
 			to_email = Email(send_to)
 			content = Content("text/html",body)
 
-			Participant.objects.filter(college=college, pcr_approved=True).update(pcr_final=True)
-
 			try:
 				mail = Mail(from_email, subject, to_email, content)
 				mail.add_attachment(attachment1)
 				mail.add_attachment(attachment2)
 				response = sg.client.mail.send.post(request_body=mail.get())
+				part.pcr_final=True
+				part.save()
 			except:
+				messages.warning(request, 'Email sending failed.')
 				return render(request, 'pcradmin/message.html', {'message':'Email sending failed.'})
-		
-		return render(request, 'pcradmin/message.html', {'message':'Emails successfully sent.'})
-	parts = college.participant_set.filter(pcr_approved=True, paid=True)
+		messages.warning(request, 'Email sending failed.')
+		return redirect('pcradmin:view_final')
+	parts = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=False)
+	parts_final = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=True)
 	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
 
 def user_logout(request):

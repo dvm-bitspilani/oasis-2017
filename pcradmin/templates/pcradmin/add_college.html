@@ -34,7 +34,7 @@
             </div>
             
             <br>
-            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add College</button>
+            <button type="submit" class="btn btn-primary m-t-15 waves-effect" name="submit" value="add">Add College</button>
         </form>
         </div>
     </div>
@@ -53,13 +53,15 @@
                 </div>
                 <div class="body">
                     <div class="table-responsive">
-                        
+                        <form action="" method="post">
+                        {% csrf_token %}
                         <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
                                 <tr>
                                     {% for heading in table.headings %}
                                     <th>{{heading}}</th>
                                     {% endfor %}
+                                    <th>Select to delete</th>
                             </tr>
                             </thead>
                             <tfoot>
@@ -67,6 +69,7 @@
                                     {% for heading in table.headings %}
                                     <th>{{heading}}</th>
                                     {% endfor %}    
+                                    <th>Select to delete</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -78,10 +81,16 @@
                                     {% for link in row.link %}
                                     <td><a href="{{link.url}}">{{link.title}}</a></td>
                                     {% endfor %}
+                                    <td>
+                                        <input type="radio" name="data" id="{{row.id}}" value="{{row.id}}">
+                                        <label for="{{row.id}}"></label>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
+                        <button  type="submit" name="submit" value="delete" class="btn btn-primary m-t-15 waves-effect">Delete</button>
+                        </form>
                     </div>
                 </div>
             </div>
