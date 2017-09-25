@@ -148,6 +148,9 @@ def create_label(request, e_id):
                 Parameter.objects.create(label=label, name=name, max_val=val)
 
         label.save()
+    
+    label_list = Label.objects.all()
+    return render(request, 'ems/create_label.html', {'label_list':label_list})
 
 @staff_member_required
 def event_levels(request, e_id):
@@ -171,4 +174,32 @@ def event_levels(request, e_id):
             judge.level_set.clear()
     levels = Level.objects.filter(event=event)
     context = {'event':event, 'levels':levels}
+    return render(request, 'ems/event_levels.html', context)
+
+@staff_member_required
+def event_levels_add(request, e_id):
+    event = Event.objects.get(id=e_id)
+    levels = Level.objects.get(event=event)
+    if request.method == 'POST':
+        data = request.POST
+        name = data['name']
+        position = int(data['position'])
+        level = Level.objects.create(name=name, position=position, event=event)
+        try:
+            label_list = Label.objects.filter(id__in=data.getlist('labels'))
+            for label in label_list:
+                label.level = level
+                label.save()
+        except:
+            pass
+        try:
+            judges_list = Judge.objects.filter(id__in=data.getlist('judge_list'))
+            for judge in judges_list:
+                level.judges.add(judge)
+        except:
+            pass
+        return redirect(reverse('ems:event_levels', kwargs={'e_id':event.id}))
+    position = (Level.objects.filter(event=event).count - 1)
+    context = {'event':event, 'levels':levels, 'position':position}
+    return render(request, 'ems/event_levels_add.html', context)
 

@@ -478,39 +478,24 @@ def upload_docs(request):
 	participant = Participant.object.get(user=request.user)
 	if request.method == 'POST':
 		try:
-			imageform = ImageUploadForm(request.POST, request.FILES)
 			image = participant.profile_pic
 			if image is not None:
 				image.delete(save=True)
-			if imageform.is_valid():
-				imageform.save()
-			else:
-				context = {
-				'status': 0,
-				'error_heading': "Error",
-				'message': "Sorry! Some errors were encountered while uploading the image. Please try again.",
-				}
-				return render(request, 'registrations/message.html', context)
+			new_img = request.FILES['profile_pic']
+			participant.profile_pic = new_img
+			participant.save()
 		except:
 			pass
-		
 		try:
-			docform = DocUploadForm(request.POST, request.FILES)
 			docs = participant.verify_docs
 			if docs is not None:
 				docs.delete(save=True)
-			if docform.is_valid():
-				docform.save()
-			else:
-				context = {
-				'status': 0,
-				'error_heading': "Error",
-				'message': "Sorry! Some errors were encountered while uploading the documents. Please try again.",
-				}
-				return render(request, 'registrations/message.html', context)
+			new_docs = request.FILES['verify_docs']
+			participant.verify_docs = new_docs
+			participant.save()
 		except:
 			pass
-	return render(request, 'registrations/upload_form.html', {'participant':participant})
+	return render(request, 'registrations/upload_docs.html', {'participant':participant})
 
 def apirequest(request):
 	import requests
