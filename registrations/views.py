@@ -18,13 +18,15 @@ import string
 from random import sample, choice
 from sg_config import *
 chars = string.letters + string.digits
+from preregistrations.instaconfig import *
+
+try:
+	from oasis2017.config import *
+	api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+except:
+	api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 def home(request):
-	if request.user.is_authenticated():
-		user = request.user
-		participant = Participant.objects.get(user=user)
-		return render(request, 'registrations/profile.html', {'participant':participant,})
-	else:
 		if request.method == 'POST':
 			username = request.POST['username']
 			password = request.POST['password']
@@ -33,7 +35,7 @@ def home(request):
 				if user.is_active:
 					login(request, user)
 					
-					return HttpResponseRedirect(reverse('registrations:index'))
+					return redirect('registrations:index')
 				else:
 					context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .'}
 					return JsonResponse({'status':0, 'context':context})
@@ -108,6 +110,12 @@ def prereg(request):
 
 @csrf_exempt
 def index(request):
+	if request.user.is_authenticated():
+		user = request.user
+		participant = Participant.objects.get(user=user)
+		participation_set = Participation.objects.filter(participant=participant)
+		cr = Participant.objects.get(college=participant.college, is_cr=True)
+		return render(request, 'registrations/home.html', {'participant':participant, 'participations':participation_set, 'cr':cr})
 
 	if request.method == 'POST':
 
@@ -229,6 +237,29 @@ def authenticate_email_token(token):
 	except :
 		return False
 
+def gen_barcode(part):
+	part_id = part.id
+	encoded = part.barcode
+	if encoded == '':
+		raise ValueError
+	if encoded is not None:
+		return encoded
+	part_ida = "%04d" % int(part_id)
+	college_code = ''.join(part.college.name.split(' '))
+	if len(college_code)<4:
+		college_code += str(0)*(4-len(college_code))
+	encoded = ''.join([part_ida[i]+college_code[i] for i in range(0,4)])
+	part.barcode = 'oasis17' + encoded
+	part.save()
+	import qrcode
+	part_code = qrcode.make(barcode)
+	try:
+		image='/root/live/oasis/backend/resources/oasis2017/qrcodes/%04s.png' % int(part_id)
+		part_code.save(image, 'PNG')
+	except:
+		image = '/home/auto-reload/Desktop/barcodes/participants/%04s.png' % int(part_id)
+		part_code.save(image, 'PNG')
+	return encoded
 ################################# End of helper functions ###############################
 
 def email_confirm(request, token):
@@ -236,14 +267,15 @@ def email_confirm(request, token):
 	
 	if member:
 		context = {
-			'error_heading': 1,
+			'error_heading': 'Email verified',
 			'message': 'Your email has been verified. Please wait for further correspondence from the Department of PCr, BITS, Pilani',
+			'url':'https://bits-oasis.org'
 		}
 	else:
 		context = {
-			'status': 0,
 			'error_heading': "Invalid Token",
 			'message': "Sorry! This is an invalid token. Email couldn't be verified. Please try again.",
+			'url':'https://bits-oasis.org'
 		}
 	return render(request, 'registrations/message.html', context)
 
@@ -319,7 +351,7 @@ BITS Pilani
 +91-9929022741
 pcr@bits-bosm.org
 </pre>
-			'''%(name, username, password)
+			'''		%(name, username, password)
 					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
 					from_email = Email('register@bits-oasis.org')
 					to_email = Email(send_to)
@@ -372,29 +404,58 @@ def edit_participant(request):
 	return render(request, 'registrations/participant_edit.html', {'participant':participant})
 
 @login_required
-def participant_payment(request, p_id):
-	participant = get_object_or_404(Participant, id=p_id)
-	name = participant.name
-	email = participant.email
-	phone = participant.phone
-	purpose = 'Payment for OASIS \'17'
-	response = api.payment_request_create(buyer_name= name,
-						email= email,
-						phone= number,
-						amount = 950,
-						purpose=purpose,
-						redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
-						)
-	# print  email	, response['payment_request']['longurl']			
-	try:
-		url = response['payment_request']['longurl']
-		return HttpResponseRedirect(url)
-	except:
+def participant_details(request, p_id):
+	user = request.user
+	participant = Participant.object.get(user=user)
+	if not participant.is_cr:
 		context = {
-			'error_heading': "Payment error",
-			'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
-			}
-		return render(request, 'registrations/message.html')
+		'error_heading': "Invalid Access",
+		'message': "Sorry! You are not an approved college representative.",
+		'url':request.build_absolute_uri(reverse('registrations:home'))
+		}
+		return render(request, 'registrations/message.html', context)
+	get_part = Participant.objects.get(id=p_id)
+	if not get_part.college == participant.college:
+		context = {
+		'error_heading': "Invalid Access",
+		'message': "Sorry! You do not have access to these details.",
+		'url':request.build_absolute_uri(reverse('registrations:home'))
+		}
+		return render(request, 'registrations/message.html', context)
+	participation_list = Participation.objects.filter(participant=get_part)
+	return render(request, 'registrations/home.html', {'participant':get_part, 'participations':participation_list})
+
+@login_required
+def participant_payment(request):
+	participant = Participant.objects.get(user=request.user)
+	if request.method == 'POST':
+		if int(request.POST['key']) == 1:
+			amount = 300
+		elif int(request.POST['key']) == 2:
+			amount = 950
+		name = participant.name
+		email = participant.email
+		phone = participant.phone
+		purpose = 'Payment for OASIS \'17'
+		response = api.payment_request_create(buyer_name= name,
+							email= email,
+							phone= number,
+							amount = amount,
+							purpose=purpose,
+							redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
+							)
+		# print  email	, response['payment_request']['longurl']			
+		try:
+			url = response['payment_request']['longurl']
+			return HttpResponseRedirect(url)
+		except:
+			context = {
+				'error_heading': "Payment error",
+				'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+				}
+			return render(request, 'registrations/message.html')
+	else:
+		return render(request, 'registrations/participant_payment.html', {'participant':participant})
 
 @login_required
 def manage_events(request):
@@ -428,20 +489,24 @@ def manage_events(request):
 
 @login_required
 def cr_payment(request):
+	user = request.user
+	participant = Participant.object.get(user=user)
+	if not participant.is_cr:
+		context = {
+		'status': 0,
+		'error_heading': "Invalid Access",
+		'message': "Sorry! You are not an approved college representative.",
+		}
+		return render(request, 'registrations/message.html', context)
 	if request.method == 'POST':
-		user = request.user
-		participant = Participant.object.get(user=user)
-		if not participant.is_cr:
-			context = {
-			'status': 0,
-			'error_heading': "Invalid Access",
-			'message': "Sorry! You are not an approved college representative.",
-			}
-			return render(request, 'registrations/message.html', context)
 		data = request.POST
+		if int(request.POST['key']) == 1:
+			amount = 300
+		elif int(request.POST['key']) == 2:
+			amount = 950
 		part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
 		group = PaymentGroup()
-		group.amount_paid = 950*len(part_list)
+		group.amount_paid = amount*len(part_list)
 		group.save()
 		for part in part_list:
 			part.payment_group = group
@@ -465,12 +530,12 @@ def cr_payment(request):
 			group.delete()
 			context = {
 				'error_heading': "Payment error",
-				'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+				'message': "An error was encountered while processing the request. Please try again or contact PCr, BITS, Pilani.",
 				}
 			return render(request, 'registrations/message.html')
 
 	else:
-		participant_list = Participant.objects.filter(college=participant.college, pcr_approved=True)
+		participant_list = Participant.objects.filter(college=participant.college, pcr_approved=True, paid=False)
 		return render(request, 'cr_payment.html', {'participant_list':participant_list})
 
 @login_required
@@ -502,25 +567,32 @@ def apirequest(request):
 	payid=str(request.GET['payment_request_id'])
 	headers = {'X-Api-Key': API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
-	
-   	r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),
-              	 headers=headers)
-	#r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development
+	try:
+		from oasis2017.config import *
+   		r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
+	except:
+		r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development
 	json_ob = r.json()
 	if (json_ob['success']):
 		payment_request = json_ob['payment_request']
 		purpose = payment_request['purpose']
+		amount = payment_request['amount']
 		try:
 			group_id = int(purpose.split(' ')[1])
 			payment_group = PaymentGroup.objects.get(id=group_id)
+			count = payment_group.participant_set.all().count()
 			for part in payment_group.participant_set.all():
 				part.paid = True
+				if (amount/count) == 950:
+					part.controlz_paid = True
 				part.save()
 
 		except:		
 			email = payment_request['email']
 			participant = Participant.objects.get(email=email)
 			participant.paid = True
+			if amount == 950:
+				participant.controlz_paid = True
 			participant.save()
 		message = "Payment successful"
 		return render(request, 'registrations/message.html', )

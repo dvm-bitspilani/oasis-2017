@@ -1,0 +1,67 @@
+{% extends 'pcradmin/base.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="row clearfix">
+    <form action="{% url 'registrations:participant_payment' %}" method="post">    
+    <div class="card">
+                <div class="header">
+                    <h2>
+                        Make Payment
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        
+                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Payment Method    
+                                    </th>
+                                    <th>    
+                                        Select
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>
+                                        Payment Method    
+                                    </th>
+                                    <th>    
+                                        Select
+                                    </th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        Rs 300
+                                    </td>
+                                    <td>
+                                        <input name="key" type="radio" id="1" value="1"/>
+                                        <label for="1"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Rs 950 (Complete the payment to be made at controlz booth and avail a discount of Rs 50 and also skip the rush!)
+                                    </td>
+                                    <td>
+                                        <input name="key" type="radio" id="2" value="2"/>
+                                        <label for="2"></label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Make payment</button>
+                    </div>
+                    
+                </div>
+            </div>
+    </form>
+</div>
+
+{% endblock %}
