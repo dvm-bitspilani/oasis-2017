@@ -6,6 +6,23 @@ from registrations.models import *
 from events.models import *
 from .models import *
 
+
+def permission_for_event(function):
+    def wrap(request, *args, **kwargs):
+        user = request.user
+        if request.user.is_superuser:
+            return function(request, *args, **kwargs)
+        event = Event.objects.get(pk=kwargs['e_id'])
+        club_dept = ClubDepartment(user=user)
+        if not event in club_dept.events.all():
+            url = request.build_absolute_uri(reverse('ems:events_select'))
+            return render(request, 'ems/message.html', {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+
+    wrap.__doc__ = function.__doc__
+    wrap.__name__ = function.__name__
+    return wrap
+
+
 def index(request):
     if request.user.is_authenticated() and request.user.is_staff:
         return redirect(reverse('ems:events_select'))
@@ -51,15 +68,12 @@ def events_select(request):
     
     return render(request, 'ems/event_list.html', {'event_list':event_list})
 
+@permission_for_event
 @staff_member_required
 def event_home(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     clubdepartment = ClubDepartment.objects.get(user=request.user)
-    if request.user.is_superuser:
-        continue
-    elif not event in clubdepartment.events:
-        url = request.build_absolute_uri(reverse('ems:events-select'))
-        return render(request, 'ems/message.html', {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+
     if request.method == 'POST':
         data = request.POST
         position = int(data['position'])
@@ -68,7 +82,13 @@ def event_home(request, e_id):
         except:
             url = request.build_absolute_uri(reverse('ems:event_home', kwargs={'e_id':event.id}))
             return render(request, 'ems/message.html', {'error_heading':'Error!', 'message':'This level does not exist. Please add it from Manage Levels tab.', 'url':url})
-        team_list = Team.objects.filter(id__in=data.getlist('team_list'))
+        try:
+            lst = data.getlist('team_list')
+            team_list = Team.objects.filter(id__in=lst)
+        except:
+            url = request.build_absolute_uri(request.META.get('HTTP_REFERER'))
+            return render(request, 'ems/message.html', {'error_heading':'Error!', 'message':'Please Select atleast 1 Team', 'url':url})
+
         if data['submit'] == 'Promote':
             try:
                 next_level = Level.objects.get(event=event, position = position + 1)
@@ -91,115 +111,101 @@ def event_home(request, e_id):
                 level.teams.remove(team)
 
     levels = Level.objects.filter(event=event)
-    context = {'event':event,'levels':levels}
+    positions = range(1,level.count()+1)
+    tables = [{'level':p, 'teams':Team.objects.filter(event=event, level=p)} for p in positions]
+    context = {'event':event,'levels':levels, 'tables':tables}
     return render(request, 'ems/event_home.html', context)
 
+
+@permission_for_event
 @staff_member_required
 def add_judge(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     clubdepartment = ClubDepartment.objects.get(user=request.user)
-    if request.user.is_superuser:
-        continue
-    elif not event in clubdepartment.events:
-        url = request.build_absolute_uri(reverse('ems:index'))
-        return render(request, 'ems/message.html', {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+
     if request.method == 'POST':
         data = request.POST
-        username = data['username']
-        password = data['password']
-        name = data['name']
+        username = 'judge' + event.name.split()[0] + random.ranint(1,1000)
         try:
-            user = User.objects.create_user(username=username, password=password)
+            password = data['password']
+            name = data['name']
+            if password=='' or name=='':
+                raise Exception
         except:
             url = request.build_absolute_uri(reverse('ems:add_judge', kwargs={'e_id':e_id}))
-            return render(request, 'ems/message.html', {'error_heading':'User exists', 'message':'Please change the username.', 'url':url})
+            return render(request, 'ems/message.html', {'error_heading':'User exists', 'message':'Don\'t leave the name and password field empty', 'url':url})
         judge = Judge.objects.create(name=name, event=event, user=user)
         return redirect(reverse('ems:event_home', {'e_id':e_id}))
     return render(request, 'ems/add_judge.html', {'event':event})
 
-@staff_member_required
-def create_label(request, e_id):
-    event = get_object_or_404(Event, id=e_id)
-    clubdepartment = ClubDepartment.objects.get(user=request.user)
-    if request.user.is_superuser:
-        continue
-    elif not event in clubdepartment.events:
-        url = request.build_absolute_uri(reverse('ems:index'))
-        return render(request, 'ems/message.html', {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
-    if request.method == 'POST':
-        data = request.POST
-        label = Label.objects.get_or_create(event=event)
-        try:
-            names_list = data.getlist('names')
-            max_list = data.getlist('max_list')
-        except:
-            request.META.get('HTTP_REFERRER')
-        if not len(names_list) == len(max_list):
-            url = request.build_absolute_uri(reverse('ems:create_label'))
-            return render(request, 'ems/message.html', {'error_heading':'Invalid data', 'message':'Please enter data in a valid form.', 'url':url}) 
-        count = 0
-        data_list = []
-        while(count<len(names_list)):
-            data_list.append({'name':names_list[count], 'max_val':max_list[count]})
-            count += 1
-        
-        for item in data_list:
-            for name, val in item.iteritems():
-                Parameter.objects.create(label=label, name=name, max_val=val)
 
-        label.save()
-    
-    label_list = Label.objects.all()
-    return render(request, 'ems/create_label.html', {'label_list':label_list})
-
+@permission_for_event
 @staff_member_required
 def event_levels(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     clubdepartment = ClubDepartment.objects.get(user=request.user)
-    if request.user.is_superuser:
-        continue
-    elif not event in clubdepartment.events:
-        url = request.build_absolute_uri(reverse('ems:events-select'))
-        return render(request, 'ems/message.html', {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+
     if request.method == 'POST':
         data = request.POST
         if data['submit'] == 'delete-level':
-            l_id = data['l_id']
-            level = get_object_or_404(Level, id=l_id)
+            try:
+                l_id = data['l_id']
+                level = get_object_or_404(Level, id=l_id)
+            except:
+                return redirect(request.META.get('HTTP_REFERER'))
             level.teams.clear()
             level.delete()
         elif data['submit'] == 'delete-judge':
-            j_id = data['j_id']
-            judge = get_object_or_404(Judge, id=j_id)
-            judge.level_set.clear()
+            try:
+                j_id = data['j_id']
+                judge = get_object_or_404(Judge, id=j_id)
+            except:
+                return redirect(request.META.get('HTTP_REFERER'))
+            judge.delete()
     levels = Level.objects.filter(event=event)
-    context = {'event':event, 'levels':levels}
+    judges = Judge.objects.filter(event=event)
+    context = {'event':event, 'levels':levels, 'judges':judges}
     return render(request, 'ems/event_levels.html', context)
 
+
+@permission_for_event
 @staff_member_required
 def event_levels_add(request, e_id):
     event = Event.objects.get(id=e_id)
     levels = Level.objects.get(event=event)
+    position = Level.objects.filter(event=event).count()
     if request.method == 'POST':
         data = request.POST
-        name = data['name']
-        position = int(data['position'])
-        level = Level.objects.create(name=name, position=position, event=event)
         try:
-            label_list = Label.objects.filter(id__in=data.getlist('labels'))
-            for label in label_list:
-                label.level = level
-                label.save()
+            name = data['name']
+            if name == '':
+                raise Exception
         except:
-            pass
-        try:
-            judges_list = Judge.objects.filter(id__in=data.getlist('judge_list'))
-            for judge in judges_list:
-                level.judges.add(judge)
-        except:
-            pass
+            return redirect(request.META.get('HTTP_REFERER'))
+        level = Level.objects.create(name=name, position=position+1, event=event)
         return redirect(reverse('ems:event_levels', kwargs={'e_id':event.id}))
-    position = (Level.objects.filter(event=event).count - 1)
     context = {'event':event, 'levels':levels, 'position':position}
     return render(request, 'ems/event_levels_add.html', context)
 
+@staff_member_required
+@permission_for_event
+def add_team(request, e_id):
+    event = get_object_or_404(Event, id=e_id)
+    if request.method == 'POST':
+        data = dict(request.POST)
+        try:
+            parts_ids = data['parts']
+            leader_id = data['leader'][0]
+            parts = Participant.objects.filter(id__in=parts_ids)
+            leader = Participant.objects.get(id=leader_id)
+            name = data['name'][0]
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
+        team = Team(name=name, leader=leader)
+    parts = Participant.objects.filter(controlz_paid=True)
+    return render(request, 'ems/add_team.html', {'event':event, 'participants':parts})
+
+@staff_member_required
+@permission_for_event
+def add_bitsian_team(request, e_id):
+    event = get_object_or_404(Event, id=e_id)
