@@ -12,7 +12,7 @@ from sendgrid.helpers.mail import *
 from django.contrib.auth.decorators import login_required
 from instamojo_wrapper import Instamojo
 import re
-from oasis2017.config import *
+from oasis2017.keyconfig import *
 from django.contrib.auth.models import User
 import string
 from random import sample, choice

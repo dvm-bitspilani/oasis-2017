@@ -6,12 +6,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from instamojo_wrapper import Instamojo
 import re
-from instaconfig import *
+from oasis2017.keyconfig import *
 
-
-api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
-# api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
-
+try:
+	from oasis2017.config import *
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN)
+except:
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 @csrf_exempt
 def index(request):
