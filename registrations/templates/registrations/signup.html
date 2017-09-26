@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="{% static 'registrations/js/main.js' %}"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" /> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 	<div class="wrapper">
@@ -101,8 +102,11 @@
         <div class="events-box" id="events">
         </div>
       </div>
+      <div class="field">
+        <div class="g-recaptcha" data-sitekey="6LfMKjIUAAAAAFnFWsHezMISSRZoqmN-spFKJxaz" tabindex="16"></div>
+      </div>
       <div class="submit">
-  		  <input type="button" id="submit-button" name="submit" value="SUBMIT"  tabindex="16">
+  		  <input type="button" id="submit-button" name="submit" value="SUBMIT"  tabindex="17">
       </div>
 </form>
 <button id="submit-btn"><img src="{% static 'registrations/img/submit.svg' %}"></button>

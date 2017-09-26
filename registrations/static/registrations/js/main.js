@@ -278,7 +278,7 @@ function submitFormData(func){
     // console.log("phone", n, (n.match(/^\d{10}$/)));
     var b = (n.match(/^\d{10}$/));
     if(b && b.length == 1){
-      
+      // console.log(grecaptcha.getResponse())
       disabled = true;
       $('#submit-button').css('background', '#666');
       console.log(data);
