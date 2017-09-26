@@ -76,6 +76,7 @@ class Participant(models.Model):
 	group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True)
 	room = models.ForeignKey('regsoft.Room', null=True, blank=True)
 	controlz = models.BooleanField('controlz passed', default=False)
+	controlz_paid = models.BooleanField(default=False)
 	bill = models.OneToOneField('regsoft.Bill' ,null=True, on_delete=models.SET_NULL)
 	recnacc_time = models.DateTimeField(null=True, auto_now=False)
 	is_g_leader = models.BooleanField(default=False)

@@ -1,0 +1,111 @@
+{% extends 'regsoft/base.html' %}
+{% block body %}
+
+<form action="{% url 'regsoft:cr_payment' %}" method="post">
+    {% csrf_token %}
+    <div class="card">
+    <div class="header">
+        <h2>
+            Select payment method and participants for payment
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                <thead>
+                    <tr>
+                        <th>
+                            Payment Method    
+                        </th>
+                        <th>    
+                            Select
+                        </th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>
+                            Payment Method    
+                        </th>
+                        <th>    
+                            Select
+                        </th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr>
+                        <td>
+                            Rs 300
+                        </td>
+                        <td>
+                            <input name="key" type="radio" id="one" value="1"/>
+                            <label for="one"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Rs 950 (Complete the payment to be made at controlz booth and avail a discount of Rs 50 and also skip the rush!)
+                        </td>
+                        <td>
+                            <input name="key" type="radio" id="two" value="2"/>
+                            <label for="two"></label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+        </div>
+    <div class="card">
+        <div class="header">
+            <h2>
+                Participants
+            </h2>
+        </div>
+        <div class="body">
+    	
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover dataTable">
+                    <thead>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>College</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>Events</th>
+                            <th>College</th>
+                            <th>Select</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                    	{% for part in participant_list %}
+                        <tr>
+                            <td><a href="{% url 'registrations:participant_detail' part.id %}">{{part.name}}</a></td>
+                            <td>{{part.gender}}</td>
+                            <td>
+                                {% for event in part.events.all() %}
+                                    {{event.name}},
+                                {% endfor %}
+                            </td>
+                            <td>{{part.college.name}}</td>
+                            <td>
+                                <input type="checkbox" name="part_list" id="{{part.id}}" value="{{part.id}}">
+                                <label for="{{part.id}}"></label>
+    						</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br><br>
+                <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Make payment</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

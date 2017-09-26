@@ -1,0 +1,150 @@
+{% extends 'pcradmin/base.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="row clearfix">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    Registration Status
+                </h2>
+            </div>
+            <div class="body">
+                <div class="table-responsive">
+                    
+                    <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Determinant    
+                                </th>
+                                <th>    
+                                    Status
+                                </th>
+                                <th>
+                                    Update
+                                </th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>
+                                    Determinant    
+                                </th>
+                                <th>    
+                                    Status
+                                </th>
+                                <th>
+                                    Update
+                                </th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Documents Upload
+                                </td>
+                                <td>
+                                    {% if participant.profile_pic and participant.verify_docs %}
+                                    Complete
+                                    {% else %}
+                                    Incomplete
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'registrations:upload_docs' %}">
+                                        Update
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Payment Status
+                                </td>
+                                <td>
+                                    {% if participant.paid %}
+                                    Paid
+                                    {% else %}
+                                    Not paid
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not participant.paid %}
+                                        <a href="{% url 'registrations:make_payment' %}">Make payment</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+        <div class="card">
+                <div class="header">
+                    <h2>
+                        Events Status
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        
+                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Event    
+                                    </th>
+                                    <th>    
+                                        CR Approval
+                                    </th>
+                                    <th>
+                                        PCr Approval
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>
+                                        Event    
+                                    </th>
+                                    <th>    
+                                        CR Approval
+                                    </th>
+                                    <th>
+                                        PCr Approval
+                                    </th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for participation in participations %}
+                                <tr>
+                                    <td>
+                                        {{participation.event.name}}
+                                    </td>
+                                    <td>
+                                        {% if participation.cr_approved %}
+                                        Approved by college representative
+                                        {% else %}
+                                        Not approved, contact {{cr.name}} from your college
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if participation.pcr_approved %}
+                                        Approved by PCr, OASIS-BITS Pilani
+                                        {% else %}
+                                        Not approved by college PCr, OASIS-BITS Pilani
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
+</div>
+
+{% endblock %}
