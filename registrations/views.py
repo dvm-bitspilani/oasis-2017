@@ -20,6 +20,8 @@ from sg_config import *
 chars = string.letters + string.digits
 from preregistrations.instaconfig import *
 
+import requests
+
 try:
 	from oasis2017.config import *
 	api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
@@ -118,9 +120,17 @@ def index(request):
 		return render(request, 'registrations/home.html', {'participant':participant, 'participations':participation_set, 'cr':cr})
 
 	if request.method == 'POST':
-
 		data = request.POST
-		email = data['email']
+		recaptcha_response = data['g-recaptcha-response']
+		data = {
+			'secret' : recaptcha_key,
+			'response' : recaptcha_response
+		}
+		r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+		result = r.json()
+		print r
+		print result
+		return JsonResponse(result)
 		if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
 			return JsonResponse({'status':0, 'message':'Please enter a valid email address.'})
 		try:

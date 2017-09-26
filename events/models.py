@@ -21,7 +21,7 @@ class Event(models.Model):
 	content = RichTextField()
 	appcontent = models.TextField(max_length=3000, default='')
 	short_description = models.CharField(blank=True,max_length=140)
-	description = models.CharField(blank=True,max_length=200)
+	rules = models.CharField(blank=True,max_length=200)
 	category = models.ForeignKey('Category', default=3)
 	is_kernel = models.BooleanField(default=False)
 	icon = models.ImageField(blank=True, upload_to="icons")
@@ -32,6 +32,7 @@ class Event(models.Model):
 	max_team_size = models.IntegerField(default=0)
 	min_teams = models.IntegerField(default=0)
 	max_teams = models.IntegerField(default=0)
+	contact = models.CharField(max_length=140, default='')
 
 	def __unicode__(self):
 		return self.name

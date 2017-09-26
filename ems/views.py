@@ -201,7 +201,17 @@ def add_team(request, e_id):
             name = data['name'][0]
         except:
             return redirect(request.META.get('HTTP_REFERER'))
-        team = Team(name=name, leader=leader)
+        team = Team(name=name, leader=leader, event=event)
+        team.save()
+        for part in parts:
+            team.members.add(part)
+        level = Level.objects.get(position=1, event=event)
+        level.teams.add(team)
+        Score.objects.create(team=team, level=level)
+        submit = data['submit'][0]
+
+        if submit == 'add':
+            return redirect(reverse('ems:e'))
     parts = Participant.objects.filter(controlz_paid=True)
     return render(request, 'ems/add_team.html', {'event':event, 'participants':parts})
 
