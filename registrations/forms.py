@@ -15,15 +15,3 @@ class ParticipantForm(forms.ModelForm):
 	class Meta:
 		model = Participant
 		fields = ('email', 'city', 'name', 'college', 'state', 'phone', 'gender',)
-
-class ImageUploadForm(forms.ModelForm):
-
-	class Meta:
-		model = Participant
-		fields = ('profile_pic',)
-
-class DocUploadForm(forms.ModelForm):
-
-	class Meta:
-		model = Participant
-		fields = ('verify_docs',)

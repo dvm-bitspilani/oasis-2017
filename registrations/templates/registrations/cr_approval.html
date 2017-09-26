@@ -1,0 +1,109 @@
+{% extends "regsoft/base.html" %}
+{% block body %}
+{% if disapproved_list %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Unapproved Participants
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'registrations:cr_approve' %}" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Name(Click to view details)</th>
+                        <th>College</th>
+                        <th>Events</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name(Click to view details)</th>
+                        <th>College</th>
+                        <th>Events</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                	{% for i in unapproved_list %}
+                    <tr>
+                        <td><a href="{% url 'registrations:participant_detail' i.id %}">{{i.name}}</a></td>
+                        <td>{{i.college.name}}</td>
+                        <td>
+                        	<input type="checkbox" name="parts_id" id="{{i.id}}" value="{{i.id}}">
+                        	<label for="{{i.id}}"></label>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="approve" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Confirm</button>
+        </div>
+	</form>
+    </div>
+</div>
+{% endif %}
+
+
+
+{% if approved_list %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Approved Participants
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'registrations:cr_approve' %}" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Name(Click to view details)</th>
+                        <th>College</th>
+                        <th>Payment status</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name(Click to view details)</th>
+                        <th>College</th>
+                        <th>Payment status</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                	{% for i in approved_list %}
+                    <tr>
+                        <td><a href="{% url 'registrations:participant_detail' i.id %}">{{i.name}}</a></td>
+                        <td>{{i.college.name}}</td>
+                        <td>
+                            {% if i.paid %}
+                            Paid
+                            {% else %}
+                            Payment left
+                            {% endif %}
+                        </td>
+                        <td>
+                        	<input type="checkbox" name="parts_id" id="{{i.id}}" value="{{i.id}}">
+                        	<label for="{{i.id}}"></label>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="disapprove" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Unapprove</button>
+        </div>
+	</form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

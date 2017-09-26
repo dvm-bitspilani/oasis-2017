@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <title>PCrAdmin | Oasis'17</title>
+    <title>Registrations | Oasis'17</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 
@@ -56,7 +56,7 @@
             <div class="navbar-header">
                 <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
                 <a href="javascript:void(0);" class="bars"></a>
-                <a class="navbar-brand" href="{% url 'pcradmin:index' %}">PCrAdmin | Oasis'17</a>
+                <a class="navbar-brand" href="{% url 'pcradmin:index' %}">Registrations | Oasis'17</a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
@@ -102,33 +102,25 @@
                     <li class="active">
                                 <a href="{% url 'pcradmin:college' %}">
                                 <!-- <i class="material-icons">home</i> -->
-                                <span>Colleges</span>
+                                <span>Manage Events</span>
                                 </a>
+                    </li>
+                    {% if participant.is_cr %}
+                    <li class="active">
+                        <a href="{% url 'pcradmin:add_college' %}">
+                            <span>Manage Participants from {{participant.college.name}}</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="active">
+                        <a href="{% url 'pcradmin:add_college' %}">
+                            <span>Make Payments</span>
+                        </a>
                     </li>
                     <li class="active">
                         <a href="{% url 'pcradmin:add_college' %}">
-                            <span>Add College</span>
+                            <span>Manage Profile</span>
                         </a>
-                    </li>
-
-                    <li class="active">
-                        <a href="javascript:void(0);" class="menu-toggle">
-                            <span>Statistics</span>
-                        </a>
-                        <ul class="ml-menu">
-                            <li>
-                                <a href="{% url 'pcradmin:stats' 'collegewise' %}"><span>Collegewise</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'pcradmin:stats' 'eventwise' %}"><span>Eventewise</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'pcradmin:stats' 'paidwise' %}"><span>Paymentwise</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'pcradmin:master_stats' %}"><span>Master Stats</span></a>
-                            </li>
-                        </ul>
                     </li>
                     <li class="active">
                         <a href="{% url 'pcradmin:view_final' %}">
@@ -155,9 +147,6 @@
             <div class="legal">
                 <div class="copyright">
                     &copy; for OASIS'17  <a href="javascript:void(0);">DVM, BITS Pilani</a>
-                </div>
-                <div class="version">
-                    <b>Thanks, </b> AdminBSB
                 </div>
             </div>
             <!-- #Footer -->

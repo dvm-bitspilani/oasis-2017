@@ -12,7 +12,7 @@ urlpatterns = [
 	url(r'^stats/(?P<order>\w+)/$', views.stats, name='stats'),
 	url(r'^final_confirmation/$', views.view_final, name='view_final'),
 	url(r'^final_confimation/(?P<c_id>\d+)/$', views.final_confirmation, name='final_confirmation'),
-
+	url(r'^master_stats/$', views.master_stats, name='master_stats'),
 	url(r'^logout/$', views.user_logout, name='user-logout'),
 	url(r'^contacts/$', views.contacts, name='contacts'),
 

@@ -45,6 +45,7 @@ class Level(models.Model):
     judges = models.ManyToManyField(Judge, blank=True, null=True)
     name = models.CharField(max_length=20)
     teams = models.ManyToManyField(Team, related_name='levels',blank=True)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name + '-' + self.event.name
@@ -52,26 +53,29 @@ class Level(models.Model):
 
 class Label(models.Model):
     level = models.ForeignKey(Level, on_delete=models.CASCADE)
-    var1name = models.CharField(max_length=20, null=True, blank=True)
-    var1max = models.IntegerField(default=10, null=True, blank=True)
-    var2name = models.CharField(max_length=20, null=True, blank=True)
-    var2max = models.IntegerField(default=10, null=True, blank=True)
-    var3name = models.CharField(max_length=20, null=True, blank=True)
-    var3max = models.IntegerField(default=10, null=True, blank=True)
-    var4name = models.CharField(max_length=20, null=True, blank=True)
-    var4max = models.IntegerField(default=10, null=True, blank=True)
-    var5name = models.CharField(max_length=20, null=True, blank=True)
-    var5max = models.IntegerField(default=10, null=True, blank=True)
-    var6name = models.CharField(max_length=20, null=True, blank=True)
-    var6max = models.IntegerField(default=10, null=True, blank=True)
-    var7name = models.CharField(max_length=20, null=True, blank=True)
-    var7max = models.IntegerField(default=10, null=True, blank=True)
-    var8name = models.CharField(max_length=20, null=True, blank=True)
-    var8max = models.IntegerField(default=10, null=True, blank=True)
-    var9name = models.CharField(max_length=20, null=True, blank=True)
-    var9max = models.IntegerField(default=10, null=True, blank=True)
-    var10name = models.CharField(max_length=20, null=True, blank=True)
-    var10max = models.IntegerField(default=10, null=True, blank=True)
 
     def __unicode__(self):
         return self.level.event.name + '-' + str(self.id)
+
+class Parameter(models.Model):
+    label = models.ForeignKey(Label, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=20)
+    max_val = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return self.level.event.name + '-' + self.name
+
+class Bitsian(models.Model):
+    GENDERS = (
+		('M', 'Male'),
+		('F', 'Female'),)
+	
+    long_id = models.CharField(max_length=20, null=True, blank=True)
+    short_id = models.CharField(max_length=10, null=True, blank=True)
+    name = models.CharField(max_length=200, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDERS, null=True, blank=True)
+    college = models.CharField(max_length=200, default='BITS Pilani', null=True, blank=True)
+	
+    def __unicode__(self):
+		return str(self.name)
