@@ -12,21 +12,19 @@ from sendgrid.helpers.mail import *
 from django.contrib.auth.decorators import login_required
 from instamojo_wrapper import Instamojo
 import re
-from preregistrations.instaconfig import *
+from oasis2017.config import *
 from django.contrib.auth.models import User
 import string
 from random import sample, choice
-from sg_config import *
 chars = string.letters + string.digits
-from preregistrations.instaconfig import *
 
 import requests
 
 try:
 	from oasis2017.config import *
-	api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN)
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN)
 except:
-	api = Instamojo(api_key=API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 def home(request):
 		if request.method == 'POST':
@@ -121,7 +119,6 @@ def index(request):
 
 	if request.method == 'POST':
 		data = request.POST
-		print data
 		recaptcha_response = data['g-recaptcha-response']
 		data_1 = {
 			'secret' : recaptcha_key,
@@ -205,12 +202,12 @@ pcr@bits-oasis.org
 			subject = "Registration for OASIS '17 REALMS OF FICTION"
 			content = Content('text/html', body)
 			print from_email, to_email
-			try:
-				mail = Mail(from_email, subject, to_email, content)
-				response = sg.client.mail.send.post(request_body=mail.get())
-			except :
-				participant.delete()
-				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
+			# try:
+			mail = Mail(from_email, subject, to_email, content)
+			response = sg.client.mail.send.post(request_body=mail.get())
+			# except :
+			participant.delete()
+			return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
 			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
 			return JsonResponse({'status':1, 'message':message})
@@ -363,7 +360,7 @@ BITS Pilani
 pcr@bits-bosm.org
 </pre>
 			'''		%(name, username, password)
-					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+					sg = sendgrid.SendGridAPIClient(apikey=INSTA_API_KEY)
 					from_email = Email('register@bits-oasis.org')
 					to_email = Email(send_to)
 					subject = "Registration for OASIS '17 REALMS OF FICTION"
@@ -576,7 +573,7 @@ def upload_docs(request):
 def apirequest(request):
 	import requests
 	payid=str(request.GET['payment_request_id'])
-	headers = {'X-Api-Key': API_KEY,
+	headers = {'X-Api-Key': INSTA_API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
 	try:
 		from oasis2017.config import *
