@@ -202,12 +202,12 @@ pcr@bits-oasis.org
 			subject = "Registration for OASIS '17 REALMS OF FICTION"
 			content = Content('text/html', body)
 			print from_email, to_email
-			# try:
-			mail = Mail(from_email, subject, to_email, content)
-			response = sg.client.mail.send.post(request_body=mail.get())
-			# except :
-			participant.delete()
-			return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
+			try:
+				mail = Mail(from_email, subject, to_email, content)
+				response = sg.client.mail.send.post(request_body=mail.get())
+			except :
+				participant.delete()
+				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
 			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
 			return JsonResponse({'status':1, 'message':message})
