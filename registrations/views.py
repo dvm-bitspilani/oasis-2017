@@ -121,16 +121,17 @@ def index(request):
 
 	if request.method == 'POST':
 		data = request.POST
+		print data
 		recaptcha_response = data['g-recaptcha-response']
-		data = {
+		data_1 = {
 			'secret' : recaptcha_key,
 			'response' : recaptcha_response
 		}
-		r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+		r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data_1)
 		result = r.json()
-		print r
-		print result
-		return JsonResponse(result)
+		if not result['success']:
+			return JsonResponse({'status':0, 'message':'Invalid Recaptcha. Try Again'})
+		email = data['email']
 		if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
 			return JsonResponse({'status':0, 'message':'Please enter a valid email address.'})
 		try:
