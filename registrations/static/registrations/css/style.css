@@ -29,6 +29,14 @@ body{
   padding-left: 0px;
   overflow-y: auto;
 }
+
+.menu_options{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+
 .register-btn{
   border:none;
   background:none;
@@ -38,13 +46,25 @@ body{
   font-size: 180%;
   
   width: auto;
-  position: fixed;
-  top:20px;
-  right: 20px;
+  /*position: fixed;*/
+  position: relative;
+  
+  
   font-family: 'Azosans' !important; 
   padding: 5px 10px;
+  margin: 10px;
+  cursor: pointer;
 
 }
+.register-btn a{
+  text-decoration: none;
+  color: #fff;
+}
+.menu_options .active-btn{
+  cursor: default;
+  box-shadow: inset 0 3px 5px #000
+}
+
 form{
   width: 100%;
   display: flex;

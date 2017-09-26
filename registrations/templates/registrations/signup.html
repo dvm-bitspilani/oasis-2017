@@ -12,8 +12,12 @@
 </head>
 <body>
 	<div class="wrapper">
-    <button class="register-btn">REGISTER</button>
-		<form class="form" id="register-form" acion="{% url 'registrations:index' %}" method = "POST">
+    <nav class="menu_options">
+      <button class="register-btn"><a href="{% url 'registrations:index' %}">LOGIN</a></button> 
+
+      <button class="register-btn active-btn">REGISTER</button>
+		</nav>
+    <form class="form" id="register-form" acion="{% url 'registrations:index' %}" method = "POST">
 			{% csrf_token %}
   		<div class="field">
     		<label>1. What is your Name: </label>
