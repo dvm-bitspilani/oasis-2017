@@ -1,4 +1,4 @@
-{% extends 'pcradmin/base.html' %}
+{% extends 'registrations/base.html' %}
 {% load static %}
 
 {% block body %}
@@ -63,16 +63,16 @@
                                     Payment Status
                                 </td>
                                 <td>
-                                    {% if participant.paid %}
-                                    Paid
+                                    {% if participant.paid and participant.controlz_paid %}
+                                    Paid - 950 (Complete Fees)
+                                    {% elif participant.paid %}
+                                    Paid - 300 (Preregistration Fees)
                                     {% else %}
                                     Not paid
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if not participant.paid %}
-                                        <a href="{% url 'registrations:make_payment' %}">Make payment</a>
-                                    {% endif %}
+                                    <a href="{% url 'registrations:make_payment' %}">Manage payments</a>
                                 </td>
                             </tr>
                         </tbody>
@@ -134,7 +134,7 @@
                                         {% if participation.pcr_approved %}
                                         Approved by PCr, OASIS-BITS Pilani
                                         {% else %}
-                                        Not approved by college PCr, OASIS-BITS Pilani
+                                        Not approved by PCr, OASIS-BITS Pilani
                                         {% endif %}
                                     </td>
                                 </tr>

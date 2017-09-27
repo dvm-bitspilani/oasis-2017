@@ -93,38 +93,27 @@
                 <ul class="list">
                     <li class="header">MAIN NAVIGATION</li>
                     <li class="active">
-                        <a href="{% url 'pcradmin:index' %}">
+                        <a href="{% url 'registrations:index' %}">
                             <i class="material-icons">home</i>
                             <span>Home</span>
                         </a>
                         
                     </li>
-                    <li class="active">
-                                <a href="{% url 'pcradmin:college' %}">
-                                <!-- <i class="material-icons">home</i> -->
-                                <span>Manage Events</span>
-                                </a>
-                    </li>
                     {% if participant.is_cr %}
                     <li class="active">
-                        <a href="{% url 'pcradmin:add_college' %}">
+                        <a href="{% url 'registrations:cr_approve' %}">
                             <span>Manage Participants from {{participant.college.name}}</span>
                         </a>
                     </li>
                     {% endif %}
                     <li class="active">
-                        <a href="{% url 'pcradmin:add_college' %}">
+                        <a href="{% url 'registrations:make_payment' %}">
                             <span>Make Payments</span>
                         </a>
                     </li>
                     <li class="active">
-                        <a href="{% url 'pcradmin:add_college' %}">
+                        <a href="{% url 'registrations:upload_docs' %}">
                             <span>Manage Profile</span>
-                        </a>
-                    </li>
-                    <li class="active">
-                        <a href="{% url 'pcradmin:view_final' %}">
-                            <span>Final Confirmation</span>
                         </a>
                     </li>
                     <li class="header">LABELS</li>

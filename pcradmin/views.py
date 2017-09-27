@@ -80,20 +80,38 @@ def select_college_rep(request, id):
 				user.save()
 				part.user = user
 				part.save()
-			body = """
+			body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+			<pre style="font-family:Roboto,sans-serif">
+Hello %s!
+
+Thank you for registering!
+
+Greetings from BITS Pilani!
+
+It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
+           
 This is to inform you that you have been selected as the College Representative for your college.
+You can now login <a href="%s">here</a> using the following credentials:
 username : '%s'
 password : '%s'
-Now you can login at <a href='bits-oasis.org/2017/registrations/'>bits-oasis.org/2017/registrations/ and see the list of participants of who have registered from your college.
+We would be really happy to see your college represented at our fest.
 It is your responsibility to confirm the participants for different events.
 
+Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Eg Bonafide)</b> once you login to complete your registration.
+
+We look forward to seeing you at OASIS 2017.
+
+P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT OASIS 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
+
 Regards,
-Ashay Anurag
-CoSSAcn (Head)
-Dept. of Publications & Correspondence, BOSM 2017
+StuCCAn (Head)
+Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9929022741
-			""" %(username, password)
++91-9828529994
+pcr@bits-oasis.org
+</pre>
+			""" %(part.name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password)
 			subject = 'College Representative for Oasis'
 			from_email = Email('register@bits-oasis.org')
 			to_email = Email(part.email)
@@ -112,7 +130,7 @@ BITS Pilani
 			return redirect(request.META.get('HTTP_REFERER'))
 
 
-	participants = college.participant_set.all()
+	participants = college.participant_set.filter(email_verified=True)
 	try:
 		cr = Participant.objects.get(college=college, is_cr=True)
 		participants = participants.exclude(id=cr.id)
@@ -120,9 +138,6 @@ BITS Pilani
 		cr=[]
 	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, is_profile_complete(part)], "id":part.id,} for part in participants]
 	return render(request, 'pcradmin/college_rep.html',{'college':college, 'parts':parts, 'cr':cr})
-
-
-
 
 @staff_member_required
 def verify_profile(request, part_id):
