@@ -23,7 +23,7 @@ import xlsxwriter
 from time import gmtime, strftime
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from registrations.sg_config import *
+from oasis2017.keyconfig import *
 import string
 from random import sample, choice
 chars = string.letters + string.digits
