@@ -30,7 +30,7 @@ class ClubDepartment(models.Model):
     co_ordinator = models.CharField(max_length=200)
     phone = models.BigIntegerField(default=0)
     email_id = models.EmailField()
-    events = models.ManyToManyField('events.Event', null=True, blank=True)
+    events = models.ManyToManyField('events.Event', blank=True)
     
     
     def __unicode__(self):
@@ -63,19 +63,12 @@ class Parameter(models.Model):
         return self.level.event.name + '-' + self.name
 
 class Bitsian(models.Model):
-    GENDERS = (
-		('M', 'Male'),
-		('F', 'Female'),)
 	
     long_id = models.CharField(max_length=20, null=True, blank=True)
-    short_id = models.CharField(max_length=10, null=True, blank=True)
-    name = models.CharField(max_length=200, null=True, blank=True)
-    email = models.EmailField(unique=True, null=True, blank=True)
-    gender = models.CharField(max_length=1, choices=GENDERS, null=True, blank=True)
-    college = models.CharField(max_length=200, default='BITS Pilani', null=True, blank=True)
-	
+    name = models.CharField(max_length=50, null=True, blank=True)
+
     def __unicode__(self):
-		return str(self.name)
+		return str(self.long_id) + str(self.name)
 
 class Score(models.Model):
     is_frozen = models.BooleanField(default=False)

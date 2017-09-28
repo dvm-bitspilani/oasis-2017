@@ -341,8 +341,8 @@ def final_confirmation(request, c_id):
 	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
 
 def user_logout(request):
-	logout(user)
-	return redirect('pcradimn:home')
+	logout(request)
+	return redirect('pcradimn:index')
 
 def contacts(request):
 	return render(request, 'pcradmin/contacts.html')

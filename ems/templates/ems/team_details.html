@@ -1,0 +1,57 @@
+{% extends 'ems/base.html' %}
+
+{% block body %}
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    {{team.name}} -- {% if team.leader %}<td>{{team.leader</td>{% else %}
+                                    <td>{{team.leader_bitsian}}</td>
+                                    {% endif %}
+
+                </h2>
+            <div class="body">
+                <ul class="list-group">
+                    {% for member in team.members %}
+                    <li>{{member.name}} -- {{member.barcode}}</li>
+                    {% endfor %}
+                    {% for member in team.members_bitsian %}
+                    <li>{{member.name}} -- {{member.long_id}}</li>
+                    {% endfor %}
+                </ul>                
+            </div>
+            </div>
+        </div>
+            <div class="card">
+                <div class="header">
+                    <h2>
+                       Score Card
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover dataTable">
+                            <thead>
+                                <tr> 
+                                    <th>Level</th>
+                                    <th>Level Name</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in scores %}
+                                <tr>
+                                    <td>{{score.level.position}}</td>
+                                    <td>{{score.level.name}}</td>
+                                    <td>{{score.total}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
