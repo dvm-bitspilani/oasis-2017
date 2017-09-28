@@ -1,4 +1,4 @@
-{% extends "regsoft/base.html" %}
+{% extends "registrations/base.html" %}
 {% block body %}
 {% if disapproved_list %}
 <div class="card">
@@ -16,7 +16,7 @@
                     <tr>
                         <th>Name(Click to view details)</th>
                         <th>College</th>
-                        <th>Events</th>
+                        <th>Event</th>
                         <th>Select</th>
                     </tr>
                 </thead>
@@ -24,15 +24,16 @@
                     <tr>
                         <th>Name(Click to view details)</th>
                         <th>College</th>
-                        <th>Events</th>
+                        <th>Event</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
-                	{% for i in unapproved_list %}
+                	{% for i in disapproved_list %}
                     <tr>
-                        <td><a href="{% url 'registrations:participant_detail' i.id %}">{{i.name}}</a></td>
-                        <td>{{i.college.name}}</td>
+                        <td><a href="{% url 'registrations:participant_details' i.id %}">{{i.participant.name}}</a></td>
+                        <td>{{i.participant.college.name}}</td>
+                        <td>{{i.event.name}}</td>
                         <td>
                         	<input type="checkbox" name="parts_id" id="{{i.id}}" value="{{i.id}}">
                         	<label for="{{i.id}}"></label>
@@ -67,7 +68,8 @@
                     <tr>
                         <th>Name(Click to view details)</th>
                         <th>College</th>
-                        <th>Payment status</th>
+                        <th>Event</th>
+                        <th>Payment Status</th>
                         <th>Select</th>
                     </tr>
                 </thead>
@@ -75,17 +77,19 @@
                     <tr>
                         <th>Name(Click to view details)</th>
                         <th>College</th>
-                        <th>Payment status</th>
+                        <th>Event</th>
+                        <th>Payment Status</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
                 	{% for i in approved_list %}
                     <tr>
-                        <td><a href="{% url 'registrations:participant_detail' i.id %}">{{i.name}}</a></td>
-                        <td>{{i.college.name}}</td>
+                        <td><a href="{% url 'registrations:participant_details' i.id %}">{{i.participant.name}}</a></td>
+                        <td>{{i.participant.college.name}}</td>
+                        <td>{{i.event.name}}</td>
                         <td>
-                            {% if i.paid %}
+                            {% if i.participant.paid %}
                             Paid
                             {% else %}
                             Payment left

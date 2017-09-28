@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from models import *
 from events.models import *
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from .forms import *
@@ -16,6 +17,7 @@ from oasis2017.keyconfig import *
 from django.contrib.auth.models import User
 import string
 from random import sample, choice
+from django.contrib import messages
 chars = string.letters + string.digits
 
 import requests
@@ -37,12 +39,11 @@ def home(request):
 					
 					return redirect('registrations:index')
 				else:
-					context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .'}
-					return JsonResponse({'status':0, 'context':context})
+					context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .', 'url':request.build_absolute_uri(reverse('registrations:home'))}
+					return render(request, 'registrations/message.html', context)
 			else:
-				context = {'error_heading' : "Invalid Login Credentials", 'message' :  'Invalid Login Credentials. Please try again'}
-				return JsonResponse({'status':0, 'context':context})
-
+				messages.warning(request,'Invalid login credentials')
+				return redirect(request.META.get('HTTP_REFERER'))
 		else:
 			return render(request, 'registrations/login.html')
 
@@ -50,8 +51,6 @@ def home(request):
 def prereg(request):
 
 	if request.POST:
-		print request.POST
-		print hello
 		name = request.POST['name']
 		gender = request.POST['gender']
 		if gender == "male":
@@ -290,12 +289,12 @@ def email_confirm(request, token):
 @login_required
 def cr_approve(request):
 	user = request.user
-	participant = Participant.object.get(user=user)
+	participant = Participant.objects.get(user=user)
 	if not participant.is_cr:
 		context = {
-		'status': 0,
 		'error_heading': "Invalid Access",
 		'message': "Sorry! You are not an approved college representative.",
+		'url':request.build_absolute_uri(reverse('registrations:home'))
 		}
 		return render(request, 'registrations/message.html', context)
 	approved_list = Participation.objects.filter(participant__college=participant.college, cr_approved=True)
@@ -327,7 +326,7 @@ def cr_approve(request):
 					send_to = appr_participant.email
 					name = appr_participant.name
 					body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-			<center><img src="http://bits-bosm.org/2016/static/docs/email_header.jpg"></center>
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
 
@@ -335,32 +334,30 @@ Thank you for registering!
 
 Greetings from BITS Pilani!
 
-It gives me immense pleasure in inviting your institute to the 32nd edition of BITS Open Sports Meet (BOSM), the annual national sports meet of Birla Institute of Technology & Science, Pilani, India. This year, BOSM will be held from September 21st to 25th.             
+It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
+           
+This is to inform you that you have been selected as the College Representative for your college.
+You can now login <a href="%s">here</a> using the following credentials:
+username : '%s'
+password : '%s'
+We would be really happy to see your college represented at our fest.
+It is your responsibility to confirm the participants for different events.
 
- Applications close on 31st August 2017 at 1700 hrs.            
+Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Eg Bonafide)</b> once you login to complete your registration.
 
-Please apply as soon as possible to enable us to confirm your participation at the earliest.             
+We look forward to seeing you at OASIS 2017.
 
-We would be really happy to see your college represented at our sports festival.            
-
-We look forward to seeing you at BOSM 2017.
-
-Your login credentials are as follows:
-Username : %s
-Password : %s
-
-The credentials are randomly generated and hence possess no relation with any entity. Do not share them with anyone.
-P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT BOSM 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
+P.S: THIS EMAIL DOES NOT CONFIRM YOUR PRESENCE AT OASIS 2017. YOU WILL BE RECEIVING ANOTHER EMAIL FOR THE CONFIRMATION OF YOUR PARTICIPATION. 
 
 Regards,
-CoSSAcn (Head)
-Dept. of Publications & Correspondence, BOSM 2017
+StuCCAn (Head)
+Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9929022741
-pcr@bits-bosm.org
++91-9828529994
+pcr@bits-oasis.org
 </pre>
-			'''		%(name, username, password)
-					sg = sendgrid.SendGridAPIClient(apikey=INSTA_API_KEY)
+			''' %(part.name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password)
+					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
 					from_email = Email('register@bits-oasis.org')
 					to_email = Email(send_to)
 					subject = "Registration for OASIS '17 REALMS OF FICTION"
@@ -373,6 +370,8 @@ pcr@bits-bosm.org
 						appr_participant.user = None
 						appr_participant.save()
 						user.delete()
+						participation.cr_approved = False
+						participation.save()
 						context = {
 							'status': 0,
 							'error_heading': "Error sending mail",
@@ -397,7 +396,7 @@ pcr@bits-bosm.org
 				participation.cr_approved = False
 				participation.pcr_approved = False
 				participation.save()
-	return render(request, 'registrations/cr_approve.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list})
+	return render(request, 'registrations/cr_approval.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list, 'participant':participant})
 
 @login_required
 def edit_participant(request):
@@ -437,17 +436,25 @@ def participant_details(request, p_id):
 def participant_payment(request):
 	participant = Participant.objects.get(user=request.user)
 	if request.method == 'POST':
+		try:
+			key = request.POST['key']
+		except:
+			return redirect(request.META.get('HTTP_REFERER'))
 		if int(request.POST['key']) == 1:
 			amount = 300
 		elif int(request.POST['key']) == 2:
 			amount = 950
+		elif int(request.POST['key']) == 3:
+			amount = 650
+		else:
+			return redirect(request.META.get('HTTP_REFERER'))
 		name = participant.name
 		email = participant.email
 		phone = participant.phone
 		purpose = 'Payment for OASIS \'17'
 		response = api.payment_request_create(buyer_name= name,
 							email= email,
-							phone= number,
+							phone= phone,
 							amount = amount,
 							purpose=purpose,
 							redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
@@ -585,25 +592,44 @@ def apirequest(request):
 		payment_request = json_ob['payment_request']
 		purpose = payment_request['purpose']
 		amount = payment_request['amount']
+		amount = int(float(amount))
 		try:
 			group_id = int(purpose.split(' ')[1])
 			payment_group = PaymentGroup.objects.get(id=group_id)
 			count = payment_group.participant_set.all().count()
-			for part in payment_group.participant_set.all():
-				part.paid = True
-				if (amount/count) == 950:
+			if (amount/count) == 950:
+				for part in payment_group.participant_set.all():
 					part.controlz_paid = True
-				part.save()
+					part.paid = True
+					part.save()
+			elif (amount/count) == 650:
+				for part in payment_group.participant_set.all():
+					if part.paid:
+						part.controlz_paid = True
+						part.save()
+
+			elif (amount/count) == 300:
+				for part in payment_group.participant_set.all():
+					part.paid = True
+					part.save()
 
 		except:		
 			email = payment_request['email']
+			print amount
+			print type(amount)
 			participant = Participant.objects.get(email=email)
-			participant.paid = True
 			if amount == 950:
 				participant.controlz_paid = True
+			elif amount == 650.00 and participant.paid:
+				participant.controlz_paid = True
+			participant.paid = True
 			participant.save()
-		message = "Payment successful"
-		return render(request, 'registrations/message.html', )
+		context = {
+		'error_heading' : "Payment successful",
+		'message':'Thank you for paying.',
+		'url':request.build_absolute_uri(reverse('registrations:index'))
+		}
+		return render(request, 'registrations/message.html', context)
 	
 	else:
 
@@ -613,8 +639,9 @@ def apirequest(request):
 		context = {
 			'error_heading': "Payment error",
 			'message': "An error was encountered while processing the payment. Please contact PCr, BITS, Pilani.",
+			'url':request.build_absolute_uri(reverse('registrations:index'))
 			}
-		return render(request, 'registrations/message.html')
+		return render(request, 'registrations/message.html', context)
 
 @staff_member_required
 def event_list(request, event):

@@ -1,20 +1,27 @@
-{% extends 'pcradmin/base.html' %}
+{% extends 'registrations/base.html' %}
 {% load static %}
 
 {% block body %}
 
 <div class="row clearfix">
-    <form action="{% url 'registrations:participant_payment' %}" method="post">    
+    <form action="{% url 'registrations:make_payment' %}" method="post">
+        {% csrf_token %}   
     <div class="card">
                 <div class="header">
                     <h2>
+                        {% if participant.paid and not participant.controlz_paid %}
+                        Make Payment (You have already paid Rs 300 so pay only Rs 650)
+                        {% elif participant.controlz_paid %}
+                        Payment Complete
+                        {% else %}
                         Make Payment
+                        {% endif %}
                     </h2>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
                         
-                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                        <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr>
                                     <th>
@@ -36,6 +43,7 @@
                                 </tr>
                             </tfoot>
                             <tbody>
+                                {% if not participant.paid %}
                                 <tr>
                                     <td>
                                         Rs 300
@@ -54,6 +62,17 @@
                                         <label for="2"></label>
                                     </td>
                                 </tr>
+                                {% elif participant.paid and not participant.controlz_paid %}
+                                <tr>
+                                    <td>
+                                        Rs 650
+                                    </td>
+                                    <td>
+                                        <input name="key" type="radio" id="3" value="3"/>
+                                        <label for="3"></label>
+                                    </td>
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                         <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Make payment</button>
