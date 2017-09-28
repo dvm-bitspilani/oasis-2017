@@ -13,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 from functools import reduce
 from registrations.urls import *
+from registrations.views import *
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from oasis2017.settings import BASE_DIR
@@ -36,7 +37,7 @@ def index(request):
 
 @staff_member_required
 def college(request):
-	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.all().count()],'link':[{'title':'Select', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}] } for college in College.objects.all()]
+	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.filter(email_verified=True).count()],'link':[{'title':'Select', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}] } for college in College.objects.all()]
 	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Select']}]
 	return render(request, 'pcradmin/tables.html', {'tables':tables})
 
@@ -66,6 +67,7 @@ def select_college_rep(request, id):
 				pass
 			part = Participant.objects.get(id=part_id)
 			part.is_cr=True
+			encoded = gen_barcode(part)
 			part.save()
 			user = part.user
 			if not user == None:
@@ -136,8 +138,16 @@ pcr@bits-oasis.org
 		participants = participants.exclude(id=cr.id)
 	except:
 		cr=[]
-	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, is_profile_complete(part)], "id":part.id,} for part in participants]
+	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, part.head_of_society, part.year_of_study, event_list(part),is_profile_complete(part)], "id":part.id,} for part in participants]
 	return render(request, 'pcradmin/college_rep.html',{'college':college, 'parts':parts, 'cr':cr})
+
+def event_list(part):
+	events = ''
+	for participation in Participation.objects.filter(participant = part):
+		events += participation.event.name + ', '
+	
+	events = events[:-2]
+	return events
 
 @staff_member_required
 def verify_profile(request, part_id):
@@ -176,12 +186,6 @@ def verify_profile(request, part_id):
 	events_unconfirmed = [{'event':p.event, 'id':p.id} for p in participations.filter(pcr_approved=False)]
 	return render(request, 'pcradmin/verify_profile.html',
 	{'profile_url':profile_url, 'docs_url':docs_url, 'part':part, 'confirmed':events_confirmed, 'unconfirmed':events_unconfirmed})
-
-
-
-
-
-
 
 ################################ STATS ########################################3
 
@@ -331,31 +335,7 @@ def final_confirmation(request, c_id):
 			messages.warning(request,'Select a Participant')
 			return redirect(request.META.get('HTTP_REFERER'))
 		parts = Participant.objects.filter(id__in=id_list)
-		for part in parts:
-
-			send_to = part.email
-			name = part.name
-			body = '''
-				<Email Body>
-			'''
-			subject = 'Final Confirmation for OASIS \'17:REALMS OF FICTION'
-			sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-			from_email = Email("no-reply@bits-oasis.org")
-			to_email = Email(send_to)
-			content = Content("text/html",body)
-
-			try:
-				mail = Mail(from_email, subject, to_email, content)
-				mail.add_attachment(attachment1)
-				mail.add_attachment(attachment2)
-				response = sg.client.mail.send.post(request_body=mail.get())
-				part.pcr_final=True
-				part.save()
-			except:
-				messages.warning(request, 'Email sending failed.')
-				return render(request, 'pcradmin/message.html', {'message':'Email sending failed.'})
-		messages.warning(request, 'Email sending failed.')
-		return redirect('pcradmin:view_final')
+		return render(request, 'pcradmin/send_final_email.html', {'parts':parts})
 	parts = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=False)
 	parts_final = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=True)
 	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
@@ -365,7 +345,7 @@ def user_logout(request):
 	return redirect('pcradimn:home')
 
 def contacts(request):
-	return render(requsest, 'pcradmin/contacts.html')
+	return render(request, 'pcradmin/contacts.html')
 
 ####  HELPER FUNCTIONS  ####
 def participants_count(parts):

@@ -32,6 +32,8 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
+                                        <th>Head of Society</th>
+                                        <th>Year of Study</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </thead>
@@ -44,6 +46,8 @@
                                         <td>{{cr.email}}</td>
                                         <td>{{cr.gender}}</td>
                                         <td>{{cr.pcr_approved}}</td>
+                                        <td>{{cr.head_of_society}}</td>
+                                        <td>{{cr.year_of_study}}</td>
                                         <td><a href="{% url 'pcradmin:verify_profile' cr.id %}">Verify Profile</a></td>
                                 </tbody>
                             </table>
@@ -74,6 +78,9 @@
                                         <th>Gender</th>
                                         <th>Verfied</th>
                                         <th>Profile Complete</th>
+                                        <th>Head of Society</th>
+                                        <th>Year of Study</th>
+                                        <th>Event List</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </thead>
@@ -84,7 +91,10 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
-                                        <th>Profile Complete</th>                                      
+                                        <th>Profile Complete</th>
+                                        <th>Head of Society</th>
+                                        <th>Year of Study</th>
+                                        <th>Event List</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </tfoot>
@@ -127,6 +137,9 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
+                                        <th>Head of Society</th>
+                                        <th>Year of Study</th>
+                                        <th>Event List</th>
                                         <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
@@ -138,6 +151,9 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
+                                        <th>Head of Society</th>
+                                        <th>Year of Study</th>
+                                        <th>Event List</th>
                                         <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>

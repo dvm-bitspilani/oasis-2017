@@ -6,3 +6,4 @@ preregistrations/instaconfig.py
 .vscode
 registrations/sg_config.py
 keyconfig.py
+media/

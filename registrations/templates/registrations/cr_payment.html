@@ -1,7 +1,7 @@
 {% extends 'registrations/base.html' %}
 {% block body %}
 
-<form action="{% url 'regsoft:cr_payment' %}" method="post">
+<form action="{% url 'registrations:cr_payment' %}" method="post">
     {% csrf_token %}
     <div class="card">
     <div class="header">
@@ -11,7 +11,7 @@
     </div>
     <div class="body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+            <table class="table table-bordered table-striped table-hover dataTable">
                 <thead>
                     <tr>
                         <th>
@@ -55,8 +55,6 @@
             </table>
         </div>
     </div>
-        </div>
-    <div class="card">
         <div class="header">
             <h2>
                 Participants
@@ -71,6 +69,7 @@
                             <th>Participant(Click to view details)</th>
                             <th>Gender</th>
                             <th>College</th>
+                            <th>PCr Status</th>
                             <th>Select</th>
                         </tr>
                     </thead>
@@ -78,22 +77,18 @@
                         <tr>
                             <th>Participant(Click to view details)</th>
                             <th>Gender</th>
-                            <th>Events</th>
                             <th>College</th>
+                            <th>PCr Status</th>
                             <th>Select</th>
                         </tr>
                     </tfoot>
                     <tbody>
                     	{% for part in participant_list %}
                         <tr>
-                            <td><a href="{% url 'registrations:participant_detail' part.id %}">{{part.name}}</a></td>
+                            <td><a href="{% url 'registrations:participant_details' part.id %}">{{part.name}}</a></td>
                             <td>{{part.gender}}</td>
-                            <td>
-                                {% for event in part.events.all() %}
-                                    {{event.name}},
-                                {% endfor %}
-                            </td>
                             <td>{{part.college.name}}</td>
+                            <td>{{part.pcr_approved}}</td>
                             <td>
                                 <input type="checkbox" name="part_list" id="{{part.id}}" value="{{part.id}}">
                                 <label for="{{part.id}}"></label>
@@ -108,4 +103,108 @@
         </div>
     </div>
 </form>
+<form action="{% url 'registrations:cr_payment' %}" method="post">
+    {% csrf_token %}
+    <div class="card">
+    <div class="header">
+        <h2>
+            Participants with preregistration fees paid. Select to pay Rs 650 to avail a discount of Rs 50 for each.
+        </h2>
+    </div>
+        <div class="header">
+            <h2>
+                Participants
+            </h2>
+        </div>
+        <div class="body">
+    	
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover dataTable">
+                    <thead>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>College</th>
+                            <th>PCr Status</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>College</th>
+                            <th>PCr Status</th>
+                            <th>Select</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                    	{% for part in prereg_list %}
+                        <tr>
+                            <td><a href="{% url 'registrations:participant_details' part.id %}">{{part.name}}</a></td>
+                            <td>{{part.gender}}</td>
+                            <td>{{part.college.name}}</td>
+                            <td>{{part.pcr_approved}}</td>
+                            <td>
+                                <input type="checkbox" name="part_list" id="{{part.id}}" value="{{part.id}}">
+                                <label for="{{part.id}}"></label>
+    						</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br><br>
+                <input type="hidden" name="key" value="3">
+                <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Make payment</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    <div class="header">
+        <h2>
+            Complete payment made
+        </h2>
+    </div>
+        <div class="header">
+            <h2>
+                Participants
+            </h2>
+        </div>
+        <div class="body">
+    	
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                    <thead>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>College</th>
+                            <th>PCr Status</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Participant(Click to view details)</th>
+                            <th>Gender</th>
+                            <th>College</th>
+                            <th>PCr Status</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                    	{% for part in paid_list %}
+                        <tr>
+                            <td><a href="{% url 'registrations:participant_details' part.id %}">{{part.name}}</a></td>
+                            <td>{{part.gender}}</td>
+                            <td>{{part.college.name}}</td>
+                            <td>{{part.pcr_approved}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br><br>
+            </div>
+        </div>
+    </div>
 {% endblock %}
