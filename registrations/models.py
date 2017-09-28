@@ -45,6 +45,9 @@ class PaymentGroup(models.Model):
 	amount_paid = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
 
+class EmailGroup(models.Model):
+	created_time = models.DateTimeField(auto_now=True)
+
 class Participant(models.Model):
 
 	GENDERS = (
@@ -72,6 +75,7 @@ class Participant(models.Model):
 	paid = models.BooleanField(default=False)
 	payment_group = models.ForeignKey(PaymentGroup, on_delete=models.SET_NULL, null=True)
 	pcr_final = models.BooleanField(default=False)
+	email_group = models.ForeignKey(EmailGroup, on_delete=models.SET_NULL, null=True)
 	firewallz_passed = models.BooleanField(default=False)
 	group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True)
 	room = models.ForeignKey('regsoft.Room', null=True, blank=True)

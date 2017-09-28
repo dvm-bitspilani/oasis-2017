@@ -335,14 +335,22 @@ def final_confirmation(request, c_id):
 			messages.warning(request,'Select a Participant')
 			return redirect(request.META.get('HTTP_REFERER'))
 		parts = Participant.objects.filter(id__in=id_list)
-		return render(request, 'pcradmin/send_final_email.html', {'parts':parts})
+		emailgroup = EmailGroup.objects.create()
+		for part in parts:
+			part.email_group = emailgroup
+			part.pcr_final = True
+		return redirect(reverse('pcradmin:final_email', kwargs = {'eg_id':eg_id}))
 	parts = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=False)
 	parts_final = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=True)
-	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
+	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college, 'parts_final':parts_final})
+
+def final_email(request, eg_id):
+	email_group = EmailGroup.objects.get(id=eg_id)
+
 
 def user_logout(request):
 	logout(request)
-	return redirect('pcradimn:index')
+	return redirect('pcradmin:index')
 
 def contacts(request):
 	return render(request, 'pcradmin/contacts.html')
