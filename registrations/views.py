@@ -267,6 +267,11 @@ def gen_barcode(part):
 		image = '/home/auto-reload/Desktop/barcodes/participants/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	return encoded
+
+def get_pcr_number():
+	number_list = ['8209182501', '7073180405', '7023611971', '9166947424', '9119225593', '9119225134', '9119225189', '9119225102', '9119225645']
+	from random import randint
+	return number_list[randint(0,8)]
 ################################# End of helper functions ###############################
 
 def email_confirm(request, token):
@@ -353,10 +358,10 @@ Regards,
 StuCCAn (Head)
 Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9828529994
+%s
 pcr@bits-oasis.org
 </pre>
-			''' %(name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password)
+			''' %(name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password, get_pcr_number())
 					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
 					from_email = Email('register@bits-oasis.org')
 					to_email = Email(send_to)
