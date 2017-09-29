@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^api/',include("api.urls")),
     url(r'^register/', include("registrations.urls")),
     url(r'^pcradmin/', include("pcradmin.urls")),
-    # url(r'^ems/', include("ems.urls")),
+    url(r'^ems/', include("ems.urls")),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

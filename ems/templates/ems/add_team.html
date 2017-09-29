@@ -1,19 +1,93 @@
 {% extends 'ems/base.html' %}
 
 {% block body %}
+{% load static %}
+<script src="{% static 'pcradmin/plugins/jquery/jquery.min.js' %}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="card">
+        <form action="" method="post">
+        {% csrf_token %}
             <div class="header">
             <h2>Add Team</h2>
-                <button class="btn btn-primary m-t-15 waves-effect" id="bitsian">Add Bitsian</button>
+                <button class="btn btn-primary m-t-15 waves-effect" id="bitsian" onclick="">Add Bitsian</button>
                 <button class="btn btn-primary m-t-15 waves-effect" id="non">Add Non-Bitsian</button>    
             </div>
-            <div class="body">
+            <div class="body" id="x">
+            <!-- <input type="text" name="name" id="name"><label for="name">Name of the Team</label> -->
+            <select class="form-control show-tick" name="parts" data-live-search="true">{% for part in parts %}<option value="{{part.id}}">{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select>
+            <!-- <input id="+count+" name='leader' type='radio'><label for="+count+"></label> -->
+            
             </div>
+        </form>
         </div>
             
 
         </div>
     </div>
+
+<script type="text/javascript">
+    var count = 0;
+    var x2 = document.getElementById('bitsian');
+    var x1 = function(e){   
+        e.preventDefault();
+    var x = document.getElementById('x');
+    var select = document.createElement('select');
+    select.className = 'form-control show-tick';
+    select['data-live-search'] = true;
+    var option = document.createElement('option');
+    option.text = 'kwi';
+    select.add(option);
+    x.append(select);
+    }
+    x2.addEventListener('click', x1);
+    // $("#bitsian").click(function(e){
+
+    //     count++;
+    //     var $tr = $("<tr>");
+    //     var $td1 = $("<td>");
+    //     var $td2 = $("<td>").text("Bitsian");
+    //     var $td3 = $("<td>");
+    //     var $select = $("<select>").addClass("form-control show-tick");
+    //     {% for bitsian in bitsians %}
+    //         var $option = $("<option>",{"value":"{{bitsian.id}}"}).text("{{bitsian.name}} -- {{bitsian.long_id}}");
+    //         $option.appendTo($select);
+    //     {% endfor %}
+    //     // $select.appendTo($td1);
+    //     // var $input = $("<input>",{"type":"radio","id":"bits"+count,"name":"leader"});
+    //     // var $label = $("<label>",{"for":"bits" + count});
+    //     // $input.appendTo($td3);
+    //     // $label.appendTo($td3);
+    //     // $td1.appendTo($tr);
+    //     // $td2.appendTo($tr);
+    //     // $td3.appendTo($tr);
+    //     $('.body').append($select);
+    //     // var $inputbitsian = "<tr><td><select class='form-control show-tick' name='bitsians' data-live-search='true'>{% for bitsian in bitsians %}<option value='{{bitsian.id}}'>{{bitsian.name}} -- {{bitsian.long_id}}</option>{% endfor %}<option value=''>None</option></select></td>\
+    //     // <td><input id="+count+" name='leader' type='radio'><label for="+count+"></label></td></tr>";
+    //     // if (count==1){
+    //     //     var $submitButton = "<button class='btn btn-primary m-t-15 waves-effect' type='submit'>Submit</button>";
+    //     //     $('.body').append($submitButton);
+    //     // }
+    //     // $('tbody').prepend($inputbitsian);
+    // })
+
+
+     $("#non").click(function(e){
+        e.preventDefault();
+        count++;
+        var $inputnon = "<tr><td><select class='form-control show-tick' name='parts' data-live-search='true'>{% for part in parts %}<option value='{{part.id}}'>{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select></td>\
+        <td><input id="+count+" name='leader' type='radio'><label for="+count+"></label></td></tr>";
+        if (count==1){
+            var $submitButton = "<button class='btn btn-primary m-t-15 waves-effect' type='submit'>Submit</button>";
+            $('.body').append($submitButton);
+        }
+        $('tbody').prepend($inputnon);
+    })
+
+</script>
 {% endblock %}

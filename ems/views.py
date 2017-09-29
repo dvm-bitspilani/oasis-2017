@@ -240,7 +240,7 @@ def add_team(request, e_id):
             return redirect(reverse_lazy('ems:event_home'))
     parts = Participant.objects.filter(controlz_paid=True)
     bitsians = Bitsian.objects.all()
-    return render(request, 'ems/add_team.html', {'event':event, 'participants':parts, 'bitsians':bitsians})
+    return render(request, 'ems/add_team.html', {'event':event, 'parts':parts, 'bitsians':bitsians})
 
 
 @permission_for_event
