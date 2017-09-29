@@ -19,9 +19,9 @@
                 <button class="btn btn-primary m-t-15 waves-effect" id="non">Add Non-Bitsian</button>    
             </div>
             <div class="body" id="x">
-            <!-- <input type="text" name="name" id="name"><label for="name">Name of the Team</label> -->
+            <input type="text" name="name" id="name"><label for="name">Name of the Team</label>
             <select class="form-control show-tick" name="parts" data-live-search="true">{% for part in parts %}<option value="{{part.id}}">{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select>
-            <!-- <input id="+count+" name='leader' type='radio'><label for="+count+"></label> -->
+             <select class="form-control show-tick" name="parts" data-live-search="true">{% for part in parts %}<option value="{{part.id}}">{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select>
             
             </div>
         </form>
@@ -32,20 +32,20 @@
     </div>
 
 <script type="text/javascript">
-    var count = 0;
-    var x2 = document.getElementById('bitsian');
-    var x1 = function(e){   
-        e.preventDefault();
-    var x = document.getElementById('x');
-    var select = document.createElement('select');
-    select.className = 'form-control show-tick';
-    select['data-live-search'] = true;
-    var option = document.createElement('option');
-    option.text = 'kwi';
-    select.add(option);
-    x.append(select);
-    }
-    x2.addEventListener('click', x1);
+    // var count = 0;
+    // var x2 = document.getElementById('bitsian');
+    // var x1 = function(e){   
+    //     e.preventDefault();
+    // var x = document.getElementById('x');
+    // var select = document.createElement('select');
+    // select.className = 'form-control show-tick';
+    // select['data-live-search'] = true;
+    // var option = document.createElement('option');
+    // option.text = 'kwi';
+    // select.add(option);
+    // x.append(select);
+    // }
+    // x2.addEventListener('click', x1);
     // $("#bitsian").click(function(e){
 
     //     count++;
@@ -77,17 +77,17 @@
     // })
 
 
-     $("#non").click(function(e){
-        e.preventDefault();
-        count++;
-        var $inputnon = "<tr><td><select class='form-control show-tick' name='parts' data-live-search='true'>{% for part in parts %}<option value='{{part.id}}'>{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select></td>\
-        <td><input id="+count+" name='leader' type='radio'><label for="+count+"></label></td></tr>";
-        if (count==1){
-            var $submitButton = "<button class='btn btn-primary m-t-15 waves-effect' type='submit'>Submit</button>";
-            $('.body').append($submitButton);
-        }
-        $('tbody').prepend($inputnon);
-    })
+    //  $("#non").click(function(e){
+    //     e.preventDefault();
+    //     count++;
+    //     var $inputnon = "<tr><td><select class='form-control show-tick' name='parts' data-live-search='true'>{% for part in parts %}<option value='{{part.id}}'>{{part.name}} -- {{part.college.name}}</option>{% endfor %}<option value=''>None</option></select></td>\
+    //     <td><input id="+count+" name='leader' type='radio'><label for="+count+"></label></td></tr>";
+    //     if (count==1){
+    //         var $submitButton = "<button class='btn btn-primary m-t-15 waves-effect' type='submit'>Submit</button>";
+    //         $('.body').append($submitButton);
+    //     }
+    //     $('tbody').prepend($inputnon);
+    // })
 
 </script>
 {% endblock %}

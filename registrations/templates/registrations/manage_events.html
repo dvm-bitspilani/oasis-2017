@@ -8,40 +8,44 @@
         </h2>
     </div>
 	<div class="body">
-	<form action="{% url 'registrations:cr_approve' %}" method="post">
+	<form action="" method="post">
 	{% csrf_token %}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover dataTable">
                 <thead>
                     <tr>
-                        <th>Name(Click to view details)</th>
-                        <th>College</th>
+                        <th>Name</th>
+                        <th>Approved</th>
                         <th>Select</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Name(Click to view details)</th>
-                        <th>College</th>
+                        <th>Name</th>
+                        <th>Approved</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
-                	{% for i in unapproved_list %}
+                	{% for i in added_list %}
                     <tr>
-                        <td><a href="{% url 'registrations:participant_detail' i.id %}">{{i.name}}</a></td>
-                        <td>{{i.college.name}}</td>
+                        <td>{{i.event.name}}</td>
+                        {% if i.pcr_approved %}
+                        <td>Yes</td>
+                        <td></td>
+                        {% else %}
+                        <td>No</td>
                         <td>
-                        <td>
-                        	<input type="checkbox" name="parts_id" id="{{i.id}}" value="{{i.id}}">
-                        	<label for="{{i.id}}"></label>
+                        	<input type="checkbox" name="events_id" id="{{i.event.id}}" value="{{i.event.id}}">
+                        	<label for="{{i.event.id}}"></label>
 						</td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <input type="hidden" value="approve" name="action">
-            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Confirm</button>
+            <input type="hidden" value="remove" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Remove</button>
         </div>
 	</form>
     </div>
@@ -50,63 +54,44 @@
 
 
 
-{% if approved_list %}
+{% if not_added_list %}
 <div class="card">
     <div class="header">
         <h2>
-            Approved Participants
+            Unlisted Events
         </h2>
     </div>
 	<div class="body">
-	<form action="{% url 'registrations:cr_approve' %}" method="post">
+	<form action="" method="post">
 	{% csrf_token %}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover dataTable">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>College</th>
                         <th>Event</th>
-                        <th>Payment status</th>
                         <th>Select</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Name</th>
-                        <th>College</th>
                         <th>Event</th>
-                        <th>Payment status</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
-                	{% for i in approved_list %}
+                	{% for i in not_added_list %}
                     <tr>
                         <td>{{i.name}}</td>
-                        <td>{{i.college.name}}</td>
                         <td>
-                            {% for event in i.events.all() %}
-                                {{event.name}},
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% if i.paid %}
-                            Paid
-                            {% else %}
-                            Payment left
-                            {% endif %}
-                        </td>
-                        <td>
-                        	<input type="checkbox" name="parts_id" id="{{i.id}}" value="{{i.id}}">
+                        	<input type="checkbox" name="events_id" id="{{i.id}}" value="{{i.id}}">
                         	<label for="{{i.id}}"></label>
 						</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <input type="hidden" value="disapprove" name="action">
-            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Unapprove</button>
+            <input type="hidden" value="add" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Add</button>
         </div>
 	</form>
     </div>

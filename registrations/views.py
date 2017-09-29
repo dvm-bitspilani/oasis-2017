@@ -490,7 +490,7 @@ def manage_events(request):
 				return redirect(request.META.get('HTTP_REFERER'))
 			for event_id in events_id:
 				event = Event.objects.get(id=event_id)
-				Participation.objects.create(participant=participant, event=event)
+				p, created  = Participation.objects.get_or_create(participant=participant, event=event)
 
 		if 'remove' == data['action']:
 			try:
@@ -501,11 +501,13 @@ def manage_events(request):
 				try:
 					event = Event.objects.get(id=event_id)
 					participation = Participation.objects.get(participant=participant, event=event)
-					participation.delete()
+					if not participation.pcr_approved:
+						participation.delete()
 				except:
 					pass
-	added_list = [participation.event for participation in Participation.objects.filter(participant=participant)]
-	not_added_list = [event for event in Event.objects.all() if event not in added_list]
+	added_list = [participation for participation in Participation.objects.filter(participant=participant)]
+	added_events = [p.event for p in added_list]
+	not_added_list = [event for event in Event.objects.all() if event not in added_events]
 	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list}) 
 
 @login_required

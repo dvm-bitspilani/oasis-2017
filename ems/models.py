@@ -4,9 +4,6 @@ from django.db import models
 from events.models import *
 from registrations.models import *
 
-# class Team(models.Model):
-#     name = models.CharField(max_length=100)
-
 
 class Team(models.Model):
     name = models.CharField(max_length=200, default='')
@@ -18,7 +15,6 @@ class Team(models.Model):
     rank = models.PositiveSmallIntegerField(default=0)
     is_winner = models.BooleanField(default=False)
     is_finalist = models.BooleanField(default=False)
-    is_bitsian = models.BooleanField(default=False)
     level = models.PositiveSmallIntegerField(default=1)
 
     def __unicode__(self):
