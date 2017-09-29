@@ -22,6 +22,7 @@
 
     <link href="{% static 'pcradmin/css/style.css' %}" rel="stylesheet">
     <!-- <link href="{% static 'pcradmin/css/materialize.min.css' %}" rel="stylesheet"> -->
+    <link href="{% static 'pcradmin/plugins/dropzone/dropzone.css' %}" rel="stylesheet">
 
     {% block head %}
     {% endblock %}
@@ -105,10 +106,15 @@
                             <span>Manage Participants from {{participant.college.name}}</span>
                         </a>
                     </li>
+                    <li class="active">
+                        <a href="{% url 'registrations:cr_payment' %}">
+                            <span>Make group payment for participants from {{participant.college.name}}</span>
+                        </a>
+                    </li>
                     {% endif %}
                     <li class="active">
                         <a href="{% url 'registrations:make_payment' %}">
-                            <span>Make Payments</span>
+                            <span>Make Payment</span>
                         </a>
                     </li>
                     <li class="active">
@@ -116,6 +122,13 @@
                             <span>Manage Profile</span>
                         </a>
                     </li>
+                    {% if participant.paid and participant.pcr_approved %}
+                    <li class="active">
+                        <a href="{% url 'registrations:get_profile_card' %}" target="none">
+                            <span>Get Profile Card</span>
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="header">LABELS</li>
                     <li>
                         <a href="{% url 'pcradmin:contacts' %}">
@@ -154,9 +167,6 @@
                         <ul class="setting-list">
                             <li>
                                 <a class="btn btn-block bg-blue waves-effect" href="https://bits-oasis.org">Go to the main site</a>
-                            </li>
-                            <li>
-                                <a class="btn btn-block bg-blue waves-effect" href="https://bits-oasis.org/2017/admin">Admin Login</a>
                             </li>
                         </ul>
                         <p>ACCOUNT SETTINGS</p>
@@ -220,6 +230,8 @@
     <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/buttons.html5.min.js' %}"></script>
     <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/buttons.print.min.js' %}"></script>
     <script src="{% static 'pcradmin/js/pages/tables/jquery-datatable.js' %}"></script>
+
+    <script src="{% static 'pcradmin/plugins/dropzone/dropzone.js' %}"></script>
 
     <script src="{% static 'pcradmin/js/admin.js' %}"></script>
     <script src="{% static 'pcradmin/js/demo.js' %}"></script>

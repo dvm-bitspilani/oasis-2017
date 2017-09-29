@@ -32,9 +32,20 @@
                                         <th>Sex</th>
                                         <th>Phone</th>
                                         <th>Email</th>
+                                        <th>Payment Status</th>
                                         <th>Select</th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Sex</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Payment Status</th>
+                                        <th>Select</th>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
                                 	{% for i in parts %}
                                     <tr>
@@ -42,6 +53,15 @@
                                         <td>{{i.gender}}</td>
                                         <td>{{i.phone}}</td>
                                         <td>{{i.email}}</td>
+                                        <td>
+                                            {% if i.paid and i.controlz_paid %}
+                                            950 - Complete
+                                            {% elif i.paid %}
+                                            300 - Prereg
+                                            {% else %}
+                                            Not paid
+                                            {% endif %}
+                                        </td>
                                         <td>
 	                                        <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
 	                                		<label for="{{i.id}}"></label>
@@ -51,7 +71,8 @@
                                 </tbody>
                    
                             </table>
-                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Send Mail</button>
+                            <input type="hidden" value="approve" name="action">
+                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Finalise List</button>
                             </form>
                         </div>
                     </div>
@@ -69,6 +90,8 @@
                         </div>
                     <div class="body">
                         <div class="table-responsive">
+                            <form action="" method="post">
+                                    {% csrf_token %}
                             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
                                     <tr>
@@ -76,8 +99,20 @@
                                         <th>Sex</th>
                                         <th>Phone</th>
                                         <th>Email</th>
+                                        <th>Payment Status</th>
+                                        <th>Select</th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Sex</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Payment Status</th>
+                                        <th>Select</th>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
                                 	{% for i in parts_final %}
                                     <tr>
@@ -85,12 +120,27 @@
                                         <td>{{i.gender}}</td>
                                         <td>{{i.phone}}</td>
                                         <td>{{i.email}}</td>
+                                        <td>
+                                            {% if i.paid and i.controlz_paid %}
+                                            950 - Complete
+                                            {% elif i.paid %}
+                                            300 - Prereg
+                                            {% else %}
+                                            Not paid
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+                                            <label for="{{i.id}}"></label>
+                                        </td>
                                     </tr>
                                     {% endfor %}                                            
                                 </tbody>
                    
                             </table>
-
+                            <input type="hidden" value="disapprove" name="action">
+                            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Disapprove</button>
+                            </form>
                         </div>
                     </div>
                 </div>

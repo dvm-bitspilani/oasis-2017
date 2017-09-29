@@ -1,0 +1,136 @@
+{% extends 'registrations/base.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="row clearfix">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    Registration Status of {{get_part.name}}
+                </h2>
+            </div>
+            <div class="body">
+                <div class="table-responsive">
+                    
+                    <table class="table table-bordered table-striped table-hover dataTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Determinant    
+                                </th>
+                                <th>    
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>
+                                    Determinant    
+                                </th>
+                                <th>    
+                                    Status
+                                </th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Documents Upload
+                                </td>
+                                <td>
+                                    {% if get_part.profile_pic and get_part.verify_docs %}
+                                    Complete
+                                    {% else %}
+                                    Incomplete
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Payment Status
+                                </td>
+                                <td>
+                                    {% if get_part.paid and get_part.controlz_paid %}
+                                    Paid - 950 (Complete Fees)
+                                    {% elif participant.paid %}
+                                    Paid - 300 (Preregistration Fees)
+                                    {% else %}
+                                    Not paid
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+        <div class="card">
+                <div class="header">
+                    <h2>
+                        Events Status
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        
+                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Event    
+                                    </th>
+                                    <th>    
+                                        CR Approval
+                                    </th>
+                                    <th>
+                                        PCr Approval
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>
+                                        Event    
+                                    </th>
+                                    <th>    
+                                        CR Approval
+                                    </th>
+                                    <th>
+                                        PCr Approval
+                                    </th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for participation in participations %}
+                                <tr>
+                                    <td>
+                                        {{participation.event.name}}
+                                    </td>
+                                    <td>
+                                        {% if participation.cr_approved %}
+                                        Approved by college representative
+                                        {% else %}
+                                        Not approved, contact {{cr.name}} from your college
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if participation.pcr_approved %}
+                                        Approved by PCr, OASIS-BITS Pilani
+                                        {% else %}
+                                        Not approved by PCr, OASIS-BITS Pilani
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
+</div>
+
+{% endblock %}

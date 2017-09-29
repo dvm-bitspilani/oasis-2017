@@ -13,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 from functools import reduce
 from registrations.urls import *
+from registrations.views import *
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from oasis2017.settings import BASE_DIR
@@ -36,8 +37,8 @@ def index(request):
 
 @staff_member_required
 def college(request):
-	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.all().count()],'link':[{'title':'Select', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})}] } for college in College.objects.all()]
-	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Select']}]
+	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.filter(email_verified=True).count()],'link':[{'title':'Manage CR', 'url':reverse('pcradmin:select_college_rep', kwargs={'id':college.id})},{'title':'Approve Participations', 'url':reverse('pcradmin:approve_participations', kwargs={'id':college.id})}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Manage Cr', 'Approve Participations']}]
 	return render(request, 'pcradmin/tables.html', {'tables':tables})
 
 @staff_member_required
@@ -66,6 +67,7 @@ def select_college_rep(request, id):
 				pass
 			part = Participant.objects.get(id=part_id)
 			part.is_cr=True
+			encoded = gen_barcode(part)
 			part.save()
 			user = part.user
 			if not user == None:
@@ -98,7 +100,7 @@ password : '%s'
 We would be really happy to see your college represented at our fest.
 It is your responsibility to confirm the participants for different events.
 
-Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Eg Bonafide)</b> once you login to complete your registration.
+Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Preferably Bonafide Certificate for as many participants as possible)</b> once you login to complete your registration.
 
 We look forward to seeing you at OASIS 2017.
 
@@ -108,10 +110,10 @@ Regards,
 StuCCAn (Head)
 Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9828529994
+%s
 pcr@bits-oasis.org
 </pre>
-			""" %(part.name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password)
+			""" %(part.name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password, get_pcr_number())
 			subject = 'College Representative for Oasis'
 			from_email = Email('register@bits-oasis.org')
 			to_email = Email(part.email)
@@ -136,8 +138,49 @@ pcr@bits-oasis.org
 		participants = participants.exclude(id=cr.id)
 	except:
 		cr=[]
-	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, is_profile_complete(part)], "id":part.id,} for part in participants]
+	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, part.head_of_society, part.year_of_study, event_list(part),is_profile_complete(part)], "id":part.id,} for part in participants]
 	return render(request, 'pcradmin/college_rep.html',{'college':college, 'parts':parts, 'cr':cr})
+
+def event_list(part):
+	events = ''
+	for participation in Participation.objects.filter(participant = part):
+		events += participation.event.name + ', '
+	
+	events = events[:-2]
+	return events
+
+@staff_member_required
+def approve_participations(request, id):
+	college = College.objects.get(id=id)
+	cr = Participant.objects.get(college=college, is_cr=True)
+	if request.method == 'POST':
+		data = request.POST
+		try:
+			part_list = data.getlist('data')
+		except:
+			return redirect(request.META.get('HTTP_REFERER'))
+		if data['submit'] == 'approve':
+			for participation in Participation.objects.filter(id__in=part_list):
+				participation.pcr_approved = True
+				participant = participation.participant	
+				participant.pcr_approved = True
+				participant.save()
+				participation.save()
+			message = "Profiles Verified"
+		elif data['submit'] == 'disapprove':
+			for participation in Participation.objects.filter(id__in=part_list):
+				participation.pcr_approved = False
+				participation.save()
+				participant = participation.participant	
+				x = [not p.pcr_approved for p in Participation.objects.filter(participant=participant)]
+				if all(x):
+					participant.pcr_approved=False
+					participant.save()
+			message = 'Events successfully unconfirmed'
+		messages.success(request, message)
+	approved = Participation.objects.filter(participant__college=college, pcr_approved=True, cr_approved=True)
+	disapproved = Participation.objects.filter(participant__college=college, pcr_approved=False, cr_approved=True)
+	return render(request, 'pcradmin/approve_participations.html', {'approved':approved, 'disapproved':disapproved, 'cr':cr})
 
 @staff_member_required
 def verify_profile(request, part_id):
@@ -176,12 +219,6 @@ def verify_profile(request, part_id):
 	events_unconfirmed = [{'event':p.event, 'id':p.id} for p in participations.filter(pcr_approved=False)]
 	return render(request, 'pcradmin/verify_profile.html',
 	{'profile_url':profile_url, 'docs_url':docs_url, 'part':part, 'confirmed':events_confirmed, 'unconfirmed':events_unconfirmed})
-
-
-
-
-
-
 
 ################################ STATS ########################################3
 
@@ -238,35 +275,63 @@ def master_stats(request):
 		data = request.POST
 		print data
 		try:
-			college_name = data['college']
+			colleges = data.getlist('college')
 		except:
 			pass
 		try:
-			event_name = data['event']
+			events = data.getlist('event')
 		except:
 			pass
-		if not college_name and not event_name:
+		if not colleges and not events:
 			return redirect(request.META.get('HTTP_REFERRER'))
-		if college_name and event_name:
-			college = College.objects.get(name=college_name)
-			event = Event.objects.get(name=event_name)
-			participations = Participation.objects.filter(event=event)
-			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations], college=college)
+		print colleges, events[0]
+		if colleges[0]!='' and events[0]!='':
+			parts = []
+			for college_name in colleges:
+				try:
+					college = College.objects.get(name=college_name)
+				except:
+					continue
+				for event_name in events:
+					try:
+						event = Event.objects.get(name=event_name)
+					except:
+						continue
+					participations = Participation.objects.filter(event=event)
+					parts += Participant.objects.filter(id__in=[p.participant.id for p in participations], college=college)
 			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
-			title = 'Participants\' registered for %s event from %s college.' %(event_name, college_name)
+			event_names = ''
+			for event_name in events:
+				event_names += event_name + ', '
+			event_names = event_names[:-2]
+			college_names = ''
+			for college_name in colleges:
+				college_names += college_name + ', '
+			college_names = college_names[:-2]
+			title = 'Participants\' registered for %s event from %s college.' %(event_names, college_names)
 
-		elif not college_name:
-			participations = Participation.objects.filter(event=Event.objects.get(name=event_name))
-			parts = Participant.objects.filter(id__in=[p.participant.id for p in participations])
+		elif events[0]!='':
+			parts = []
+			for event_name in events:
+				try:
+					participations = Participation.objects.filter(event=Event.objects.get(name=event_name))
+				except:
+					continue
+				parts += Participant.objects.filter(id__in=[p.participant.id for p in participations])
 			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 			title = 'Participants\' registered for %s event.' %(event_name)
 			# return render(request, 'pcradmin/master_stats.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
 		else:
-			college = College.objects.get(name=college_name)
-			parts = college.participant_set.all()
+			parts = []
+			for college_name in colleges:
+				try:
+					college = College.objects.get(name=college_name)
+				except:
+					continue
+				parts += college.participant_set.all()
 			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 			title = 'Participants\' registered from %s college.' %(college_name)
@@ -326,46 +391,70 @@ def final_confirmation(request, c_id):
 	if request.method == 'POST':
 		data = request.POST
 		try:
-			id_list = dict(data)['data']
+			id_list = data.getlist('data')
 		except:
 			messages.warning(request,'Select a Participant')
 			return redirect(request.META.get('HTTP_REFERER'))
 		parts = Participant.objects.filter(id__in=id_list)
-		for part in parts:
-
-			send_to = part.email
-			name = part.name
-			body = '''
-				<Email Body>
-			'''
-			subject = 'Final Confirmation for OASIS \'17:REALMS OF FICTION'
-			sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-			from_email = Email("no-reply@bits-oasis.org")
-			to_email = Email(send_to)
-			content = Content("text/html",body)
-
-			try:
-				mail = Mail(from_email, subject, to_email, content)
-				mail.add_attachment(attachment1)
-				mail.add_attachment(attachment2)
-				response = sg.client.mail.send.post(request_body=mail.get())
-				part.pcr_final=True
+		if data['action'] == 'approve':
+			emailgroup = EmailGroup.objects.create()
+			for part in parts:
+				part.email_group = emailgroup
 				part.save()
-			except:
-				messages.warning(request, 'Email sending failed.')
-				return render(request, 'pcradmin/message.html', {'message':'Email sending failed.'})
-		messages.warning(request, 'Email sending failed.')
-		return redirect('pcradmin:view_final')
-	parts = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=False)
-	parts_final = college.participant_set.filter(pcr_approved=True, paid=True, pcr_final=True)
-	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college})
+			return redirect(reverse('pcradmin:final_email', kwargs = {'eg_id':emailgroup.id}))
+		elif data['action'] == 'disapprove':
+			for part in parts:
+				part.email_group = None
+				part.pcr_final = False
+				part.save()
+	parts = college.participant_set.filter(pcr_approved=True, pcr_final=False)
+	parts_final = college.participant_set.filter(pcr_approved=True,pcr_final=True)
+	return render(request, 'pcradmin/final_confirmation.html', {'parts':parts, 'college':college, 'parts_final':parts_final})
 
+@staff_member_required
+def final_email(request, eg_id):
+	email_group = EmailGroup.objects.get(id=eg_id)
+	parts = email_group.participant_set.all()
+	return render(request, 'pcradmin/final_mail.html', {'parts':parts, 'group':email_group})
+
+@staff_member_required
+def download_pdf(request, eg_id):
+	email_group = EmailGroup.objects.get(id=eg_id)
+	from reportlab.platypus import SimpleDocTemplate
+	from reportlab.platypus.tables import Table
+	response = HttpResponse(content_type='application/pdf')
+	response['Content-Disposition'] = 'attachment; filename="final_list.pdf"'
+	elements = []
+	doc = SimpleDocTemplate(response, rightMargin=0, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
+	data = []
+	for part in email_group.participant_set.all():
+		events = ''
+		for participation in Participation.objects.filter(participant=part, pcr_approved=True):
+			events += participation.event.name + ', '
+		events = events[:-2]
+		print events
+		if part.paid:
+			if part.controlz_paid:
+				amount = 950
+			else:
+				amount = 300
+		else:
+			amount = 0
+		print part.name
+		data.append((part.name, events, amount))
+	table = Table(data, colWidths=270, rowHeights=79)
+	elements.append(table)
+	doc.build(elements)
+	return response
+
+@login_required
 def user_logout(request):
 	logout(request)
-	return redirect('pcradimn:index')
+	return redirect('pcradmin:index')
 
+@staff_member_required
 def contacts(request):
-	return render(requsest, 'pcradmin/contacts.html')
+	return render(request, 'pcradmin/contacts.html')
 
 ####  HELPER FUNCTIONS  ####
 def participants_count(parts):

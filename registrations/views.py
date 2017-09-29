@@ -259,7 +259,7 @@ def gen_barcode(part):
 	part.barcode = 'oasis17' + encoded
 	part.save()
 	import qrcode
-	part_code = qrcode.make(barcode)
+	part_code = qrcode.make(part.barcode)
 	try:
 		image='/root/live/oasis/backend/resources/oasis2017/qrcodes/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
@@ -267,6 +267,11 @@ def gen_barcode(part):
 		image = '/home/auto-reload/Desktop/barcodes/participants/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	return encoded
+
+def get_pcr_number():
+	number_list = ['8209182501', '7073180405', '7023611971', '9166947424', '9119225593', '9119225134', '9119225189', '9119225102', '9119225645']
+	from random import randint
+	return number_list[randint(0,8)]
 ################################# End of helper functions ###############################
 
 def email_confirm(request, token):
@@ -353,10 +358,10 @@ Regards,
 StuCCAn (Head)
 Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
-+91-9828529994
+%s
 pcr@bits-oasis.org
 </pre>
-			''' %(part.name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password)
+			''' %(name,str(request.build_absolute_uri(reverse('registrations:home'))),username, password, get_pcr_number())
 					sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
 					from_email = Email('register@bits-oasis.org')
 					to_email = Email(send_to)
@@ -413,7 +418,7 @@ def edit_participant(request):
 @login_required
 def participant_details(request, p_id):
 	user = request.user
-	participant = Participant.object.get(user=user)
+	participant = Participant.objects.get(user=user)
 	if not participant.is_cr:
 		context = {
 		'error_heading': "Invalid Access",
@@ -430,7 +435,7 @@ def participant_details(request, p_id):
 		}
 		return render(request, 'registrations/message.html', context)
 	participation_list = Participation.objects.filter(participant=get_part)
-	return render(request, 'registrations/home.html', {'participant':get_part, 'participations':participation_list})
+	return render(request, 'registrations/profile.html', {'get_part':get_part, 'participations':participation_list, 'participant':participant})
 
 @login_required
 def participant_payment(request):
@@ -467,6 +472,7 @@ def participant_payment(request):
 			context = {
 				'error_heading': "Payment error",
 				'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+				'url':request.build_absolute_uri(reverse('registrations:make_payment'))
 				}
 			return render(request, 'registrations/message.html')
 	else:
@@ -505,7 +511,7 @@ def manage_events(request):
 @login_required
 def cr_payment(request):
 	user = request.user
-	participant = Participant.object.get(user=user)
+	participant = Participant.objects.get(user=user)
 	if not participant.is_cr:
 		context = {
 		'status': 0,
@@ -515,10 +521,17 @@ def cr_payment(request):
 		return render(request, 'registrations/message.html', context)
 	if request.method == 'POST':
 		data = request.POST
-		if int(request.POST['key']) == 1:
+		try:
+			key = int(data['key'])
+			part_list = data.getlist('part_list')
+		except:
+			return redirect(request.META.get('HTTP_REFERER'))
+		if key == 1:
 			amount = 300
-		elif int(request.POST['key']) == 2:
+		elif key == 2:
 			amount = 950
+		elif key == 3:
+			amount = 650
 		part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
 		group = PaymentGroup()
 		group.amount_paid = amount*len(part_list)
@@ -530,12 +543,12 @@ def cr_payment(request):
 		email = participant.email
 		phone = participant.phone
 		purpose = 'Payment ' + str(group.id)
-		response = api.payment_request_create(buyer_name= name,
-						email= email,
-						phone= number,
+		response = api.payment_request_create(buyer_name = name,
+						email = email,
+						phone = phone,
 						amount = group.amount_paid,
-						purpose=purpose,
-						redirect_url= request.build_absolute_uri(reverse("registrations:API Request"))
+						purpose = purpose,
+						redirect_url = request.build_absolute_uri(reverse("registrations:API Request"))
 						)
 	# print  email	, response['payment_request']['longurl']			
 		try:
@@ -546,36 +559,111 @@ def cr_payment(request):
 			context = {
 				'error_heading': "Payment error",
 				'message': "An error was encountered while processing the request. Please try again or contact PCr, BITS, Pilani.",
+				'url':request.build_absolute_uri(reverse('registrations:cr_payment'))
 				}
-			return render(request, 'registrations/message.html')
+			return render(request, 'registrations/message.html', context)
 
 	else:
-		participant_list = Participant.objects.filter(college=participant.college, pcr_approved=True, paid=False)
-		return render(request, 'cr_payment.html', {'participant_list':participant_list})
+		participant_list = Participant.objects.filter(college=participant.college,paid=False)
+		prereg_list = Participant.objects.filter(college=participant.college, paid=True, controlz_paid=False)
+		paid_list = Participant.objects.filter(college=participant.college, paid=True, controlz_paid=True)
+		return render(request, 'registrations/cr_payment.html', {'participant_list':participant_list, 'participant':participant, 'prereg_list':prereg_list, 'paid_list':paid_list})
 
 @login_required
 def upload_docs(request):
-	participant = Participant.object.get(user=request.user)
+	participant = Participant.objects.get(user=request.user)
 	if request.method == 'POST':
+		from django.core.files import File
+		print request.FILES
 		try:
+			image = request.FILES['profile_pic']
+			print 'here'
 			image = participant.profile_pic
 			if image is not None:
 				image.delete(save=True)
-			new_img = request.FILES['profile_pic']
-			participant.profile_pic = new_img
-			participant.save()
+			up_img = request.FILES['profile_pic']
+			img_file = resize_uploaded_image(up_img, 240, 240)
+			new_img = File(img_file)
+			participant.pcr_approved = False
+			participant.profile_pic.save('profile_pic', new_img)
 		except:
-			pass
+		 	pass
 		try:
+			verify_docs = request.FILES['verify_docs']
+			print 'here1'
 			docs = participant.verify_docs
 			if docs is not None:
 				docs.delete(save=True)
-			new_docs = request.FILES['verify_docs']
-			participant.verify_docs = new_docs
-			participant.save()
+			up_docs = request.FILES['verify_docs']
+			doc_file = resize_uploaded_image(up_docs, 400, 400)
+			new_docs = File(doc_file)
+			participant.pcr_approved = False
+			participant.verify_docs.save('verify_docs', new_docs)
 		except:
 			pass
-	return render(request, 'registrations/upload_docs.html', {'participant':participant})
+	try:
+		image_url = request.build_absolute_uri('/')[:-1] + participant.profile_pic.url
+		image = True
+		print image_url
+	except:
+		image_url = '#'
+		image = False
+		pass
+	try:
+		docs_url = request.build_absolute_uri('/')[:-1] + participant.verify_docs.url
+		docs = True
+	except:
+		docs_url = '#'
+		docs = False
+		pass
+	return render(request, 'registrations/upload_docs.html', {'participant':participant, 'image_url':image_url, 'image':image, 'docs_url':docs_url, 'docs':docs})
+
+@login_required
+def get_profile_card(request):
+	participant = Participant.objects.get(user=request.user)
+	if not participant.paid and not participant.pcr_approved:
+		context = {
+				'error_heading': "Invalid Access",
+				'message': "Please complete your profile and make payments to access this page.",
+				'url':request.build_absolute_uri(reverse('registrations:index'))
+				}
+		return render(request, 'registrations/message.html', context)
+	participant = Participant.objects.get(user=request.user)
+	participation_set = Participation.objects.filter(participant=participant, pcr_approved=True)
+	events = ''
+	for participation in participation_set:
+		events += participation.event.name + ', '
+	events = events[:-2]
+	return render(request, 'registrations/profile_card.html', {'participant':participant, 'events':events,})
+##################### HELPER FUNCTIONS FOR PROFILE CARD ##############################
+def resize_uploaded_image(buf, height, width):
+    
+	import StringIO
+	from PIL import Image
+	image = Image.open(buf)
+	width = width
+	height = height
+	resizedImage = image.resize((width, height))
+
+	# Turn back into file-like object
+	resizedImageFile = StringIO.StringIO()
+	resizedImage.save(resizedImageFile , 'JPEG', optimize = True)
+	resizedImageFile.seek(0)    # So that the next read starts at the beginning
+
+	return resizedImageFile
+
+def return_qr(request):
+    text = request.GET.get('text')
+    qr = generate_qr_code(text)
+    response = HttpResponse(content_type="image/png")
+    qr.save(response, "PNG")
+    return response
+
+def generate_qr_code(data):
+	import qrcode
+	part_code = qrcode.make(data)
+	return part_code
+########################### END OF HELPER FUNCTIONS ############################33
 
 def apirequest(request):
 	import requests
@@ -583,7 +671,7 @@ def apirequest(request):
 	headers = {'X-Api-Key': INSTA_API_KEY,
     	       'X-Auth-Token': AUTH_TOKEN}
 	try:
-		from oasis2017.config import *
+		from oasis2017 import config
    		r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
 	except:
 		r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development

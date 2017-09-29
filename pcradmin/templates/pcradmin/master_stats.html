@@ -7,11 +7,11 @@
         <div class="row clearfix">
             <div class="col-md-12">
                 <p>
-                    <b>View Participants according to Events and Colleges</b>
+                    <b>View Participants according to Events and Colleges(Press Ctrl to select more than one)</b>
                 </p>
                 <form action="" method="post">
                 {% csrf_token %}
-                    <select class="form-control show-tick" name="event" data-live-search="true">
+                    <select class="form-control show-tick" name="event" data-live-search="true" multiple>
                     {% for event in events %}
                         <option value="{{event.name}}">{{event.name}}</option>        
                     {% endfor %}
