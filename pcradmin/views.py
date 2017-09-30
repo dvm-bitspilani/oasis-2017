@@ -155,7 +155,7 @@ def approve_participations(request, id):
 	try:
 		cr = Participant.objects.get(college=college, is_cr=True)
 	except:
-		messages.warning(request, 'CR not selected yet. Please select a College Rep. first for '+collge.name)
+		messages.warning(request, 'CR not selected yet. Please select a College Rep. first for '+college.name)
 		return redirect(request.META.get('HTTP_REFERER'))
 	if request.method == 'POST':
 		data = request.POST
