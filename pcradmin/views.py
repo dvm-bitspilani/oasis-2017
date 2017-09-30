@@ -152,7 +152,11 @@ def event_list(part):
 @staff_member_required
 def approve_participations(request, id):
 	college = College.objects.get(id=id)
-	cr = Participant.objects.get(college=college, is_cr=True)
+	try:
+		cr = Participant.objects.get(college=college, is_cr=True)
+	except:
+		messages.warning(request, 'CR not selected yet. Please select a College Rep. first for '+collge.name)
+		return redirect(request.META.get('HTTP_REFERER'))
 	if request.method == 'POST':
 		data = request.POST
 		try:
