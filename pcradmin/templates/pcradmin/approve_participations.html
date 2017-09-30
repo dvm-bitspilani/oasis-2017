@@ -25,7 +25,12 @@
                 <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner" role="listbox">
                         <div class="item active">
+                            {% if cr.profile_pic %}
                             <img src="{{cr.profile_pic.url}}" alt="Upload left"/>
+                            {% else %}
+                            <img alt="Upload left"/>
+                            {% endif %}
+
                         </div>
                     </div>
                 </div>
@@ -43,7 +48,11 @@
                 <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner" role="listbox">
                         <div class="item active">
+                            {% if cr.verify_docs %}
                             <img src="{{cr.verify_docs.url}}" alt="Upload left"/>
+                            {% else %}
+                            <img alt="Upload left"/>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
