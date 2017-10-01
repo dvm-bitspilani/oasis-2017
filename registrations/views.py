@@ -508,7 +508,7 @@ def manage_events(request):
 	added_list = [participation for participation in Participation.objects.filter(participant=participant)]
 	added_events = [p.event for p in added_list]
 	not_added_list = [event for event in Event.objects.all() if event not in added_events]
-	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list}) 
+	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list, 'participant':participant}) 
 
 @login_required
 def cr_payment(request):
