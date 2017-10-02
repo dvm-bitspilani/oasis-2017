@@ -242,10 +242,10 @@ def stats(request, order=None):
 
 			parts_m = parts.filter(gender='M')
 			parts_f = parts.filter(gender='F')
-			rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[]})
+			rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts), profile_stats(parts)], 'link':[]})
 		parts = Participant.objects.all()
-		rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts)], 'link':[]})
-		headings = ['College', 'CR Selected', 'Male', 'Female','Stats']
+		rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts), ' - - '], 'link':[]})
+		headings = ['College', 'CR Selected', 'Male', 'Female','Stats', 'Profile status']
 		title = 'CollegeWise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
@@ -476,4 +476,13 @@ def is_profile_complete(part):
 		return True
 	except:
 		return False
+
+
+def profile_stats(parts):
+	x=parts.filter(pcr_approved=True).count()
+	y=0
+	for part in parts:
+		if is_profile_complete(part):
+			y+=1
+	return str(x) + ' | ' + str(y)
 ####  End of HELPER FUNCTIONS  ####
