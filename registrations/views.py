@@ -341,12 +341,11 @@ Greetings from BITS Pilani!
 
 It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
            
-This is to inform you that you have been selected as the College Representative for your college.
+This is to inform you that your college representative has selected your participation.
 You can now login <a href="%s">here</a> using the following credentials:
 username : '%s'
 password : '%s'
 We would be really happy to see your college represented at our fest.
-It is your responsibility to confirm the participants for different events.
 
 Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Eg Bonafide)</b> once you login to complete your registration.
 
@@ -508,7 +507,7 @@ def manage_events(request):
 	added_list = [participation for participation in Participation.objects.filter(participant=participant)]
 	added_events = [p.event for p in added_list]
 	not_added_list = [event for event in Event.objects.all() if event not in added_events]
-	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list}) 
+	return render(request, 'registrations/manage_events.html', {'added_list':added_list, 'not_added_list':not_added_list, 'participant':participant}) 
 
 @login_required
 def cr_payment(request):
