@@ -464,10 +464,17 @@ def contacts(request):
 def participants_count(parts):
 	x1 = len(parts)
 	if x1 == 0:
-		return '- - -'
+		return '- - - - '
+	x2 = 0
+	for part in parts:
+		for p in part.participation_set.all():
+			if p.cr_approved:
+				x2+=1
+				break
+
 	x3=parts.filter(pcr_approved=True).count()
 	x4=parts.filter(paid=True).count()
-	return str(x1) + ' | ' + str(x3) + ' | ' + str(x4)
+	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
 
 def is_profile_complete(part):
 	try:
