@@ -315,6 +315,9 @@ def cr_approve(request):
 				participation = Participation.objects.get(id=part_id, participant__college=participant.college)
 				participation.cr_approved = True
 				participation.save()
+				participant_1 = participation.participant
+				participant_1.cr_approved = True
+				participant_1.save()
 				appr_participant = participation.participant
 				if appr_participant.user is not None:
 					user = appr_participant.user
@@ -400,6 +403,10 @@ pcr@bits-oasis.org
 				participation.cr_approved = False
 				participation.pcr_approved = False
 				participation.save()
+				participant_1 = participation.participant
+				if all(not i.cr_approved for i in participant_1.participation_set.all()):
+					participant_1.cr_approved = False
+					participant_1.save()
 	return render(request, 'registrations/cr_approval.html', {'approved_list':approved_list, 'disapproved_list':disapproved_list, 'participant':participant})
 
 @login_required
