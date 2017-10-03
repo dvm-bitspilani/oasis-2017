@@ -262,7 +262,7 @@ def stats(request, order=None):
 		parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.all() if p.participation_set.all().count()>0])
 		parts_m  = parts.filter(gender='M')
 		parts_f = parts.filter(gender='F')
-		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)]})
+		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[]})
 		headings = ['Event', 'Category', 'Male', 'Female', 'Total']
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
