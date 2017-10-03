@@ -57,6 +57,7 @@ def select_college_rep(request, id):
 			user.delete()
 			part.user = None
 			part.is_cr=False
+			part.cr_approved=False
 			part.save()
 		elif 'select' == data['submit']:
 			try:
@@ -67,6 +68,8 @@ def select_college_rep(request, id):
 				pass
 			part = Participant.objects.get(id=part_id)
 			part.is_cr=True
+			part.cr_approved=True
+
 			encoded = gen_barcode(part)
 			part.save()
 			user = part.user
@@ -465,7 +468,7 @@ def participants_count(parts):
 	x1 = len(parts)
 	if x1 == 0:
 		return '- - - - '
-	x2 = len([part for part in parts if any(p.cr_approved for p in part.participation_set.all())])
+	x2 = parts.filter(cr_approved=True).count()
 	x3=parts.filter(pcr_approved=True).count()
 	x4=parts.filter(paid=True).count()
 	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
