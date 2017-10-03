@@ -19,6 +19,6 @@ urlpatterns = [
 				url(r'^getlist/college/(?P<pk>[0-9]+)/$', views.college_list, name="College Excel Sheet"),
 				#url(r'^register/$', views.register, name="register"),
 				url(r'^email_confirm/(?P<token>\w+)/$', views.email_confirm, name="email_confirm"),
-				url(r'^payment', views.apirequest, name="API Request"),
+				url(r'^payment_api_request', views.apirequest, name="API Request"),
 				url(r'^manage_events/$', views.manage_events, name='manage_events'),
 				]

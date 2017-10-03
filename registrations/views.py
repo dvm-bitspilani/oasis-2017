@@ -29,23 +29,25 @@ except:
 	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 def home(request):
-		if request.method == 'POST':
-			username = request.POST['username']
-			password = request.POST['password']
-			user = authenticate(username=username, password=password)
-			if user is not None:
-				if user.is_active:
-					login(request, user)
-					
-					return redirect('registrations:index')
-				else:
-					context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .', 'url':request.build_absolute_uri(reverse('registrations:home'))}
+	if request.method == 'POST':
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				if not user.participant.email_verified:
+					context = {'error_heading' : "Email not verfied", 'message' :  'It seems you haven\'t verified your email yet. Please verify it as soon as possible to proceed. For any query, call the following members of the Department of Publications and Correspondence. Asim Shah: %s - pcr@bits-bosm.org .'%(get_pcr_number()), 'url':request.build_absolute_uri(reverse('registrations:home'))}
 					return render(request, 'registrations/message.html', context)
+				login(request, user)
+				return redirect('registrations:index')
 			else:
-				messages.warning(request,'Invalid login credentials')
-				return redirect(request.META.get('HTTP_REFERER'))
+				context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Asim Shah: %s - pcr@bits-bosm.org .'%(get_pcr_number()), 'url':request.build_absolute_uri(reverse('registrations:home'))}
+				return render(request, 'registrations/message.html', context)
 		else:
-			return render(request, 'registrations/login.html')
+			messages.warning(request,'Invalid login credentials')
+			return redirect(request.META.get('HTTP_REFERER'))
+	else:
+		return render(request, 'registrations/login.html')
 
 @csrf_exempt
 def prereg(request):
