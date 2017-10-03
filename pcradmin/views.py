@@ -468,7 +468,7 @@ def participants_count(parts):
 	x1 = len(parts)
 	if x1 == 0:
 		return '- - - - '
-	x2 = parts.filter(cr_approved=True).count()
+	x2 = parts.filter(cr_approved=True, email_verified=True).count()
 	x3=parts.filter(pcr_approved=True).count()
 	x4=parts.filter(paid=True).count()
 	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
