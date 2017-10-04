@@ -22,6 +22,7 @@ class Event(models.Model):
 	appcontent = models.TextField(max_length=3000, default='')
 	short_description = models.CharField(blank=True,max_length=140)
 	rules = models.CharField(blank=True,max_length=200)
+	detail_rules = models.TextField(max_length=1000,default='', null=True, blank=True)
 	category = models.ForeignKey('Category', default=3)
 	is_kernel = models.BooleanField(default=False)
 	icon = models.ImageField(blank=True, upload_to="icons")

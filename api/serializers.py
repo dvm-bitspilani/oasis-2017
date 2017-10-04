@@ -44,4 +44,4 @@ class EventDetailSerializer(serializers.ModelSerializer):
 	category_name = serializers.ReadOnlyField(source='category.name', read_only=True)
 	class Meta:
 		model = Event
-		fields = ('id', 'name', 'content', 'rules','category_name', 'contact')
+		fields = ('id', 'name', 'content', 'rules','category_name', 'detail_rules','contact')
