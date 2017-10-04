@@ -297,3 +297,14 @@ def edit_profile(request):
 	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
 	participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
+
+@api_view(['GET',])
+def all_events(request):
+	event_serializer = BaseEventSerializer(Event.objects.all(), many=True)
+	return Response(event_serializer.data)
+
+
+@api_view(['GET', ])
+def get_event(request, e_id):
+	event_serializer = EventDetailSerializer(Event.objects.get(id=e_id))
+	return Response(event_serializer.data)

@@ -33,3 +33,15 @@ class ParticipationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Participation
 		fields = '__all__'
+
+class BaseEventSerializer(serializers.ModelSerializer):
+	category_name = serializers.ReadOnlyField(source='category.name', read_only=True)
+	class Meta:
+		model = Event
+		fields = ('id', 'name', 'category_name')
+
+class EventDetailSerializer(serializers.ModelSerializer):
+	category_name = serializers.ReadOnlyField(source='category.name', read_only=True)
+	class Meta:
+		model = Event
+		fields = ('id', 'name', 'content', 'rules','category_name')

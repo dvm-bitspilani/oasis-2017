@@ -146,3 +146,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/2017/media/'
 GOOGLE_RECAPTCHA_SECRET_KEY = recaptcha_key
+
+LOGIN_URL = '/2017/register/login/'

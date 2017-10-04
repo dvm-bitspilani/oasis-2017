@@ -3,8 +3,10 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic import RedirectView
 
 urlpatterns = [
+	url(r'^$', RedirectView.as_view(url='/2017/register')),	
     url(r'^admin/', admin.site.urls),
     url(r'^mirage/',include("preregistrations.urls")),
     url(r'^api/',include("api.urls")),

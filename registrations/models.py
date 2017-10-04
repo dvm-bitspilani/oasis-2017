@@ -85,7 +85,8 @@ class Participant(models.Model):
 	recnacc_time = models.DateTimeField(null=True, auto_now=False)
 	is_g_leader = models.BooleanField(default=False)
 	events = models.ManyToManyField(Event, through=Participation)
-
+	cr_approved = models.BooleanField(default=False)
+	
 	def __unicode__(self):
 		return (self.name) + ' - ' + str(self.college.name)
 
