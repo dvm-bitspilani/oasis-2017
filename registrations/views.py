@@ -622,7 +622,7 @@ def upload_docs(request):
 @login_required
 def get_profile_card(request):
 	participant = Participant.objects.get(user=request.user)
-	if not participant.paid and not participant.pcr_approved:
+	if not participant.pcr_final:
 		context = {
 				'error_heading': "Invalid Access",
 				'message': "Please complete your profile and make payments to access this page.",
