@@ -232,7 +232,7 @@ def verify_profile(request, part_id):
 @staff_member_required
 def stats(request, order=None):
 	if order==None:
-		return render(request, 'pcradmin/stats_home.html')
+		order = 'collegewise'
 	if order=='collegewise':
 		rows = []
 		for college in College.objects.all():
@@ -261,12 +261,12 @@ def stats(request, order=None):
 			parts_m = parts.filter(gender='M')
 			parts_f = parts.filter(gender='F')
 			rows.append({'data':[event.name, event.category, participants_count(parts_m), 
-				participants_count(parts_f), participants_count(parts)], 'link':[]})
+				participants_count(parts_f), participants_count(parts)], 'link':[{'title':'View','url':reverse('pcradmin:stats_event', kwargs={'e_id':event.id})}]})
 		parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.all() if p.participation_set.all().count()>0])
 		parts_m  = parts.filter(gender='M')
 		parts_f = parts.filter(gender='F')
-		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[]})
-		headings = ['Event', 'Category', 'Male', 'Female', 'Total']
+		rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[{'url':'#', 'title':'- - -'}]})
+		headings = ['Event', 'Category', 'Male', 'Female', 'Total', 'View']
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
@@ -274,6 +274,32 @@ def stats(request, order=None):
 		headings = ['Name', 'College', 'Gender', 'Phone', 'Email']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+
+
+@staff_member_required
+def stats_event(request, e_id):
+	event = get_object_or_404(Event, id=e_id)
+	rows = []
+	for college in College.objects.all():
+		parts1 = college.participant_set.filter(email_verified=True)
+		parts = Participant.objects.filter(id__in=[p.id for p in parts1 if Participation.objects.filter(participant=p, event=event)])
+		if not parts:
+			continue
+		try:
+			p=parts.filter(is_cr=True)[0]
+			cr = 'True (' + p.name + ')'
+		except:
+			cr = False
+
+		parts_m = parts.filter(gender='M')
+		parts_f = parts.filter(gender='F')
+		rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts), profile_stats(parts)], 'link':[]})
+	parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.filter(email_verified=True) if Participation.objects.filter(participant=p, event=event)])
+	rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts), ' - - '], 'link':[]})
+	headings = ['College', 'CR Selected', 'Male', 'Female','Stats', 'Profile status']
+	title = 'CollegeWise Participants Stats'
+	return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+
 
 @staff_member_required
 def master_stats(request):
