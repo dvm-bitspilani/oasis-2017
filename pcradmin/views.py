@@ -297,7 +297,7 @@ def stats_event(request, e_id):
 	parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.filter(email_verified=True) if Participation.objects.filter(participant=p, event=event)])
 	rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts), ' - - '], 'link':[]})
 	headings = ['College', 'CR Selected', 'Male', 'Female','Stats', 'Profile status']
-	title = 'CollegeWise Participants Stats'
+	title = 'CollegeWise Participants Stats for ' + event.name
 	return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
 
