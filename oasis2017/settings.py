@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'regsoft',
     'pcradmin',
     'ems',
-    'rest_framework'
+    'rest_framework',
+    'tarang'
 ]
 
 MIDDLEWARE = [
