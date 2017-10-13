@@ -105,6 +105,61 @@ def get_group_list(request, g_id):
 
 ########################################## End Firewallz #########################################################################
 
+############################################# RecNAcc for the One ################################################################
+
+@staff_member_required
+def recnacc_home(request):
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:allocate_participants', kwargs={'g_id':group.id}), 'title':'Allocate Participants'}]} for group in Group.objects.all()]
+    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
+    title = 'Groups that have passed firewallz'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def allocate_participants(request, g_id):
+    group = get_object_or_404(Group, id=g_id)
+    if request.method == 'POST':
+        from datetime import datetime
+        data = request.POST
+        try:
+            parts_id = data.getlist('data')
+            room_id = data['room']
+            room = Room.objects.get(id=room_id)
+            
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
+            
+        rows = []
+        room.vacancy -= len(parts_id)
+        room.save()
+        for part_id in parts_id:
+            part = Participant.objects.get(id=part_id)
+            part.acco = True
+            part.room = room
+            part.recnacc_time = datetime.now()
+            part.save()
+        return redirect(reverse('regsoft:recnacc_group_list', kwargs={'c_id':get_group_leader(group).college.id}))
+    else:
+        unalloted_participants = group.participant_set.filter(acco=False)
+        alloted_participants = group.participant_set.filter(acco=True)
+        rooms_list = Room.objects.all()
+        return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list})
+
+@staff_member_required
+def recnacc_group_list(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    group_list = [group for group in Group.objects.all() if get_group_leader(group).college is college]
+    complete_groups = [group for group in group_list if all(part.acco for part in group.participant_set.all())]
+    incomplete_groups = [group for group in group_list if not group in complete_groups]
+
+    return render(request, 'regsoft/recnacc_group_list.html', {'complete_groups':complete_groups, 'incomplete_groups':incomplete_groups})
+
+############################################ Hope she likes it ;) ############################### PS Shitty comments coz gitlab! Hopefully yaad rhega change krna hai. Else divyam, sanchit, hemant, dekh lena
+
 ########################################### Controlz and not recnacc coz avvvaaaaaaaaannnnnnttttttiiiiiii lite####################
 @staff_member_required
 def controlz_home(request):
