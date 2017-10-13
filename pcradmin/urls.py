@@ -19,7 +19,6 @@ urlpatterns = [
 	url(r'^master_stats/$', views.master_stats, name='master_stats'),
 	url(r'^logout/$', views.user_logout, name='user-logout'),
 	url(r'^contacts/$', views.contacts, name='contacts'),
-
-
+	url(r'^stats_event/(?P<e_id>\d+)/(?P<c_id>\d+)/$', views.stats_event_college, name='stats_event_college'),
 ]
 

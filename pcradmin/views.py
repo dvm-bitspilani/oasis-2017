@@ -293,13 +293,26 @@ def stats_event(request, e_id):
 
 		parts_m = parts.filter(gender='M')
 		parts_f = parts.filter(gender='F')
-		rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts), profile_stats(parts)], 'link':[]})
+		rows.append({'data':[college.name, cr,participants_count(parts_m), participants_count(parts_f), participants_count(parts), profile_stats(parts)], 'link':[{'url':request.build_absolute_uri(reverse('pcradmin:stats_event_college', kwargs={'e_id':event.id, 'c_id':college.id})), 'title':'View Participants'}]})
 	parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.filter(email_verified=True) if Participation.objects.filter(participant=p, event=event)])
-	rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts), ' - - '], 'link':[]})
-	headings = ['College', 'CR Selected', 'Male', 'Female','Stats', 'Profile status']
+	rows.append({'data':['Total', ' ',participants_count(parts.filter(gender='M')), participants_count(parts.filter(gender='F')), participants_count(parts), ' - - '], 'link':[{'':''}]})
+	headings = ['College', 'CR Selected', 'Male', 'Female','Stats', 'Profile status', 'View Details']
 	title = 'CollegeWise Participants Stats for ' + event.name
 	return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
+@staff_member_required
+def stats_event_college(request, e_id, c_id):
+	event = get_object_or_404(Event, id=e_id)
+	college = get_object_or_404(College, id=c_id)
+	parts1 = college.participant_set.filter(email_verified=True)
+	parts = Participant.objects.filter(id__in=[p.id for p in parts1 if Participation.objects.filter(participant=p, event=event)])
+	rows = [{'data':[part.name, part.college.name, get_cr_name(part),part.gender, part.phone, part.email, Participation.objects.get(participant=part, event=event).pcr_approved, part.paid], 'link':[]} for part in parts]
+	headings = ['Name', 'College', 'CR', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
+	title = 'Participants\' Stats for ' + event.name + ' from ' + college.name
+	return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
+
+def get_cr_name(part):
+	return Participant.objects.get(college=part.college, is_cr=True).name
 
 @staff_member_required
 def master_stats(request):

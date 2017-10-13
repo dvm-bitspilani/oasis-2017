@@ -39,6 +39,3 @@ class Bill(models.Model):
 	twenties_returned = models.IntegerField(null=True, blank=True, default=0)
 	tens_returned = models.IntegerField(null=True, blank=True, default=0)
 	coaches_list = models.CharField(max_length=200, null=True, blank=True)
-
-	def __unicode__(self):
-		return str(self.g_leader.college.name) + ' - ' + str(self.g_leader.name) + ' - ' + str(self.amount)

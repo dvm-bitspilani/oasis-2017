@@ -78,9 +78,12 @@ class Participant(models.Model):
 	email_group = models.ForeignKey(EmailGroup, on_delete=models.SET_NULL, null=True)
 	firewallz_passed = models.BooleanField(default=False)
 	group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True)
+	acco = models.BooleanField(default=False)
 	room = models.ForeignKey('regsoft.Room', null=True, blank=True)
 	controlz = models.BooleanField('controlz passed', default=False)
 	controlz_paid = models.BooleanField(default=False)
+	curr_paid = models.BooleanField(default=False)
+	curr_controlz_paid = models.BooleanField(default=False)
 	bill = models.OneToOneField('regsoft.Bill' ,null=True, on_delete=models.SET_NULL)
 	recnacc_time = models.DateTimeField(null=True, auto_now=False)
 	is_g_leader = models.BooleanField(default=False)
@@ -94,6 +97,7 @@ class Group(models.Model):
 
 	amount_deduct = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
+	group_code = models.CharField(max_length=8, null=True, blank=True)
 
 	def __unicode__(self):
 		return self.g_leader.name
