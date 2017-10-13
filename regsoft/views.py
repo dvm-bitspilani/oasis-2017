@@ -18,6 +18,7 @@ import os
 from time import gmtime, strftime
 import string
 from pcradmin.views import get_cr_name
+from django.contrib import messages
 
 ############################### Helper Function ########################################################
 
@@ -32,7 +33,79 @@ def get_event_string(participant):
     events = events[:-2]
     return events
 
-########################################### Controlz and not recnacc coz avvvaaaaaaaaannnnnnttttttiiiiiii lite####################3
+########################################### Firewallz coz they're pretty sweet people ############################################
+
+@staff_member_required
+def firewallz_home(request):
+    college_list = College.objects.all()
+    rows = [{'data':[college.name, Participant.objects.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'}]} for college in college_list]
+    headings = ['College', 'CR', 'PCr Finalised Participants', 'Approve Participants']
+    title = 'Select college to approve Participants'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def firewallz_approval(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            id_list = data.getlist('id_list')
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
+        try:
+            g_leader_id = data['g_leader_id']
+            if not g_leader_id in id_list:
+                messages.warning(request,'Please select a Group Leader from the participant list.')
+                return redirect(request.META.get('HTTP_REFERER'))   
+            g_leader = Participant.objects.get(id=g_leader_id)
+            g_leader.is_g_leader = True
+            g_leader.save()
+        
+        except:
+            messages.warning(request,'Please select a Group Leader.')
+            return redirect(request.META.get('HTTP_REFERER'))
+        
+        group = Group.objects.create()
+        
+        for part_id in id_list:
+            part = Participant.objects.get(id=part_id)
+            part.firewallz_passed=True
+            part.group = group
+            part.save() 
+        
+        return redirect('regsoft:firewallz-home')
+    
+    groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college is college]
+    unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False)
+    return render(request, 'regsoft/firewallz_approval.html', {'groups_passed':groups_passed, 'unapproved_list':unapproved_list})
+
+@staff_member_required
+def get_group_list(request, g_id):
+    group = get_object_or_404(Group, id=g_id)
+    if request.method == 'POST':
+        try:
+            data = request.POST
+            id_list = data.getlist('id_list')
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
+
+        participant_list = Participant.objects.filter(id__in=id_list)
+        for participant in participant_list:
+            participant.group = None
+            participant.firewallz_passed = False
+            participant.save()
+        return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
+    participant_list = group.participant_set.all()
+    return render(request, 'regsoft/group_list.html', {'participant_list':participant_list, 'group':group})
+
+########################################## End Firewallz #########################################################################
+
+########################################### Controlz and not recnacc coz avvvaaaaaaaaannnnnnttttttiiiiiii lite####################
 @staff_member_required
 def controlz_home(request):
     rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:create_bill', kwargs={'g_id':group.id}), 'title':'Create Bill'}]} for group in Group.objects.all()]
