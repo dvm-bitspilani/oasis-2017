@@ -209,6 +209,9 @@ pcr@bits-oasis.org
 			except :
 				participant.delete()
 				return JsonResponse({'status':0, 'message':'Error sending email. Please try again.'})
+			print(response.status_code)
+			print(response.body)
+			print(response.headers)
 			print "Sent"
 			message = "A confirmation link has been sent to %s. Kindly click on it to verify your email address." %(send_to)
 			return JsonResponse({'status':1, 'message':message})
