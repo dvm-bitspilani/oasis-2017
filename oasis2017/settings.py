@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'pcradmin',
     'ems',
     'rest_framework',
-    'tarang'
+    'tarang',
+    'wordwars',
 ]
 
 MIDDLEWARE = [
