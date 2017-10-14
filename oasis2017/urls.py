@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^pcradmin/', include("pcradmin.urls")),
     url(r'^tarang/', include("tarang.urls")),
     # url(r'^ems/', include("ems.urls")),
+    # url(r'^wordwars/', include('wordwars.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
