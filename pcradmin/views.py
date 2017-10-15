@@ -141,7 +141,7 @@ pcr@bits-oasis.org
 		participants = participants.exclude(id=cr.id)
 	except:
 		cr=[]
-	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, part.head_of_society, part.year_of_study, event_list(part),is_profile_complete(part)], "id":part.id,} for part in participants]
+	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, part.head_of_society, part.year_of_study, event_list(part),is_profile_complete(part), how_much_paid(part)], "id":part.id,} for part in participants]
 	return render(request, 'pcradmin/college_rep.html',{'college':college, 'parts':parts, 'cr':cr})
 
 def event_list(part):
@@ -462,15 +462,51 @@ def final_confirmation(request, c_id):
 def final_email(request, eg_id):
 	email_group = EmailGroup.objects.get(id=eg_id)
 	parts = email_group.participant_set.all()
+	if request.method=='POST':
+		_dir = '/root/live/oasis/backend/resources/oasis2017/'
+		doc_name = _dir + 'final_list.pdf'
+		a=create_final_pdf(eg_id, doc_name)
+		import base64
+
+		with open(doc_name, "rb") as output_pdf:
+			encoded_string1 = base64.b64encode(output_pdf.read())
+			attachment = Attachment()
+			attachment.content = encoded_string1
+			attachment.name = 'Confirmed Participants'
+		body = ''
+		subject = 'College Representative for Oasis'
+		from_email = Email('register@bits-oasis.org')
+		content = Content('text/html', body)
+		sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+		for part in parts:	
+			to_email = Email(part.email)
+			try:
+				mail = Mail(from_email, subject, to_email, content)
+				mail.add_attachement(attachment)
+				response = sg.client.mail.send.post(request_body=mail.get())
+				messages.warning(request,'Email sent to ' + part.name)
+				part.pcr_final=True
+				part.save()
+			except :
+				messages.warning(request,'Error sending email')
+		return redirect(request.META.get('HTTP_REFERER'))
 	return render(request, 'pcradmin/final_mail.html', {'parts':parts, 'group':email_group})
 
 @staff_member_required
 def download_pdf(request, eg_id):
+	response = HttpResponse(content_type='application/pdf')
+	response['Content-Disposition'] = 'attachment; filename="final_list.pdf"'
+	return create_final_pdf(eg_id, response)
+
+###################################    Send final email ###################################
+# def send_final_email
+# DONT FORGET TO GENERATE BARCODES FOR THE PARTICIPANTS, ONLY NON CR PARTICIPANTS COZ MISSED FOR THEM IN MAIN REGISTRATIONS
+############################################################################
+
+def create_final_pdf(eg_id, response):
 	email_group = EmailGroup.objects.get(id=eg_id)
 	from reportlab.platypus import SimpleDocTemplate
 	from reportlab.platypus.tables import Table
-	response = HttpResponse(content_type='application/pdf')
-	response['Content-Disposition'] = 'attachment; filename="final_list.pdf"'
 	elements = []
 	doc = SimpleDocTemplate(response, rightMargin=0, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
 	data = []
@@ -493,11 +529,6 @@ def download_pdf(request, eg_id):
 	elements.append(table)
 	doc.build(elements)
 	return response
-
-###################################    Send final email ###################################
-# def send_final_email
-# DONT FORGET TO GENERATE BARCODES FOR THE PARTICIPANTS, ONLY NON CR PARTICIPANTS COZ MISSED FOR THEM IN MAIN REGISTRATIONS
-############################################################################
 
 @login_required
 def user_logout(request):
@@ -534,4 +565,13 @@ def profile_stats(parts):
 		if is_profile_complete(part):
 			y+=1
 	return str(x) + ' | ' + str(y)
+
+def how_much_paid(part):
+	if part.controlz_paid:
+		return 950
+	if part.paid:
+		return 300
+	return 0
+
+
 ####  End of HELPER FUNCTIONS  ####

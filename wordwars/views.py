@@ -151,7 +151,7 @@ def contact(request):
 	return render(request, 'wordwars/contact.html')
 
 @staff_member_required
-def upload_question(request):
+def add_question(request):
 	if request.method == 'POST':
 		data = request.POST
 		try:
@@ -166,8 +166,8 @@ def upload_question(request):
 		question_no = Question.objects.filter(day=day).count()+1
 		question = Question.objects.create(day=day, answer=answer, question_no=question_no, points=points)
 		question.image.save('question', image)
-		messages.success(request, 'Question uploaded successfully')
-	return render(request, 'wordwars/upload_question.html')
+		messages.success(request, 'Question successfully added')
+	return render(request, 'wordwars/add_question.html')
 
 @staff_member_required
 def day_activate(request):

@@ -34,6 +34,7 @@
                                         <th>Verfied</th>
                                         <th>Head of Society</th>
                                         <th>Year of Study</th>
+                                        <th>Payment</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </thead>
@@ -48,6 +49,7 @@
                                         <td>{{cr.pcr_approved}}</td>
                                         <td>{{cr.head_of_society}}</td>
                                         <td>{{cr.year_of_study}}</td>
+                                        <td>{% if cr.controlz_paid %}950{% else %}{% if cr.paid %}300{% else %}0{% endif %}{% endif %}</td>
                                         <td><a href="{% url 'pcradmin:verify_profile' cr.id %}">Verify Profile</a></td>
                                 </tbody>
                             </table>
@@ -77,10 +79,11 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
-                                        <th>Profile Complete</th>
+                                        <th>Head of Society</th>
                                         <th>Year of Study</th>
                                         <th>Event List</th>
-                                        <th>Head of Society</th>
+                                        <th>Profile Complete</th>
+                                        <th>Payment</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </thead>
@@ -91,10 +94,11 @@
                                         <th>Email</th>
                                         <th>Gender</th>
                                         <th>Verfied</th>
-                                        <th>Profile Complete</th>
+                                        <th>Head of Society</th>
                                         <th>Year of Study</th>
                                         <th>Event List</th>
-                                        <th>Head of Society</th>
+                                        <th>Profile Complete</th>
+                                        <th>Payment</th>
                                         <th>Verify Profile</th>
                                     </tr>
                                 </tfoot>
