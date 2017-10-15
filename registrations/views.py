@@ -434,7 +434,7 @@ def participant_details(request, p_id):
 		context = {
 		'error_heading': "Invalid Access",
 		'message': "Sorry! You are not an approved college representative.",
-		'url':request.build_absolute_uri(reverse('registrations:home'))
+		'url':request.build_absolute_uri(reverse('registrations:index'))
 		}
 		return render(request, 'registrations/message.html', context)
 	get_part = Participant.objects.get(id=p_id)
@@ -442,7 +442,7 @@ def participant_details(request, p_id):
 		context = {
 		'error_heading': "Invalid Access",
 		'message': "Sorry! You do not have access to these details.",
-		'url':request.build_absolute_uri(reverse('registrations:home'))
+		'url':request.build_absolute_uri(reverse('registrations:index'))
 		}
 		return render(request, 'registrations/message.html', context)
 	participation_list = Participation.objects.filter(participant=get_part)
@@ -452,8 +452,12 @@ def participant_details(request, p_id):
 def participant_payment(request):
 	participant = Participant.objects.get(user=request.user)
 	if not participant.pcr_approved:
-		messages.warning(request, 'You are yet not approved by Department of PCr, Bits Pilani')
-		return redirect(request.META.get('HTTP_REFERER'))
+		context = {
+		'error_heading': "Invalid Access",
+		'message': "You are yet not approved by Department of PCr, Bits Pilani.",
+		'url':request.build_absolute_uri(reverse('registrations:index'))
+		}
+		return render(request, 'registrations/message.html', context)
 	if request.method == 'POST':
 		try:
 			key = request.POST['key']
@@ -660,7 +664,7 @@ def get_profile_card_cr(request, p_id):
 		context = {
 		'error_heading': "Invalid Access",
 		'message': "Sorry! You are not an approved college representative.",
-		'url':request.build_absolute_uri(reverse('registrations:home'))
+		'url':request.build_absolute_uri(reverse('registrations:index'))
 		}
 		return render(request, 'registrations/message.html', context)
 	get_part = Participant.objects.get(id=p_id)
@@ -668,7 +672,7 @@ def get_profile_card_cr(request, p_id):
 		context = {
 		'error_heading': "Invalid Access",
 		'message': "Sorry! You do not have access to these details.",
-		'url':request.build_absolute_uri(reverse('registrations:home'))
+		'url':request.build_absolute_uri(reverse('registrations:index'))
 		}
 		return render(request, 'registrations/message.html', context)
 	if not get_part.pcr_final:
