@@ -15,6 +15,7 @@ urlpatterns = [
 				url(r'^grouppayment/$', views.cr_payment, name="cr_payment"),
 				url(r'^details/(?P<p_id>\d+)/$', views.participant_details, name="participant_details"),
 				url(r'^profilecard/$', views.get_profile_card, name="get_profile_card"),
+				url(r'^profilecard/(?P<p_id>\d+)/$', views.get_profile_card_cr, name="get_profile_card_cr"),
 				url(r'^getqr/$', views.return_qr, name="generate_qr"),
 				url(r'^getlist/college/(?P<pk>[0-9]+)/$', views.college_list, name="College Excel Sheet"),
 				#url(r'^register/$', views.register, name="register"),
