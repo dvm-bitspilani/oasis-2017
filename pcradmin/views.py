@@ -494,6 +494,11 @@ def download_pdf(request, eg_id):
 	doc.build(elements)
 	return response
 
+###################################    Send final email ###################################
+# def send_final_email
+# DONT FORGET TO GENERATE BARCODES FOR THE PARTICIPANTS, ONLY NON CR PARTICIPANTS COZ MISSED FOR THEM IN MAIN REGISTRATIONS
+############################################################################
+
 @login_required
 def user_logout(request):
 	logout(request)

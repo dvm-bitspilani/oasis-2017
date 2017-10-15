@@ -1,0 +1,22 @@
+{% extends 'wordwars/base.html' %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col s12 m7 l6">
+            <div class="card">
+                <div class="card-image">
+                <img src="images/sample-1.jpg">
+                <span class="card-title">{{day number}}</span>
+                </div>
+                <div class="card-content">
+                {% comment %} <p>{{participant.day_value}}</p> Make template tag {% endcomment %}
+                </div>
+                <div class="card-action">
+                <a href="#">Answer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
