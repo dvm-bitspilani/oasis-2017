@@ -2,6 +2,7 @@ from django import template
 from registrations.models import *
 from events.models import *
 from functools import reduce
+from django.db.models import Q
 register = template.Library()
 
 @register.inclusion_tag('pcradmin/show_tags.html')
@@ -13,5 +14,6 @@ def show_tags():
             cr_approved += 1
             continue
     pcr_approved = Participant.objects.filter(pcr_approved=True).count()
-    paid = Participant.objects.filter(paid=True).count()
-    return {'email_verified':email_verified, 'cr_approved':cr_approved, 'pcr_approved':pcr_approved, 'paid':paid}
+    paid = Participant.objects.filter(Q(paid=True,controlz_paid=False) | Q(curr_paid=True, curr_controlz_paid=False)).count()
+    full_paid = Participant.objects.filter(Q(paid=True,controlz_paid=True) | Q(curr_paid=True, curr_controlz_paid=True)).count()
+    return {'email_verified':email_verified, 'cr_approved':cr_approved, 'pcr_approved':pcr_approved, 'paid':paid, 'full_paid':full_paid}
