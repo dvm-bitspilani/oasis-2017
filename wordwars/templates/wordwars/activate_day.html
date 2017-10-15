@@ -1,0 +1,102 @@
+{% extends "wordwars/ohp_base.html" %}
+{% block body %}
+
+{% if unactivated %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Inactive Days
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'wordwars:change_status_days' %}" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Day</th>
+                        <th>View Questions</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Day</th>
+                        <th>View Questions</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                	{% for i in unactivated %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.name}}</td>
+                        <td><a href="{% url 'wordwars:view_questions' i.id%}">View</a></td>
+                        <td>
+                        	<input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+                        	<label for="{{i.id}}"></label>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="activate" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Activate</button>
+        </div>
+	</form>
+    </div>
+</div>
+{% endif %}
+{% if activated %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Activated Days
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'wordwars:change_status_days' %}" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Day</th>
+                        <th>View Questions</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Day</th>
+                        <th>View Questions</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in activated %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.name}}</td>
+                        <td><a href="{% url 'wordwars:view_questions' i.id%}">View</a></td>
+                        <td>
+                            <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+                            <label for="{{i.id}}"></label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="deactivate" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Deactivate</button>
+        </div>
+	</form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

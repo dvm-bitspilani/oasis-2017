@@ -1,4 +1,40 @@
 {% extends 'wordwars/base.html' %}
 
 {% block body %}
+
+    <div class="row">
+    {% for day in active_days %}
+        <div class="col s12 m7 l4">
+            <div class="card">
+                <div class="card-image">
+                <img src="images/sample-1.jpg">
+                <span class="card-title">{{day number}}</span>
+                </div>
+                <div class="card-content">
+                {% comment %} <p>{{participant.day_value}}</p> Make template tag {% endcomment %}
+                </div>
+                <div class="card-action">
+                <a href="#">Display next question!</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% for day in inactive_days %}
+        <div class="col s12 m7 l4">
+                <div class="card">
+                    <div class="card-image">
+                    <img src="images/sample-1.jpg">
+                    <span class="card-title">{{day number}}</span>
+                    </div>
+                    <div class="card-content">
+                    <p>Still a mysterious realm!</p>
+                    </div>
+                    <div class="card-action">
+                    <a href="#">disabled.</a>
+                    </div>
+                </div>
+        </div>
+    {% endfor %}
+    </div>
+
 {% endblock %}
