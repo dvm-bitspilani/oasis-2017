@@ -11,5 +11,7 @@ url_patterns = [
 	url(r'^rules/$', views.rules, name='rules'),
 	url(r'^rulespage/$', views.rulespage, name='rulespage'),
 	url(r'^contact/$', views.contact, name='contact'),
+	url(r'^add_question/$', views.add_question, name='add_question'),
+	url(r'^day_activate/$', views.day_activate, name='day_activate'),
 
 	]

@@ -451,6 +451,9 @@ def participant_details(request, p_id):
 @login_required
 def participant_payment(request):
 	participant = Participant.objects.get(user=request.user)
+	if not participant.pcr_approved:
+		messages.warning(request, 'You are yet not approved by Department of PCr, Bits Pilani')
+		return redirect(request.META.get('HTTP_REFERER'))
 	if request.method == 'POST':
 		try:
 			key = request.POST['key']
@@ -545,7 +548,7 @@ def cr_payment(request):
 			amount = 950
 		elif key == 3:
 			amount = 650
-		part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
+		part_list = Participant.objects.filter(id__in=data.getlist('part_list'), pcr_approved=True)
 		group = PaymentGroup()
 		group.amount_paid = amount*len(part_list)
 		group.save()
@@ -577,7 +580,7 @@ def cr_payment(request):
 			return render(request, 'registrations/message.html', context)
 
 	else:
-		participant_list = Participant.objects.filter(college=participant.college,paid=False)
+		participant_list = Participant.objects.filter(college=participant.college,paid=False, pcr_approved=True)
 		prereg_list = Participant.objects.filter(college=participant.college, paid=True, controlz_paid=False)
 		paid_list = Participant.objects.filter(college=participant.college, paid=True, controlz_paid=True)
 		return render(request, 'registrations/cr_payment.html', {'participant_list':participant_list, 'participant':participant, 'prereg_list':prereg_list, 'paid_list':paid_list})
