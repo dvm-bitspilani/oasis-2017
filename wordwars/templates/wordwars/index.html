@@ -1,13 +1,14 @@
+
 {% extends 'wordwars/base.html' %}
-
+{% load static %}
 {% block body %}
-
+    
     <div class="row">
     
         <div class="col s12 m7 l4">
-            <div class="card">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 1</span>
                 </div>
                 <div class="card-content">
@@ -25,9 +26,9 @@
 
 
         <div class="col s12 m7 l4">
-            <div class="card">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 2</span>
                 </div>
                 <div class="card-content">
@@ -45,9 +46,9 @@
 
 
         <div class="col s12 m7 l4">
-            <div class="card">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 3</span>
                 </div>
                 <div class="card-content">
@@ -64,5 +65,5 @@
         </div>
     
     </div>
-
+    
 {% endblock %}

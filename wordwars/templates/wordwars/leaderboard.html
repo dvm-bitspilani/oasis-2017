@@ -1,1 +1,45 @@
 {% extends 'wordwars/base.html' %}
+{% block body%}
+<div class="row">
+	<div class="container">
+		<div class="card-panel">
+
+			<h1><center>Leaderboard</center></h1>
+			<div class="row">
+			<div class="container">
+			      <table class="striped">
+        <thead>
+          <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+          	<td>1</td>
+            <td>Alvin</td>
+            
+            <td>0.87</td>
+          </tr>
+          <tr>
+          	<td>2</td>
+            <td>Alan</td>
+            
+            <td>3.76</td>
+          </tr>
+          <tr>
+          	<td>3</td>
+            <td>Jonathan</td>
+            
+            <td>7.00</td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+</div>
+		</div>
+	</div>
+</div>
+{% endblock%}

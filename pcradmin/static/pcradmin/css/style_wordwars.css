@@ -1,0 +1,14 @@
+/*.card-aaa .card-title{
+	position: relative !important;
+	color: #000 !important;
+}*/
+
+.bbb{
+	height: 100%;
+	box-shadow: none !important;
+	/*border-top: 5px solid #ec6e73;*/
+}
+
+.bbb .card-title{
+	border-bottom: 1px solid #ec6e73;
+}

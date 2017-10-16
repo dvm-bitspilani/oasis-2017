@@ -8,6 +8,7 @@
     <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="{% static 'pcradmin/css/materialize.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="{% static 'pcradmin/css/style_wordwars.css' %}" type="text/css" rel="stylesheet"/>
     <link href="{% static 'pcradmin/css/style.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 </head>
 <body>
@@ -41,9 +42,10 @@
             </ul>
         </div>
     </nav>
+    
     {% block body %}
     {% endblock %}
-     
+    
     <footer class="page-footer purple lighten-1">
     <div class="footer-copyright center">
         <div class="container">
