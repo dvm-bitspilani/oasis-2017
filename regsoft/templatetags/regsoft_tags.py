@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.inclusion_tag('pcradmin/show_tags.html')
 def show_tags():
-    pcr_final = Participant.objects.filterpcr_final=True).count()
+    pcr_final = Participant.objects.filter(pcr_final=True).count()
     firewallz = Participant.objects.filter(firewallz_approved=True).count()
     controlz = Participant.objects.filter(Q(paid=True,controlz_paid=True) | Q(curr_paid=True, curr_controlz_paid=True)).count()
     recnacc = Participant.objects.filter(acco=True).count()
