@@ -20,7 +20,7 @@
             
             <li><a href="{% url 'wordwars:leaderboard' %}">LEADERBOARD</a></li>
             <li><a href="#">OHP Facebook Page</a></li>
-            <li><a href="{% url 'wordwars:rules' %}">Rules</a></li>
+            <li><a href="{% url 'wordwars:rulespage' %}">Rules</a></li>
             <li><a href="{% url 'wordwars:contact' %}">Contact</a></li>
             {% if request.user.is_authenticated %}
             <li><a href="{% url 'wordwars:logout' %}">Logout</a></li>

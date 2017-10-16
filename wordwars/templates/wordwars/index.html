@@ -15,7 +15,7 @@
                 </div>
                 <div class="card-action">
                 {% if day1 %}
-                <a href="{% url 'wordwars:play' 1 %}">Display next question!</a>
+                <a href="{% url 'wordwars:play' 1 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}
@@ -34,8 +34,8 @@
                 Something Something
                 </div>
                 <div class="card-action">
-                {% if day1 %}
-                <a href="{% url 'wordwars:play' 2 %}">Display next question!</a>
+                {% if day2 %}
+                <a href="{% url 'wordwars:play' 2 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}
@@ -54,8 +54,8 @@
                 Something Something
                 </div>
                 <div class="card-action">
-                {% if day1 %}
-                <a href="{% url 'wordwars:play' 3 %}">Display next question!</a>
+                {% if day3 %}
+                <a href="{% url 'wordwars:play' 3 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}

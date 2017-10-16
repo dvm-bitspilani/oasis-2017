@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'wordwars.middleware.WordWarsMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
+    'wordwars.middleware.WordWarsMiddleware',
 ]
 
 ROOT_URLCONF = 'oasis2017.urls'

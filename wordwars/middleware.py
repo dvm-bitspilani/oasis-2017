@@ -14,12 +14,14 @@ class WordWarsMiddleware(object):
 
 	def process_view(self, request, view_func, view_args, view_kwargs):
 
+		if 'admin' in request.path:
+			return None
+
 		if 'wordwars' in request.path:
 			if request.user.is_authenticated():
 
-				if request.user.is_superuser:
-					return redirect('/admin')
-
+				if ('add_question' in request.path or 'day_activate' in request.path) and not 'ohp' == request.user.username:
+					return redirect('wordwars:home')
 				try:
 					day = view_kwargs['day']
 				except:
@@ -31,7 +33,8 @@ class WordWarsMiddleware(object):
 					return redirect(reverse_lazy('wordwars:home'))
 		else:
 			if request.user.is_authenticated():
-				
+				if request.user.username == 'ohp':
+					return redirect('wordwars:home')
 				try:
 					player = request.user.player
 					logout(request)
