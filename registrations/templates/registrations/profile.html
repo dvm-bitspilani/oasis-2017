@@ -4,6 +4,67 @@
 {% block body %}
 
 <div class="row clearfix">
+    <div class="card">
+        <div class="header">
+            <h2>
+                Personal details of {{get_part.name}}
+            </h2>
+        </div>
+        <div class="body">
+            <div class="table-responsive">
+                
+                <table class="table table-bordered table-striped table-hover dataTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                Field    
+                            </th>
+                            <th>    
+                                Value
+                            </th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>
+                                Field    
+                            </th>
+                            <th>    
+                                Value
+                            </th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Name
+                            </td>
+                            <td>
+                                {{get_part.name}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Email
+                            </td>
+                            <td>
+                                {{get_part.email}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Phone
+                            </td>
+                            <td>
+                                {{get_part.phone}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a class="btn btn-primary m-t-15 waves-effect" href="{% url 'registrations:get_profile_card_cr' get_part.id %}" target="None">Get Profile Card</a>
+            </div>
+        </div>
+    </div>
         <div class="card">
             <div class="header">
                 <h2>
@@ -64,7 +125,6 @@
                         </tbody>
                     </table>
                 </div>
-                
             </div>
         </div>
         <div class="card">
@@ -113,7 +173,7 @@
                                         {% if participation.cr_approved %}
                                         Approved by college representative
                                         {% else %}
-                                        Not approved, contact {{cr.name}} from your college
+                                        Not approved by you
                                         {% endif %}
                                     </td>
                                     <td>
