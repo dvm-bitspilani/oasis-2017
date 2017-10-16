@@ -1,7 +1,7 @@
 {% extends "wordwars/ohp_base.html" %}
 {% block body %}
 
-{% if unactivated %}
+{% if not day1 or not day2 or not day3 %}
 <div class="card">
     <div class="header">
         <h2>
@@ -9,38 +9,54 @@
         </h2>
     </div>
 	<div class="body">
-	<form action="{% url 'wordwars:change_status_days' %}" method="post">
+	<form action="" method="post">
 	{% csrf_token %}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover dataTable">
                 <thead>
                     <tr>
-                        <th>Serial Number</th>
                         <th>Day</th>
-                        <th>View Questions</th>
                         <th>Select</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Serial Number</th>
                         <th>Day</th>
-                        <th>View Questions</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
-                	{% for i in unactivated %}
+                	
+                    {% if not day1 %}
                     <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{i.name}}</td>
-                        <td><a href="{% url 'wordwars:view_questions' i.id%}">View</a></td>
+                        <td>Day 1</td>
                         <td>
-                        	<input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
-                        	<label for="{{i.id}}"></label>
+                        	<input type="checkbox" name="data" id="1" value="1">
+                        	<label for="1"></label>
 						</td>
                     </tr>
-                    {% endfor %}
+                    {% endif %}
+
+                    {% if not day2 %}
+                    <tr>
+                        <td>Day 2</td>
+                        <td>
+                            <input type="checkbox" name="data" id="2" value="2">
+                            <label for="2"></label>
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {% if not day3 %}
+                    <tr>
+                        <td>Day 3</td>
+                        <td>
+                            <input type="checkbox" name="data" id="3" value="3">
+                            <label for="3"></label>
+                        </td>
+                    </tr>
+                    {% endif %}
+
                 </tbody>
             </table>
             <input type="hidden" value="activate" name="action">
@@ -50,7 +66,9 @@
     </div>
 </div>
 {% endif %}
-{% if activated %}
+
+
+{% if day1 or day3 or day2 %}
 <div class="card">
     <div class="header">
         <h2>
@@ -58,38 +76,52 @@
         </h2>
     </div>
 	<div class="body">
-	<form action="{% url 'wordwars:change_status_days' %}" method="post">
+	<form action="" method="post">
 	{% csrf_token %}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover dataTable">
                 <thead>
                     <tr>
-                        <th>Serial Number</th>
                         <th>Day</th>
-                        <th>View Questions</th>
                         <th>Select</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Serial Number</th>
                         <th>Day</th>
-                        <th>View Questions</th>
                         <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
-                    {% for i in activated %}
+                    {% if day1 %}
                     <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{i.name}}</td>
-                        <td><a href="{% url 'wordwars:view_questions' i.id%}">View</a></td>
+                        <td>Day 1</td>
                         <td>
-                            <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
-                            <label for="{{i.id}}"></label>
+                            <input type="checkbox" name="data" id="1" value="1">
+                            <label for="1"></label>
                         </td>
                     </tr>
-                    {% endfor %}
+                    {% endif %}
+
+                    {% if day2 %}
+                    <tr>
+                        <td>Day 2</td>
+                        <td>
+                            <input type="checkbox" name="data" id="2" value="2">
+                            <label for="2"></label>
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {% if day3 %}
+                    <tr>
+                        <td>Day 3</td>
+                        <td>
+                            <input type="checkbox" name="data" id="3" value="3">
+                            <label for="3"></label>
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
             <input type="hidden" value="deactivate" name="action">

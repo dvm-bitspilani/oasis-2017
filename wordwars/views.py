@@ -30,11 +30,12 @@ def play(request, day=None):
 	day3 = Question.objects.filter(day__day_no=3).count()
 	context = {'day1':day1, 'day2':day2, 'day3':day3, 'player':player}
 
-	if day==1 or day is None:
+	if day=='1' or day is None:
 		if player.day1 == day1:
-			messages.success(request, 'This day is already complete. Wait for the day to end or start attempting Day-2.')
+			messages.success(request, 'This day is complete. Wait for the day to end or start attempting Day-2.')
 			return redirect(reverse_lazy('wordwars:home'))
 		question = Question.objects.get(day__day_no=1, question_no=player.day1+1)
+		day_no = 1
 		if request.method == 'POST':
 			try:
 				ans = request.POST['answer']
@@ -45,15 +46,19 @@ def play(request, day=None):
 				player.day1 += 1
 				player.score += question.points
 				player.save()
-				messages.warning(request, 'Correct!')
-				question = Question.objects.get(day__day_no=1, question_no=player.day1+1)
+				messages.warning(request, 'Correct! Now Solve the next question')
+				try:
+					question = Question.objects.get(day__day_no=1, question_no=player.day1+1)
+				except:
+					return redirect(reverse('wordwars:play', kwargs={'day':1}))
 			else:
 				messages.warning(request, 'Wrong Answer!!!!!')
-	if day==2:
+	if day=='2':
 		if player.day2 == day2:
 			messages.success(request, 'This day is already complete. Wait for the day to end or start attempting Day-3.')
 			return redirect(reverse_lazy('wordwars:home'))
 		question = Question.objects.get(day__day_no=2, question_no=player.day2+1)
+		day_no = 2
 		if request.method == 'POST':
 			try:
 				ans = request.POST['answer']
@@ -65,14 +70,19 @@ def play(request, day=None):
 				player.score += question.points
 				player.save()
 				messages.warning(request, 'Correct!')
-				question = Question.objects.get(day__day_no=2, question_no=player.day2+1)
+				try:
+					question = Question.objects.get(day__day_no=2, question_no=player.day2+1)
+				except:
+					return redirect(reverse('wordwars:play', kwargs={'day':2}))
+
 			else:
 				messages.warning(request, 'Wrong Answer!!!!!')
-	if day == 3:
+	if day == '3':
 		if player.day3 == day3:
 			messages.success(request, 'Congratulations! You have successfully completed all the questions.')
 			return redirect(reverse_lazy('wordwars:home'))
 		question = Question.objects.get(day__day_no=3, question_no=player.day3+1)
+		day_no = 3
 		if request.method == 'POST':
 			try:
 				ans = request.POST['answer']
@@ -84,11 +94,14 @@ def play(request, day=None):
 				player.score += question.points
 				player.save()
 				messages.warning(request, 'Correct!')
-				question = Question.objects.get(day__day_no=3, question_no=player.day3+1)
+				try:
+					question = Question.objects.get(day__day_no=3, question_no=player.day3+1)
+				except:
+					return redirect(reverse('wordwars:play', kwargs={'day':2}))
+
 			else:
 				messages.warning(request, 'Wrong Answer!!!!!')
-	context['question'] = 0
-	return render(request, 'wordwars/question.html', context)
+	return render(request, 'wordwars/question.html', {'day1':day1, 'day2':day2, 'day3':day3, 'player':player, 'question':question, 'day_no':day_no})
 
 def register(request):
 	if request.method == 'POST':
@@ -135,7 +148,7 @@ def user_login(request):
 
 def user_logout(request):
 	logout(request)
-	return render(request, 'wordwars/index.html')
+	return redirect('wordwars:home')
 
 def leaderboard(request):
 	players = Player.objects.all().order_by('-score')
@@ -177,11 +190,16 @@ def add_question(request):
 @staff_member_required
 def day_activate(request):
 	if request.method == 'POST':
+		data = request.POST
 		try:
-			days = request.POST['day']
+			days = dict(data)['data']
 		except:
-			return redirect(request.META.get('HTTP_REFERER'))	
-		days = Day.objects.filter(day_no=day).update(is_active=True)
+			return redirect(request.META.get('HTTP_REFERER'))
+		if 'activate' == data['action']:
+			action = True
+		else:
+			action=False
+		days = Day.objects.filter(day_no__in=days).update(is_active=action)
 		return redirect(reverse_lazy('wordwars:home'))
 	day1 = Day.objects.get(day_no=1).is_active
 	day2 = Day.objects.get(day_no=2).is_active

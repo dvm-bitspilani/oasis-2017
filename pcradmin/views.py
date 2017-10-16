@@ -474,7 +474,7 @@ def final_email(request, eg_id):
 			attachment = Attachment()
 			attachment.content = encoded_string1
 			attachment.name = 'Confirmed Participants'
-		body = ''
+		body = 'to be completed'   
 		subject = 'College Representative for Oasis'
 		from_email = Email('register@bits-oasis.org')
 		content = Content('text/html', body)
@@ -488,6 +488,8 @@ def final_email(request, eg_id):
 				messages.warning(request,'Email sent to ' + part.name)
 				part.pcr_final=True
 				part.save()
+				if not part.is_cr:
+					encoded = gen_barcode(part)
 			except :
 				messages.warning(request,'Error sending email')
 		return redirect(request.META.get('HTTP_REFERER'))
@@ -504,24 +506,6 @@ def download_pdf(request, eg_id):
 # DONT FORGET TO GENERATE BARCODES FOR THE PARTICIPANTS, ONLY NON CR PARTICIPANTS COZ MISSED FOR THEM IN MAIN REGISTRATIONS
 ############################################################################
 
-def create_final_pdf(eg_id, response):
-	email_group = EmailGroup.objects.get(id=eg_id)
-	from reportlab.platypus import SimpleDocTemplate
-	from reportlab.platypus.tables import Table
-	elements = []
-	doc = SimpleDocTemplate(response, rightMargin=6.5*2.54, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
-	data = []
-	for part in email_group.participant_set.all():
-		events = ''
-		for participation in Participation.objects.filter(participant=part, pcr_approved=True):
-			events += participation.event.name + ', '
-		events = events[:-2]
-		amount = how_much_paid(part)
-		data.append(('', part.name, events, amount))
-	table = Table(data, colWidths=270, rowHeights=79)
-	elements.append(table)
-	doc.build(elements)
-	return response
 
 @login_required
 def user_logout(request):
@@ -565,6 +549,25 @@ def how_much_paid(part):
 	if part.paid or part.curr_paid:
 		return 300
 	return 0
+
+def create_final_pdf(eg_id, response):
+	email_group = EmailGroup.objects.get(id=eg_id)
+	from reportlab.platypus import SimpleDocTemplate
+	from reportlab.platypus.tables import Table
+	elements = []
+	doc = SimpleDocTemplate(response, rightMargin=6.5*2.54, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
+	data = []
+	for part in email_group.participant_set.all():
+		events = ''
+		for participation in Participation.objects.filter(participant=part, pcr_approved=True):
+			events += participation.event.name + ', '
+		events = events[:-2]
+		amount = how_much_paid(part)
+		data.append(('', part.name, events, amount))
+	table = Table(data, colWidths=270, rowHeights=79)
+	elements.append(table)
+	doc.build(elements)
+	return response
 
 
 ####  End of HELPER FUNCTIONS  ####
