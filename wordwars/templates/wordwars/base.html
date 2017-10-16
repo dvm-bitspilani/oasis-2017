@@ -12,7 +12,7 @@
     <link href="{% static 'pcradmin/css/style.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 </head>
 <body>
-    
+    <div class="row">
     <nav>
         <div class="nav-wrapper">
             <a href="{% url 'wordwars:home' %}" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
@@ -31,6 +31,7 @@
             </ul>
         </div>
     </nav>
+    </div>
     
     {% block body %}
     {% endblock %}
