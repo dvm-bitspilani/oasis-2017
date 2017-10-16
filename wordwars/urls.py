@@ -1,6 +1,8 @@
 from django.conf.urls import url
+from wordwars import views
+app_name = 'wordwars'
 
-url_patterns = [
+urlpatterns = [
 	url(r'^$', views.home, name='home'),
 	url(r'^play/(?P<day>\d+)/$', views.play, name='play'),
 	url(r'^register/$', views.register, name='register'),

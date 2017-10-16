@@ -7,27 +7,37 @@
     <title>OASIS '17 | WordWars</title>
     <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="{% static 'pcradmin/css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
-    <link href="{% static 'pcradmin/css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="{% static 'pcradmin/css/materialize.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="{% static 'pcradmin/css/style.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 </head>
 <body>
-    <ul id="dropdown1" class="dropdown-content">
-        {% for day in active_days %}
-            <li><a href="{% url '#Day1' 'college' %}">{{day no}}</a></li>
-        {% endfor %}
+    <ul id="#!" class="dropdown-content">
+        {% if day1 %}
+            <li><a href="{% url 'wordwars:play' 1 %}">Day 1</a></li>
+        {% endif %}
+        
+        {% if day2 %}
+            <li><a href="{% url 'wordwars:play' 2 %}">Day 2</a></li>
+        {% endif %}
+        
+        {% if day3 %}
+            <li><a href="{% url 'wordwars:play' 3 %}">Day 3</a></li>
+        {% endif %}
+
+
     </ul>
     <nav>
         <div class="nav-wrapper">
-            <a href="#" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
+            <a href="{% url 'wordwars:home' %}" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li>
                 <a class="dropdown-button" href="#!" data-activates="dropdown1">Unveiled days<i class="material-icons right">arrow_drop_down</i></a>
             </li>
-            <li><a href="badges.html">LEADERBOARD</a></li>
-            <li><a href="badges.html">OHP Facebook Page</a></li>
-            <li><a href="badges.html">Rules</a></li>
-            <li><a href="badges.html">Contact</a></li>
-            <li><a href="collapsible.html">Logout</a></li>
+            <li><a href="{% url 'wordwars:leaderboard' %}">LEADERBOARD</a></li>
+            <li><a href="#">OHP Facebook Page</a></li>
+            <li><a href="{% url 'wordwars:rules' %}">Rules</a></li>
+            <li><a href="{% url 'wordwars:contact' %}">Contact</a></li>
+            <li><a href="{% url 'wordwars:logout' %}">Logout</a></li>
             </ul>
         </div>
     </nav>
@@ -42,6 +52,6 @@
     </div>
     </footer>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="{% static 'pcradmin/js/materialize.js' %}"></script>
+    <script src="{% static 'pcradmin/js/materialize.min.js' %}"></script>
     <script src="{% static 'pcradmin/js/init.js' %}"></script>
 </body>
