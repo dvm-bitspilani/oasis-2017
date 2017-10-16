@@ -54,6 +54,8 @@
                             </table>
                             <input type="hidden" value="approve" name="action">
                             <a href="{% url 'pcradmin:download_pdf' group.id %}" class="btn btn-primary m-t-15 waves-effect">Download PDF</a>
+                            <a href="{% url 'pcradmin:final_email' group.id %}" class="btn btn-primary m-t-15 waves-effect">Send Final Email</a>
+
                         </div>
                     </div>
                 </div>

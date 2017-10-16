@@ -1,8 +1,15 @@
-{% extends 'ohp_base.html' %}
+{% extends 'wordwars/ohp_base.html' %}
 
 {% block body %}
 
 <div class="row clearfix">
+ {% if messages %}
+<div class="body">
+{% for message in messages %}
+<label class='error' for='answer' generated="true">{{message}}</label>
+{% endfor %}
+</div>
+{% endif %}
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="card">
             <div class="header">
@@ -11,50 +18,31 @@
                 </h2>
             </div>
             <div class="body">
-                <form id="sign_in" method="POST" action="{% url 'registrations:home' %}">
+                <form id="sign_in" method="POST" action="" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="input-group">
-                        <div class="form-line">
-                            <input type="text" class="form-control" name="question" placeholder="Question" required autofocus id="question">
-                            {% if messages %}
-                            <div class="body">
-                            {% for message in messages %}
-                            <label class='error' for='question' generated="true">{{message}}</label>
-                            {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                    
                     <div class="input-group">
                         <div class="form-line">
                             <input type="text" class="form-control" name="answer" placeholder="Answer" required id="answer"> 
-                            {% if messages %}
-                            <div class="body">
-                            {% for message in messages %}
-                            <label class='error' for='answer' generated="true">{{message}}</label>
-                            {% endfor %}
-                            </div>
-                            {% endif %}
+                           
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="form-line">
-                            <input type="file" name="question_image" id="image">
-                            {% if messages %}
-                            <div class="body">
-                            {% for message in messages %}
-                            <label class='error' for='image' generated="true">{{message}}</label>
-                            {% endfor %}
-                            </div>
-                            {% endif %}
+                            <input type="number" class="form-control" name="points" placeholder="Points" required id="points"> 
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="form-line">
+                            <input type="file" name="image" id="image">
                         </div>
                     </div>
                     <div class="input-group">
                             <div class="form-line">
-                                <select class="form-control show-tick" name="day" data-live-search="true" multiple>
-                                    {% for day in days %}
-                                        <option value="{{day.name}}">{{day.name}}</option>        
-                                    {% endfor %}
+                                <select class="form-control" name="day">
+                                        <option value="1">Day 1</option>
+                                        <option value="2">Day 2</option>
+                                        <option value="3">Day 3</option>
                                 </select>
                             </div>
                     </div>

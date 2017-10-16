@@ -3,38 +3,66 @@
 {% block body %}
 
     <div class="row">
-    {% for day in active_days %}
+    
         <div class="col s12 m7 l4">
             <div class="card">
                 <div class="card-image">
                 <img src="images/sample-1.jpg">
-                <span class="card-title">{{day number}}</span>
+                <span class="card-title">Day 1</span>
                 </div>
                 <div class="card-content">
-                {% comment %} <p>{{participant.day_value}}</p> Make template tag {% endcomment %}
+                Something Something
                 </div>
                 <div class="card-action">
-                <a href="#">Display next question!</a>
+                {% if day1 %}
+                <a href="{% url 'wordwars:play' 1 %}">Display next question!</a>
+                {% else %}
+                 <a href="#">Inactive</a>
+                 {% endif %}
                 </div>
             </div>
         </div>
-    {% endfor %}
-    {% for day in inactive_days %}
+
+
         <div class="col s12 m7 l4">
-                <div class="card">
-                    <div class="card-image">
-                    <img src="images/sample-1.jpg">
-                    <span class="card-title">{{day number}}</span>
-                    </div>
-                    <div class="card-content">
-                    <p>Still a mysterious realm!</p>
-                    </div>
-                    <div class="card-action">
-                    <a href="#">disabled.</a>
-                    </div>
+            <div class="card">
+                <div class="card-image">
+                <img src="images/sample-1.jpg">
+                <span class="card-title">Day 2</span>
                 </div>
+                <div class="card-content">
+                Something Something
+                </div>
+                <div class="card-action">
+                {% if day1 %}
+                <a href="{% url 'wordwars:play' 2 %}">Display next question!</a>
+                {% else %}
+                 <a href="#">Inactive</a>
+                 {% endif %}
+                </div>
+            </div>
         </div>
-    {% endfor %}
+
+
+        <div class="col s12 m7 l4">
+            <div class="card">
+                <div class="card-image">
+                <img src="images/sample-1.jpg">
+                <span class="card-title">Day 3</span>
+                </div>
+                <div class="card-content">
+                Something Something
+                </div>
+                <div class="card-action">
+                {% if day1 %}
+                <a href="{% url 'wordwars:play' 3 %}">Display next question!</a>
+                {% else %}
+                 <a href="#">Inactive</a>
+                 {% endif %}
+                </div>
+            </div>
+        </div>
+    
     </div>
 
 {% endblock %}

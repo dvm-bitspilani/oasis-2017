@@ -30,6 +30,7 @@ from random import choice
 chars = string.letters + string.digits
 
 from django.contrib import messages
+from django.db.models import Q
 
 @staff_member_required
 def index(request):
@@ -271,7 +272,7 @@ def stats(request, order=None):
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
-		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(pcr_approved=True, paid=True)]
+		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(Q(pcr_approved=True), Q(paid=True)|Q(curr_paid=True))]
 		headings = ['Name', 'College', 'Gender', 'Phone', 'Email']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
@@ -307,7 +308,7 @@ def stats_event_college(request, e_id, c_id):
 	college = get_object_or_404(College, id=c_id)
 	parts1 = college.participant_set.filter(email_verified=True)
 	parts = Participant.objects.filter(id__in=[p.id for p in parts1 if Participation.objects.filter(participant=p, event=event)])
-	rows = [{'data':[part.name, part.college.name, get_cr_name(part),part.gender, part.phone, part.email, Participation.objects.get(participant=part, event=event).pcr_approved, part.paid], 'link':[]} for part in parts]
+	rows = [{'data':[part.name, part.college.name, get_cr_name(part),part.gender, part.phone, part.email, Participation.objects.get(participant=part, event=event).pcr_approved, part.paid or part.curr_paid], 'link':[]} for part in parts]
 	headings = ['Name', 'College', 'CR', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 	title = 'Participants\' Stats for ' + event.name + ' from ' + college.name
 	return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
@@ -346,7 +347,7 @@ def master_stats(request):
 						continue
 					participations = Participation.objects.filter(event=event)
 					parts += Participant.objects.filter(id__in=[p.participant.id for p in participations], college=college)
-			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid or part.curr_paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 			event_names = ''
 			for event_name in events:
@@ -366,7 +367,7 @@ def master_stats(request):
 				except:
 					continue
 				parts += Participant.objects.filter(id__in=[p.participant.id for p in participations])
-			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid or part.curr_paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 			title = 'Participants\' registered for %s event.' %(event_name)
 			# return render(request, 'pcradmin/master_stats.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
@@ -379,7 +380,7 @@ def master_stats(request):
 				except:
 					continue
 				parts += college.participant_set.all()
-			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid], 'link':[]} for part in parts]
+			rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, part.pcr_approved, part.paid or part.curr_paid], 'link':[]} for part in parts]
 			headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'PCr Approval', 'Payment Status']
 			title = 'Participants\' registered from %s college.' %(college_name)
 		table = {
@@ -508,23 +509,15 @@ def create_final_pdf(eg_id, response):
 	from reportlab.platypus import SimpleDocTemplate
 	from reportlab.platypus.tables import Table
 	elements = []
-	doc = SimpleDocTemplate(response, rightMargin=0, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
+	doc = SimpleDocTemplate(response, rightMargin=6.5*2.54, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
 	data = []
 	for part in email_group.participant_set.all():
 		events = ''
 		for participation in Participation.objects.filter(participant=part, pcr_approved=True):
 			events += participation.event.name + ', '
 		events = events[:-2]
-		print events
-		if part.paid:
-			if part.controlz_paid:
-				amount = 950
-			else:
-				amount = 300
-		else:
-			amount = 0
-		print part.name
-		data.append((part.name, events, amount))
+		amount = how_much_paid(part)
+		data.append(('', part.name, events, amount))
 	table = Table(data, colWidths=270, rowHeights=79)
 	elements.append(table)
 	doc.build(elements)
@@ -546,7 +539,7 @@ def participants_count(parts):
 		return '- - - - '
 	x2 = parts.filter(cr_approved=True, email_verified=True).count()
 	x3=parts.filter(pcr_approved=True).count()
-	x4=parts.filter(paid=True).count()
+	x4=parts.filter(Q(paid=True)|Q(curr_paid=True)).count()
 	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
 
 def is_profile_complete(part):
@@ -567,9 +560,9 @@ def profile_stats(parts):
 	return str(x) + ' | ' + str(y)
 
 def how_much_paid(part):
-	if part.controlz_paid:
+	if part.controlz_paid or part.curr_controlz_paid:
 		return 950
-	if part.paid:
+	if part.paid or part.curr_paid:
 		return 300
 	return 0
 

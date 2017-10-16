@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from . import views
 from .models import *
 from django.contrib.auth import logout
@@ -28,7 +28,7 @@ class WordWarsMiddleware(object):
 					return None
 				day = get_object_or_404(Day, day_no=day)
 				if not day.is_active:
-					return redirect('wordwars:home')
+					return redirect(reverse_lazy('wordwars:home'))
 		else:
 			if request.user.is_authenticated():
 				

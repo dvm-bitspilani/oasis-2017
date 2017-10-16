@@ -18,7 +18,7 @@ class Player(models.Model):
 	day3 = models.IntegerField(default=0)
 
 	def __unicode__(self):
-		return str(self.name) + ' ' + str(self.email)
+		return str(self.email)
 
 
 class Day(models.Model):
