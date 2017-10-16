@@ -89,7 +89,8 @@ class Participant(models.Model):
 	is_g_leader = models.BooleanField(default=False)
 	events = models.ManyToManyField(Event, through=Participation)
 	cr_approved = models.BooleanField(default=False)
-	
+	checkout_group = models.ForeignKey('CheckoutGroup', on_delete=models.SET_NULL, null=True)
+
 	def __unicode__(self):
 		return (self.name) + ' - ' + str(self.college.name)
 
@@ -97,7 +98,10 @@ class Group(models.Model):
 
 	amount_deduct = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
-	group_code = models.CharField(max_length=8, null=True, blank=True)
+	group_code = models.CharField(max_length=20, null=True, blank=True)
 
-	def __unicode__(self):
-		return self.g_leader.name
+class CheckoutGroup(models.Model):
+
+	amount_retained = models.IntegerField(default=0)
+	created_time = models.DateTimeField(auto_now=True)
+	group_code = models.CharField(max_length=20, null=True, blank=True)

@@ -47,3 +47,29 @@ class Participation(models.Model):
 
 	def __unicode__(self):	
 		return str(self.event.name)+'-'+str(self.participant.name)
+
+class ProfShow(models.Model):
+
+	name = models.CharField(max_length=100,unique=True)
+	appcontent = models.TextField(max_length=3000, default='')
+	short_description = models.CharField(blank=True,max_length=140)
+	date = models.CharField(max_length=100, default='TBA')
+	time = models.CharField(max_length=100, default='TBA')
+	venue = models.CharField(max_length=100, default='TBA')
+	contact = models.CharField(max_length=140, default='')
+	price = models.IntegerField(default=0)
+
+	def __unicode__(self):
+		return self.name + '-prof show'
+
+class Attendance(models.Model):
+
+	prof_show = models.ForeignKey(ProfShow, on_delete=models.CASCADE)
+	participant = models.ForeignKey('registrations.Participant', on_delete=models.CASCADE, null=True)
+	paid = models.BooleanField(default=False)
+	attended = models.BooleanField(default=False)
+	count = models.IntegerField(default=0)
+	passed_count = models.IntegerField(default=0)
+
+	def __unicode__(self):
+		return str(self.prof_show.name)+'-'+str(self.participant.name)

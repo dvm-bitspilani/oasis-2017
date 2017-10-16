@@ -48,6 +48,16 @@ def generate_group_code(group):
 	group.save()
 	return encoded
 
+########################################### End Of Helper Functions ##############################################################
+@staff_member_required
+def index(request):
+	if request.user.username.lower() == 'controlz':
+		return redirect(reverse('regsoft:controlz_home'))
+	if request.user.username.lower() == 'recnacc':
+		return redirect(reverse('regsoft:recnacc_home'))
+	if request.user.username == 'firewallz':
+		return redirect(reverse('regsoft:firewallz_home'))
+
 ########################################### Firewallz coz they're pretty sweet people ############################################
 
 @staff_member_required
@@ -143,6 +153,11 @@ def allocate_participants(request, g_id):
     if request.method == 'POST':
         from datetime import datetime
         data = request.POST
+        try:
+            group.amount_deduct = data['amount_retained']
+            group.save()
+        except:
+            pass
         if data['action'] == 'allocate':
             try:
                 parts_id = data.getlist('data')
@@ -223,16 +238,69 @@ def manage_vacancies(request, r_id):
         return redirect(reverse('regsoft:room_details'))
     else:
         return render(request, 'regsoft/manage_vacanacies.html', {'room':room})
-        
+
+@staff_member_required
+def checkout_college(request):
+	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(),],'link':[{'title':'Checkout', 'url':reverse('regsoft:checkout', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Alloted Participants', 'Checkout']}]
+	return render(request, 'regsoft/tables.html', {'tables':tables})
+
 @staff_member_required
 def checkout(request, c_id):
     college = get_object_or_404(College, id=c_id)
     if request.method == 'POST':
         data = request.POST
         try:
-            part_list = data.getlist('part_list')
+            part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
         except:
             return redirect(request.META.get('HTTP_REFERER'))
+
+        checkout_group = CheckoutGroup.objects.create()
+
+        try:
+            checkout_group.amount_retained = data['amount_retained']
+        except:
+            pass
+        for participant in part_list:
+            room = participant.room
+            room.vacany += 1
+            room.save()
+            participant.room = None
+            participant.checkout_group = checkout_group
+            participant.acco = False
+            participant.checkout = True
+            participant.save()
+        return redirect(reverse('regsoft:checkout_groups', kwargs={'c_id':college.id}))
+    participant_list = college.participant_set.filter(acco=True)
+    return render(request, 'regsoft/checkout.html', {'college':college, 'participant_list':participant_list})
+
+@staff_member_required
+def checkout_groups(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    ck_group_list = [ck_group for ck_group in CheckoutGroup.objects.all() if ck_group.participant_set.all()[0].college is college]
+    ck_group_list = ck_group_list.order_by('-created_time')
+    rows = [{'data':[ck_group.participant_set.all().count(), ck_group.created_time, ck_group.amount_retained], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:ck_group_details', kwargs={'ck_id':ck_group.id})), 'title':'View Details'}]} for ck_group in ck_group_list]
+    headings = ['Participant Count', 'Time of Checkout', 'Amount Retained', 'View Details']
+    title = 'Checkout groups from ' + colllege.name
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def ck_group_details(request, ck_id):
+    checkout_group = get_object_or_404(CheckoutGroup, id=ck_id)
+    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)],} for part in checkout_group.participant_set.all()]
+    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
+    title = 'Checkout detail at ' + checkout_group.created_time + ', Amount Retained:' + checkout_group.amount_retained
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/checkout_details.html', {'tables':[table,], 'ck_group':checkout_group})
 
 ############################################ Hope she likes it ;) ############################### PS Shitty comments coz gitlab! Hopefully yaad rhega change krna hai. Else divyam, sanchit, hemant, dekh lena
 

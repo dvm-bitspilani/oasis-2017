@@ -15,6 +15,12 @@ class EventSerializer(serializers.ModelSerializer):
 		model = Event
 		fields = ('id', 'name', 'min_team_size', 'max_team_size', 'start_date' ,'venue', 'appcontent')
 
+class ProfShowSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = ProfShow
+		fields = ('id', 'name', 'price', 'date', 'time' ,'venue', 'appcontent')
+
 class ProfileSerializer(serializers.ModelSerializer):
 	pic_url = serializers.SerializerMethodField()
 	class Meta:
@@ -30,6 +36,14 @@ class ParticipationSerializer(serializers.ModelSerializer):
 	
 	participant = ParticipantSerializer(required=True, write_only=True)
 	event = EventSerializer(required=True, write_only=True)
+	class Meta:
+		model = Participation
+		fields = '__all__'
+
+class AttendanceSerializer(serializers.ModelSerializer):
+	
+	participant = ParticipantSerializer(required=True, write_only=True)
+	prof_show = ProfShowSerializer(required=True, write_only=True)
 	class Meta:
 		model = Participation
 		fields = '__all__'
