@@ -23,7 +23,7 @@ from django.contrib import messages
 ############################### Helper Function ########################################################
 
 def get_group_leader(group):
-    return Participant.objects.get(group=group, is_g_leader=True)
+    return group.participant_set.get(is_g_leader=True)
 
 def get_event_string(participant):
     participation_set = Participation.objects.filter(participant=participant, pcr_approved=True)
@@ -32,6 +32,31 @@ def get_event_string(participant):
         events += participation.event.name + ', '
     events = events[:-2]
     return events
+
+def generate_group_code(group):
+	group_id = group.id
+	encoded = group.group_code
+	if encoded == '':
+		raise ValueError
+	if encoded is not None:
+		return encoded
+	group_ida = "%04d" % int(group_id)
+	college_code = ''.join(get_group_leader(group).college.name.split(' '))
+	if len(college_code)<4:
+		college_code += str(0)*(4-len(college_code))
+	group.group_code = 'oasis_group' + college_code + group_ida
+	group.save()
+	return encoded
+
+########################################### End Of Helper Functions ##############################################################
+@staff_member_required
+def index(request):
+	if request.user.username.lower() == 'controlz':
+		return redirect(reverse('regsoft:controlz_home'))
+	if request.user.username.lower() == 'recnacc':
+		return redirect(reverse('regsoft:recnacc_home'))
+	if request.user.username == 'firewallz':
+		return redirect(reverse('regsoft:firewallz_home'))
 
 ########################################### Firewallz coz they're pretty sweet people ############################################
 
@@ -71,7 +96,8 @@ def firewallz_approval(request, c_id):
             return redirect(request.META.get('HTTP_REFERER'))
         
         group = Group.objects.create()
-        
+        encoded = generate_group_code(group)
+        group.save()
         for part_id in id_list:
             part = Participant.objects.get(id=part_id)
             part.firewallz_passed=True
@@ -99,6 +125,8 @@ def get_group_list(request, g_id):
             participant.group = None
             participant.firewallz_passed = False
             participant.save()
+        if group.participant_set.count == 0:
+            group.delete()
         return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
     participant_list = group.participant_set.all()
     return render(request, 'regsoft/group_list.html', {'participant_list':participant_list, 'group':group})
@@ -109,7 +137,7 @@ def get_group_list(request, g_id):
 
 @staff_member_required
 def recnacc_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:allocate_participants', kwargs={'g_id':group.id}), 'title':'Allocate Participants'}]} for group in Group.objects.all()]
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:allocate_participants', kwargs={'g_id':group.id}), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
     headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
     title = 'Groups that have passed firewallz'
     table = {
@@ -126,22 +154,43 @@ def allocate_participants(request, g_id):
         from datetime import datetime
         data = request.POST
         try:
-            parts_id = data.getlist('data')
-            room_id = data['room']
-            room = Room.objects.get(id=room_id)
-            
+            group.amount_deduct = data['amount_retained']
+            group.save()
         except:
-            return redirect(request.META.get('HTTP_REFERER'))
-            
-        rows = []
-        room.vacancy -= len(parts_id)
-        room.save()
-        for part_id in parts_id:
-            part = Participant.objects.get(id=part_id)
-            part.acco = True
-            part.room = room
-            part.recnacc_time = datetime.now()
-            part.save()
+            pass
+        if data['action'] == 'allocate':
+            try:
+                parts_id = data.getlist('data')
+                room_id = data['room']
+                room = Room.objects.get(id=room_id)
+            except:
+                return redirect(request.META.get('HTTP_REFERER'))
+                
+            rows = []
+            room.vacancy -= len(parts_id)
+            room.save()
+            for part_id in parts_id:
+                part = Participant.objects.get(id=part_id)
+                part.acco = True
+                part.room = room
+                part.recnacc_time = datetime.now()
+                part.save()
+        elif data['action'] == 'deallocate':
+            try:
+                parts_id = data.getlist('data')
+                room_id = data['room']
+                room = Room.objects.get(id=room_id)
+            except:
+                return redirect(request.META.get('HTTP_REFERER'))
+                
+            rows = []
+            room.vacancy += len(parts_id)
+            room.save()
+            for part_id in parts_id:
+                part = Participant.objects.get(id=part_id)
+                part.acco = False
+                part.room = None
+                part.save()
         return redirect(reverse('regsoft:recnacc_group_list', kwargs={'c_id':get_group_leader(group).college.id}))
     else:
         unalloted_participants = group.participant_set.filter(acco=False)
@@ -157,6 +206,101 @@ def recnacc_group_list(request, c_id):
     incomplete_groups = [group for group in group_list if not group in complete_groups]
 
     return render(request, 'regsoft/recnacc_group_list.html', {'complete_groups':complete_groups, 'incomplete_groups':incomplete_groups})
+
+@staff_member_required
+def room_details(request):
+    room_list = Room.objects.all()
+    rows = [{'data':[room.name, room.bhavan.name, room.vacancy, room.capacity,], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:manage_vacancies', kwargs={'r_id':room.id})), 'title':'Manage'},]} for room in room_list]
+    headings = ['Room', 'Bhavan', 'Vacancy', 'Capacity', 'Manage Room Details']
+    title = 'Manage Room Details'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def manage_vacancies(request, r_id):
+    room = get_object_or_404(Room, id=r_id)
+    if request.method == 'POST':
+        data = request.POST
+        try:
+            room.vacancy = data['vacancy']
+            room.save()
+        except:
+            pass
+        try:
+            room.capacity = data['capacity']
+            room.save()
+        except:
+            pass
+        return redirect(reverse('regsoft:room_details'))
+    else:
+        return render(request, 'regsoft/manage_vacanacies.html', {'room':room})
+
+@staff_member_required
+def checkout_college(request):
+	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(),],'link':[{'title':'Checkout', 'url':reverse('regsoft:checkout', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Alloted Participants', 'Checkout']}]
+	return render(request, 'regsoft/tables.html', {'tables':tables})
+
+@staff_member_required
+def checkout(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    if request.method == 'POST':
+        data = request.POST
+        try:
+            part_list = Participant.objects.filter(id__in=data.getlist('part_list'))
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
+
+        checkout_group = CheckoutGroup.objects.create()
+
+        try:
+            checkout_group.amount_retained = data['amount_retained']
+        except:
+            pass
+        for participant in part_list:
+            room = participant.room
+            room.vacany += 1
+            room.save()
+            participant.room = None
+            participant.checkout_group = checkout_group
+            participant.acco = False
+            participant.checkout = True
+            participant.save()
+        return redirect(reverse('regsoft:checkout_groups', kwargs={'c_id':college.id}))
+    participant_list = college.participant_set.filter(acco=True)
+    return render(request, 'regsoft/checkout.html', {'college':college, 'participant_list':participant_list})
+
+@staff_member_required
+def checkout_groups(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    ck_group_list = [ck_group for ck_group in CheckoutGroup.objects.all() if ck_group.participant_set.all()[0].college is college]
+    ck_group_list = ck_group_list.order_by('-created_time')
+    rows = [{'data':[ck_group.participant_set.all().count(), ck_group.created_time, ck_group.amount_retained], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:ck_group_details', kwargs={'ck_id':ck_group.id})), 'title':'View Details'}]} for ck_group in ck_group_list]
+    headings = ['Participant Count', 'Time of Checkout', 'Amount Retained', 'View Details']
+    title = 'Checkout groups from ' + colllege.name
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def ck_group_details(request, ck_id):
+    checkout_group = get_object_or_404(CheckoutGroup, id=ck_id)
+    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)],} for part in checkout_group.participant_set.all()]
+    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
+    title = 'Checkout detail at ' + checkout_group.created_time + ', Amount Retained:' + checkout_group.amount_retained
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/checkout_details.html', {'tables':[table,], 'ck_group':checkout_group})
 
 ############################################ Hope she likes it ;) ############################### PS Shitty comments coz gitlab! Hopefully yaad rhega change krna hai. Else divyam, sanchit, hemant, dekh lena
 

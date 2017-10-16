@@ -303,8 +303,69 @@ def all_events(request):
 	event_serializer = BaseEventSerializer(Event.objects.all(), many=True)
 	return Response(event_serializer.data)
 
-
 @api_view(['GET', ])
 def get_event(request, e_id):
 	event_serializer = EventDetailSerializer(Event.objects.get(id=e_id))
 	return Response(event_serializer.data)
+
+@api_view(['POST',])
+@permission_classes((IsAuthenticated, ))
+def add_profshow(request):
+	user = request.user
+	if not user.is_staff:
+		return Response({'message':'Invalid access'})
+	if not user.is_superuser:
+		if not user.username == 'deptlive':
+			return Response({'message':'Invalid Access'})
+	data = request.data
+	try:
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
+	except:
+		return Response({'message':'Invalid Prof Show'})
+	try:
+		participant = Participant.objects.get(barcode=data['barcode'])
+	except:
+		return Response({'message':'Please check barcode of Participant'})
+	try:
+		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+		attendance.count += 1
+		attendance.save()
+	except:
+		attendance = Attendance()
+		attendance.participant = participant
+		attendance.prof_show = prof_show
+		attendance.paid = True
+		attendance.save()
+	
+	attendance_serializer = AttendanceSerializer(attendance)
+	return Response(attendance_serializer.data)
+
+@api_view(['POST',])
+@permission_classes((IsAuthenticated, ))
+def validate_profshow(request):
+	user = request.user
+	if not user.is_staff:
+		return Response({'message':'Invalid access'})
+	if not user.is_superuser:
+		if not user.username == 'deptlive':
+			return Response({'message':'Invalid Access'})
+	data = request.data
+	try:
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
+	except:
+		return Response({'message':'Invalid Prof Show'})
+	try:
+		participant = Participant.objects.get(barcode=data['barcode'])
+	except:
+		return Response({'message':'Please check barcode of Participant'})
+	try:
+		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+	except:
+		return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+	if attendance.count > 0:
+		attendance.count -= 1
+		attendance.passed_count += 1
+		attendance.save()
+		return Response({'message':'Success. Passes Left = ' + attendance.count})
+	else:
+		return Response({'message':'No more passes left. Please register at DoLE Booth.'})
