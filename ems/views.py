@@ -154,16 +154,8 @@ def event_levels(request, e_id):
                 return redirect(request.META.get('HTTP_REFERER'))
             level.teams.clear()
             level.delete()
-        elif data['submit'] == 'delete-judge':
-            try:
-                j_id = data['j_id']
-                judge = get_object_or_404(Judge, id=j_id)
-            except:
-                return redirect(request.META.get('HTTP_REFERER'))
-            judge.delete()
     levels = Level.objects.filter(event=event)
-    judges = Judge.objects.filter(event=event)
-    context = {'event':event, 'levels':levels, 'judges':judges}
+    context = {'event':event, 'levels':levels}
     return render(request, 'ems/event_levels.html', context)
 
 
@@ -171,7 +163,7 @@ def event_levels(request, e_id):
 @staff_member_required(login_url=login_url)
 def event_levels_add(request, e_id):
     event = Event.objects.get(id=e_id)
-    levels = Level.objects.get(event=event)
+    levels = Level.objects.filter(event=event)
     position = Level.objects.filter(event=event).count()
     if request.method == 'POST':
         data = request.POST

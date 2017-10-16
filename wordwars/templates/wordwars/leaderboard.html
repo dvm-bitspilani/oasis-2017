@@ -1,4 +1,5 @@
 {% extends 'wordwars/base.html' %}
+
 {% block body%}
 <div class="row">
 	<div class="container">
@@ -17,24 +18,13 @@
         </thead>
 
         <tbody>
+        {% for player in players %}
           <tr>
-          	<td>1</td>
-            <td>Alvin</td>
-            
-            <td>0.87</td>
+          	<td>{{forloop.counter}}</td>
+            <td>{{player.user.username}}</td>
+            <td>{{player.score}}</td>
           </tr>
-          <tr>
-          	<td>2</td>
-            <td>Alan</td>
-            
-            <td>3.76</td>
-          </tr>
-          <tr>
-          	<td>3</td>
-            <td>Jonathan</td>
-            
-            <td>7.00</td>
-          </tr>
+        {% endfor %}
         </tbody>
       </table>
   </div>

@@ -12,33 +12,22 @@
     <link href="{% static 'pcradmin/css/style.min.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 </head>
 <body>
-    <ul id="#!" class="dropdown-content">
-        {% if day1 %}
-            <li><a href="{% url 'wordwars:play' 1 %}">Day 1</a></li>
-        {% endif %}
-        
-        {% if day2 %}
-            <li><a href="{% url 'wordwars:play' 2 %}">Day 2</a></li>
-        {% endif %}
-        
-        {% if day3 %}
-            <li><a href="{% url 'wordwars:play' 3 %}">Day 3</a></li>
-        {% endif %}
-
-
-    </ul>
+    
     <nav>
         <div class="nav-wrapper">
             <a href="{% url 'wordwars:home' %}" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li>
-                <a class="dropdown-button" href="#!" data-activates="dropdown1">Unveiled days<i class="material-icons right">arrow_drop_down</i></a>
-            </li>
+            
             <li><a href="{% url 'wordwars:leaderboard' %}">LEADERBOARD</a></li>
             <li><a href="#">OHP Facebook Page</a></li>
             <li><a href="{% url 'wordwars:rules' %}">Rules</a></li>
             <li><a href="{% url 'wordwars:contact' %}">Contact</a></li>
+            {% if request.user.is_authenticated %}
             <li><a href="{% url 'wordwars:logout' %}">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'wordwars:register' %}">Register</a></li>
+            <li><a href="{% url 'wordwars:login' %}">Login</a></li>            
+            {% endif %}
             </ul>
         </div>
     </nav>
