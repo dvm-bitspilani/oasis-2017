@@ -143,6 +143,7 @@ pcr@bits-oasis.org
 	except:
 		cr=[]
 	parts = [{'data':[part.name, part.phone, part.email, part.gender, part.pcr_approved, part.head_of_society, part.year_of_study, event_list(part),is_profile_complete(part), how_much_paid(part)], "id":part.id,} for part in participants]
+	print parts
 	return render(request, 'pcradmin/college_rep.html',{'college':college, 'parts':parts, 'cr':cr})
 
 def event_list(part):
@@ -428,8 +429,8 @@ def add_college(request):
 
 @staff_member_required
 def view_final(request):
-	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True).count(),college.participant_set.all().count()],'link':[{'title':'Select', 'url':reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
-	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Confirmed','Total Participants', 'Select']}]
+	rows = [{'data':[college.name,college.participant_set.filter(pcr_approved=True, pcr_final=True).count(),college.participant_set.filter(pcr_approved=True).count()],'link':[{'title':'Select', 'url':reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Finalised','Total Approved', 'Select']}]
 	return render(request, 'pcradmin/tables.html', {'tables':tables})
 
 
@@ -441,6 +442,9 @@ def final_confirmation(request, c_id):
 		try:
 			id_list = data.getlist('data')
 		except:
+			messages.warning(request,'Select a Participant')
+			return redirect(request.META.get('HTTP_REFERER'))
+		if not id_list:
 			messages.warning(request,'Select a Participant')
 			return redirect(request.META.get('HTTP_REFERER'))
 		parts = Participant.objects.filter(id__in=id_list)
@@ -463,37 +467,73 @@ def final_confirmation(request, c_id):
 def final_email(request, eg_id):
 	email_group = EmailGroup.objects.get(id=eg_id)
 	parts = email_group.participant_set.all()
-	if request.method=='POST':
+	college = parts[0].college
+	return render(request, 'pcradmin/final_mail.html', {'parts':parts, 'group':email_group, 'college':college})
+
+@staff_member_required
+def final_email_send(request, eg_id):
+	email_group = EmailGroup.objects.get(id=eg_id)
+	parts = email_group.participant_set.all()
+	college = parts[0].college
+	try:
 		_dir = '/root/live/oasis/backend/resources/oasis2017/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name)
-		import base64
+	except:
+		_dir = '/home/auto-reload/Desktop/'
+		doc_name = _dir + 'final_list.pdf'
+		a=create_final_pdf(eg_id, doc_name)
+	
+	import base64
 
-		with open(doc_name, "rb") as output_pdf:
-			encoded_string1 = base64.b64encode(output_pdf.read())
-			attachment = Attachment()
-			attachment.content = encoded_string1
-			attachment.name = 'Confirmed Participants'
-		body = 'to be completed'   
-		subject = 'College Representative for Oasis'
-		from_email = Email('register@bits-oasis.org')
-		content = Content('text/html', body)
-		sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-		for part in parts:	
-			to_email = Email(part.email)
-			try:
-				mail = Mail(from_email, subject, to_email, content)
-				mail.add_attachement(attachment)
-				response = sg.client.mail.send.post(request_body=mail.get())
-				messages.warning(request,'Email sent to ' + part.name)
-				part.pcr_final=True
+	with open(doc_name, "rb") as output_pdf:
+		encoded_string1 = base64.b64encode(output_pdf.read())
+		attachment = Attachment()
+		attachment.content = encoded_string1
+		attachment.name = 'Confirmed Participants'
+	body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+			<pre style="font-family:Roboto,sans-serif">
+Hello %s!
+Greetings from BITS Pilani!
+
+It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
+           
+This is to confirm your participation at OASIS '17.
+We would be really happy to see your college represented at our fest.
+
+We look forward to seeing you at OASIS 2017.
+A new link would be active in your OASIS '17 account where you will find a profile card. A printed copy of the same is compulsory to enter the premises.
+
+PFA A list of participants from your college.
+
+Regards,
+StuCCAn (Head)
+Dept. of Publications & Correspondence, OASIS 2017
+BITS Pilani
+%s
+pcr@bits-oasis.org
+</pre>
+			""" %(part.name,get_pcr_number())   
+	subject = 'Final Confirmation for Oasis'
+	from_email = Email('register@bits-oasis.org')
+	content = Content('text/html', body)
+	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+	for part in parts:	
+		to_email = Email(part.email)
+		try:
+			mail = Mail(from_email, subject, to_email, content)
+			mail.add_attachment(attachment)
+			response = sg.client.mail.send.post(request_body=mail.get())
+			messages.warning(request,'Email sent to ' + part.name)
+			part.pcr_final=True
+			part.save()
+			if not part.is_cr:
+				encoded = gen_barcode(part)
 				part.save()
-				if not part.is_cr:
-					encoded = gen_barcode(part)
-			except :
-				messages.warning(request,'Error sending email')
-		return redirect(request.META.get('HTTP_REFERER'))
-	return render(request, 'pcradmin/final_mail.html', {'parts':parts, 'group':email_group})
+		except :
+			messages.warning(request,'Error sending email')
+	return redirect(reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id}))
 
 @staff_member_required
 def download_pdf(request, eg_id):

@@ -16,4 +16,5 @@ def show_tags():
     pcr_approved = Participant.objects.filter(pcr_approved=True).count()
     paid = Participant.objects.filter(Q(paid=True,controlz_paid=False) | Q(curr_paid=True, curr_controlz_paid=False)).count()
     full_paid = Participant.objects.filter(Q(paid=True,controlz_paid=True) | Q(curr_paid=True, curr_controlz_paid=True)).count()
-    return {'email_verified':email_verified, 'cr_approved':cr_approved, 'pcr_approved':pcr_approved, 'paid':paid, 'full_paid':full_paid}
+    pcr_final = Participant.objects.filter(pcr_final=True).count()
+    return {'email_verified':email_verified, 'cr_approved':cr_approved, 'pcr_approved':pcr_approved, 'paid':paid, 'full_paid':full_paid, 'pcr_final':pcr_final}

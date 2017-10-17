@@ -31,7 +31,7 @@
     
 </head>
 
-<body class="theme-cyan">
+<body class="theme-{% navbar_color request.user.username %}">
     <div class="page-loader-wrapper">
         <div class="loader">
             <div class="preloader">
@@ -100,20 +100,17 @@
                         </a>
                         
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="javascript:void(0);" class="menu-toggle">
                             <span>Firewallz</span>
                         </a>
                         <ul class="ml-menu">
                             <li>
-                                <a href="{% url 'regsoft:fireeallz_home' %}"><span>View Colleges</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'regsoft:firewwallz_groups' %}"><span>View Groups</span></a>
+                                <a href="{% url 'regsoft:firewallz_home' %}"><span>View Colleges</span></a>
                             </li>
                         </ul>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="javascript:void(0);" class="menu-toggle">
                             <span>RecNAcc</span>
                         </a>
@@ -135,7 +132,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="javascript:void(0);" class="menu-toggle">
                             <span>Controlz</span>
                         </a>
@@ -144,10 +141,10 @@
                                 <a href="{% url 'regsoft:controlz_home' %}"><span>View Groups</span></a>
                             </li>
                             <li>
-                                <a href="{% url 'pcradmin:show_all_bills' %}"><span>Manage Bills</span></a>
+                                <a href="{% url 'regsoft:show_all_bills' %}"><span>Manage Bills</span></a>
                             </li>
                             <li>
-                                <a href="{% url 'regsoft:controlz_add_participant' %}"><span>Add Participant</span></a>
+                                <a href="{% url 'regsoft:controlz_participant_add' %}"><span>Add Participant</span></a>
                             </li>
                             <li>
                                 <a href="{% url 'regsoft:get_profile_card' %}"><span>Generate Profile Card</span></a>

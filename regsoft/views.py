@@ -55,7 +55,7 @@ def index(request):
 		return redirect(reverse('regsoft:controlz_home'))
 	if request.user.username.lower() == 'recnacc':
 		return redirect(reverse('regsoft:recnacc_home'))
-	if request.user.username == 'firewallz':
+	if request.user.username == 'firewallz' or request.user.is_superuser:
 		return redirect(reverse('regsoft:firewallz_home'))
 
 ########################################### Firewallz coz they're pretty sweet people ############################################
@@ -63,7 +63,7 @@ def index(request):
 @staff_member_required
 def firewallz_home(request):
     college_list = College.objects.all()
-    rows = [{'data':[college.name, Participant.objects.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'}]} for college in college_list]
+    rows = [{'data':[college.name, college.participant_set.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'}]} for college in college_list]
     headings = ['College', 'CR', 'PCr Finalised Participants', 'Approve Participants']
     title = 'Select college to approve Participants'
     table = {
@@ -96,19 +96,19 @@ def firewallz_approval(request, c_id):
             return redirect(request.META.get('HTTP_REFERER'))
         
         group = Group.objects.create()
-        encoded = generate_group_code(group)
-        group.save()
         for part_id in id_list:
             part = Participant.objects.get(id=part_id)
             part.firewallz_passed=True
             part.group = group
             part.save() 
-        
-        return redirect('regsoft:firewallz-home')
+        encoded = generate_group_code(group)
+        group.save()
+        return redirect('regsoft:firewallz_home')
     
-    groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college is college]
+    groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college == college]
     unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False)
-    return render(request, 'regsoft/firewallz_approval.html', {'groups_passed':groups_passed, 'unapproved_list':unapproved_list})
+    print groups_passed
+    return render(request, 'regsoft/firewallz_approval.html', {'groups_passed':groups_passed, 'unapproved_list':unapproved_list, 'college':college})
 
 @staff_member_required
 def get_group_list(request, g_id):
@@ -201,7 +201,7 @@ def allocate_participants(request, g_id):
 @staff_member_required
 def recnacc_group_list(request, c_id):
     college = get_object_or_404(College, id=c_id)
-    group_list = [group for group in Group.objects.all() if get_group_leader(group).college is college]
+    group_list = [group for group in Group.objects.all() if get_group_leader(group).college == college]
     complete_groups = [group for group in group_list if all(part.acco for part in group.participant_set.all())]
     incomplete_groups = [group for group in group_list if not group in complete_groups]
 
@@ -238,6 +238,47 @@ def manage_vacancies(request, r_id):
         return redirect(reverse('regsoft:room_details'))
     else:
         return render(request, 'regsoft/manage_vacanacies.html', {'room':room})
+
+@staff_member_required
+def recnacc_bhavans(request):
+    rows =[{'data':[bhavan.name, reduce(lambda x,y:x+y.vacancy, bhavan.room_set.all(), 0),], 'link':[{'title':'Details', 'url':reverse('regsoft:bhavan_details', kwargs={'b_id':bhavan.id})},] } for bhavan in Bhavan.objects.all()]
+    headings = ['Bhavan', 'Vacancy', 'Room-wise details']
+    tables = [{'title':'All Bhavans', 'headings':headings, 'rows':rows}]
+    return render(request,'regsoft/tables.html', {'tables':tables})
+
+@staff_member_required
+def bhavan_details(request, b_id):
+	bhavan = Bhavan.objects.get(id=b_id)
+	rows = [{'data':[room.room, room.vacancy, room.capacity], 'link':[]} for room in bhavan.room_set.all()]
+	headings = ['Room', 'Vacancy', 'Capacity']
+	tables = [{'title': 'Details for ' + bhavan.name + ' bhavan', 'headings':headings, 'rows':rows}]
+	return render(request, 'regsoft/tables.html', {'tables':tables})
+
+@staff_member_required
+def recnacc_college_details(request):
+    college_list = College.objects.all()
+    rows = [{'data':[college.name, Participant.objects.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
+    headings = ['College', 'Alloted Participants', 'View Details']
+    title = 'Select college to approve Participants'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def college_detail(request, c_id):
+    college = get_object_or_404(College, id=c_id)
+    rows = [{'data':[get_group_leader(group).name, get_group_leader(group).phone, get_group_leader(group).email,group.participant_set.filter(acco=True).count(), get_group_leader(group).room.room, get_group_leader(group).room.bhavan.name], 'link':[]} for group in Group.objects.all() if get_group_leader(group).college == college]
+    headings = ['Group Leader', 'GLeader Phone', 'GLeader Email','Participants Count', 'Room', 'Bhavan']
+    title = 'Groups alloted from ' + college.name
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
 
 @staff_member_required
 def checkout_college(request):
@@ -277,7 +318,7 @@ def checkout(request, c_id):
 @staff_member_required
 def checkout_groups(request, c_id):
     college = get_object_or_404(College, id=c_id)
-    ck_group_list = [ck_group for ck_group in CheckoutGroup.objects.all() if ck_group.participant_set.all()[0].college is college]
+    ck_group_list = [ck_group for ck_group in CheckoutGroup.objects.all() if ck_group.participant_set.all()[0].college == college]
     ck_group_list = ck_group_list.order_by('-created_time')
     rows = [{'data':[ck_group.participant_set.all().count(), ck_group.created_time, ck_group.amount_retained], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:ck_group_details', kwargs={'ck_id':ck_group.id})), 'title':'View Details'}]} for ck_group in ck_group_list]
     headings = ['Participant Count', 'Time of Checkout', 'Amount Retained', 'View Details']
@@ -468,7 +509,7 @@ def generate_recnacc_list(request):
             part = Participant.objects.get(id=p_id)
             c_rows.append({'data':[part.name, part.college.name, part.gender,get_cr_name(part), get_event_string(part), part.room.room, part.room.bhavan, 300], 'link':[]})
         part = Participant.objects.get(id=id_list[0])
-        amount = (len(id_list))*300
+        amount = (len(id_list))*400
         c_rows.append({'data':['Total', '','','','','','',amount]})
         table = {
             'title':'Participant list for RecNAcc from ' + part.college.name,
@@ -478,7 +519,28 @@ def generate_recnacc_list(request):
         return render(request, 'regsoft/tables.html', {'tables':[table,]})
 
 @staff_member_required
-def get_profile_card(request, p_id):
+def get_profile_card(request):
+    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:get_profile_card_participant', kwargs={'p_id':part.id})), 'title':'Get profile card'}]} for part in Participant.objects.filter(pcr_final=True)]
+    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
+    title = 'Generate Profile Card'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,],})
+
+@staff_member_required
+def get_profile_card_participant(request, p_id):
     participant = get_object_or_404(Participant, id=p_id)
     events = get_event_string(participant)
     return render(request, 'registrations/profile_card.html', {'participant':participant, 'events':events,})
+
+@staff_member_required
+def contacts(request):
+	return render(request, 'regsoft/contact.html')
+
+@staff_member_required
+def user_logout(request):
+	logout(request)
+	return redirect('regsoft:index')
