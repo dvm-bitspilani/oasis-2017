@@ -509,7 +509,7 @@ def generate_recnacc_list(request):
             part = Participant.objects.get(id=p_id)
             c_rows.append({'data':[part.name, part.college.name, part.gender,get_cr_name(part), get_event_string(part), part.room.room, part.room.bhavan, 300], 'link':[]})
         part = Participant.objects.get(id=id_list[0])
-        amount = (len(id_list))*300
+        amount = (len(id_list))*400
         c_rows.append({'data':['Total', '','','','','','',amount]})
         table = {
             'title':'Participant list for RecNAcc from ' + part.college.name,
