@@ -1,13 +1,13 @@
 {% extends 'wordwars/base.html' %}
-
 {% block body %}
-
-    <div class="row">
+{% load static %}
     
-        <div class="col s12 m7 l4">
-            <div class="card">
+    <div class="row">
+        <div class="container">
+        <div class="col s12 m6 l6">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 1</span>
                 </div>
                 <div class="card-content">
@@ -15,7 +15,7 @@
                 </div>
                 <div class="card-action">
                 {% if day1 %}
-                <a href="{% url 'wordwars:play' 1 %}">Display next question!</a>
+                <a href="{% url 'wordwars:play' 1 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}
@@ -24,18 +24,18 @@
         </div>
 
 
-        <div class="col s12 m7 l4">
-            <div class="card">
+        <div class="col s12 m6 l6">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 2</span>
                 </div>
                 <div class="card-content">
                 Something Something
                 </div>
                 <div class="card-action">
-                {% if day1 %}
-                <a href="{% url 'wordwars:play' 2 %}">Display next question!</a>
+                {% if day2 %}
+                <a href="{% url 'wordwars:play' 2 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}
@@ -44,25 +44,25 @@
         </div>
 
 
-        <div class="col s12 m7 l4">
-            <div class="card">
+        <div class="col s12 m6 l6">
+            <div class="card card-aaa">
                 <div class="card-image">
-                <img src="images/sample-1.jpg">
+                <img src="{% static 'pcradmin/images/dummy.jpg' %}">
                 <span class="card-title">Day 3</span>
                 </div>
                 <div class="card-content">
                 Something Something
                 </div>
                 <div class="card-action">
-                {% if day1 %}
-                <a href="{% url 'wordwars:play' 3 %}">Display next question!</a>
+                {% if day3 %}
+                <a href="{% url 'wordwars:play' 3 %}">Start</a>
                 {% else %}
                  <a href="#">Inactive</a>
                  {% endif %}
                 </div>
             </div>
         </div>
-    
+        </div>
     </div>
-
+    
 {% endblock %}

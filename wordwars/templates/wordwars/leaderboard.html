@@ -1,1 +1,35 @@
 {% extends 'wordwars/base.html' %}
+
+{% block body%}
+<div class="row">
+	<div class="container">
+		<div class="card-panel">
+
+			<h1><center>Leaderboard</center></h1>
+			<div class="row">
+			<div class="container">
+			      <table class="striped">
+        <thead>
+          <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {% for player in players %}
+          <tr>
+          	<td>{{forloop.counter}}</td>
+            <td>{{player.user.username}}</td>
+            <td>{{player.score}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+  </div>
+</div>
+		</div>
+	</div>
+</div>
+{% endblock%}

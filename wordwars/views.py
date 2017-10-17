@@ -142,7 +142,7 @@ def user_login(request):
 			return redirect(request.META.get('HTTP_REFERER'))
 		login(request, user)
 		if user.is_staff:
-			return render(request, 'wordwars/add_question.html')
+			return redirect('wordwars:add_question')
 		return redirect(reverse_lazy('wordwars:home'))
 	return render(request, 'wordwars/login.html')
 

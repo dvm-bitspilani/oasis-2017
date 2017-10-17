@@ -14,6 +14,7 @@ urlpatterns = [
 	url(r'^stats_event/(?P<e_id>\d+)/$', views.stats_event, name='stats_event'),
 	url(r'^final_confirmation/$', views.view_final, name='view_final'),
 	url(r'^final_email/(?P<eg_id>\d+)$', views.final_email, name='final_email'),
+	url(r'^final_email_send/(?P<eg_id>\d+)$', views.final_email_send, name='final_email_send'),
 	url(r'^download_pdf/(?P<eg_id>\d+)$', views.download_pdf, name='download_pdf'),
 	url(r'^final_confimation/(?P<c_id>\d+)/$', views.final_confirmation, name='final_confirmation'),
 	url(r'^master_stats/$', views.master_stats, name='master_stats'),

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'wordwars.middleware.WordWarsMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
+    'wordwars.middleware.WordWarsMiddleware',
 ]
 
 ROOT_URLCONF = 'oasis2017.urls'
@@ -144,9 +146,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-
-STATIC_URL = '/2017/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/2017/static/'
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/2017/media/'
