@@ -14,7 +14,7 @@ urlpatterns = [
     #url(r'^regsoft/', include("regsoft.urls")),
     url(r'^pcradmin/', include("pcradmin.urls")),
     url(r'^tarang/', include("tarang.urls")),
-    url(r'^ems/', include("ems.urls")),
+    # url(r'^ems/', include("ems.urls")),
     url(r'^wordwars/', include("wordwars.urls")),
 ]
 

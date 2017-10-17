@@ -62,7 +62,7 @@ class Bitsian(models.Model):
 	
     long_id = models.CharField(max_length=20, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
-
+    ems_code = models.CharField(max_length=10, null=True, blank=True)
     def __unicode__(self):
 		return str(self.long_id) + str(self.name)
 

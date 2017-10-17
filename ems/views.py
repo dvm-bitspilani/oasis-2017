@@ -30,6 +30,23 @@ def permission_for_event(function):
     return wrap
 
 
+def permission_for_judge(function):
+    def wrap(request, *args, **kwargs):
+        user = request.user
+        if request.user.is_superuser:
+            return function(request, *args, **kwargs)
+        event = get_object_or_404(Event, pk=kwargs['e_id'])
+        judge = get_object_or_404(Judge, user=user)
+        if not event in club_dept.events.all():
+            url = request.build_absolute_uri(reverse_lazy('ems:events_select'))
+            return render(request, 'ems/message.html',  {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+
+    wrap.__doc__ = function.__doc__
+    wrap.__name__ = function.__name__
+    return wrap
+
+### DECORATORS END ###
+
 def index(request):
     if request.user.is_authenticated() and request.user.is_staff:
         return redirect(reverse_lazy('ems:events_select'))
@@ -187,57 +204,55 @@ def event_levels_add(request, e_id):
 @staff_member_required(login_url=login_url)
 def add_team(request, e_id):
     event = get_object_or_404(Event, id=e_id)
+    count = Team.objects.filter(event=event).count()
+    try:
+        level = Level.objects.get(position=1, event=event)
+    except:
+        messages.warning(request, 'First add atleast one level for this event')
+        return redirect(request.META.get('HTTP_REFERER'))
+
     if request.method == 'POST':
         data = dict(request.POST)
         print data
-        x=0
         try:
-            parts_ids = data['part_ids']
-            parts = Participant.objects.filter(id__in=parts_ids)
-            leader_id = parts_ids[0]
-            leader = Participant.objects.get(id=leader_id)
-        except:
-            x+=1
-        try:
-            bits_ids = data['bits_ids']
-            bitsians = Bitsian.objects.filter(id__in=bits_ids)
-            if x==1:
-                leader_id = bits_ids[0]
-                leader = Bitsian.objects.get(id=leader_id)
-        except:
-            x+=2
-        try:
-            if (x==3) or not (parts and bitsians):
-                raise Exception
-            name = data['name'][0]
+            teams_str = data['teams']
         except:
             return redirect(request.META.get('HTTP_REFERER'))
-        team = Team(name=name, leader=leader, event=event)
-        team.save()
-        for part in parts:
-            team.members.add(part)
-        for bitsian in bitsians:
-            team.members_bitsian = bitsian
-        try:
-            team.leader = leader
-        except:
-            team.leader_bitsian = leader
-        team.save()
-        try:
-            level = Level.objects.get(position=1, event=event)
-        except:
-            team.delete()
-            messages.warning(request, 'First add atleast one level for this event')
-            return redirect(reverse_lazy('ems:event_levels', kwargs={'e_id':event.id}))
-        level.teams.add(team)
-        Score.objects.create(team=team, level=level)
-        submit = data['submit'][0]
-
-        if submit == 'add':
-            return redirect(reverse_lazy('ems:event_home'))
-    parts = Participant.objects.filter(controlz_paid=True)
-    bitsians = Bitsian.objects.all()
-    return render(request, 'ems/add_team.html', {'event':event, 'parts':parts, 'bitsians':bitsians})
+        teams_lst = [[a.strip() for a in i.split(',')] for i in teams_str.split('?')]
+        for t in team_lst:
+            team = Team.objects.create(name='Team-'+str(++count)+' ' + event.name)
+            x=0
+            for mem in t:
+                if re.match(r'\d{7}', mem):
+                    try:
+                        p = Participant.objects.get(ems_code=mem)
+                    except:
+                        team.delete()
+                        message.warning(request, 'put the codes properly')
+                        return redirect(request.META.get('HTTP_REFERER'))
+                    team.members.add(p)
+                    if x==0:
+                        team.leader = p
+                elif re.match(r'\d{6}', mem):
+                    try:
+                        b = Bitsian.objects.get(ems_code=mem)
+                    except:
+                        team.delete()
+                        message.warning(request, 'put the codes properly')
+                        return redirect(request.META.get('HTTP_REFERER'))
+                    team.members_bitsian.add(b)
+                    if x==0:
+                        team.leader_bitsian = b
+                else:
+                    team.delete()
+                    message.warning(request, 'put the codes properly')
+                    return redirect(request.META.get('HTTP_REFERER'))
+                x+=1
+            team.save()
+            level.teams.add(team)
+            Score.objects.create(team=team, level=level)
+        messages.success(request, 'teams added successfully.')
+    return render(request, 'ems/add_team.html', {'event':event})
 
 
 
