@@ -1,3 +1,200 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from registrations.models import *
+from events.models import *
+from .models import *
+from django.core.urlresolvers import reverse
+from django.contrib.admin.views.decorators import staff_member_required
 
-# Create your views here.
+@staff_member_required
+def add_mess_item(request):
+    if request.method == 'POST':
+        data = request.POST
+        item = Item()
+        item.name = data['name']
+        item.price = int(data['price'])
+        item.save()
+    items = Item.objects.all()
+    return render(request, 'messportal/add_mess_item.html', {'items':items})
+
+@staff_member_required
+def add_prof_show(request):
+    if request.method == 'POST':
+        data = request.POST
+        prof_show = ProfShow()
+        prof_show.name = data['name']
+        prof_show.price = int(data['price'])
+        prof_show.appcontent = data['app_content']
+        prof_show.date = data['date']
+        prof_show.venue = data['venue']
+        prof_show.contact = data['contact']
+        prof_show.save()
+    prof_shows = ProfShow.objects.all()
+    return render(request, 'messportal/add_prof_show.html', {'prof_shows':prof_shows})
+
+@staff_member_required
+def create_mess_bill(request):
+    if request.method == 'POST':
+        data = request.POST
+        mess_bill = MessBill()
+        mess_bill.item = Item.objects.get(id=data['item_id'])
+        mess_bill.buyer_id = oasis17 + data['barcode']
+        mess_bill.quantity = data['count']
+        mess_bill.mess = data['mess']
+        mess_bill.n2000 = int(data['n_2000'])
+        mess_bill.intake = 0
+        mess_bill.outtake = 0
+        if data['n_2000']>0:
+            mess_bill.intake += int(data['n_2000'])*2000
+        else:
+            mess_bill.outtake -= int(data['n_2000'])*2000
+        mess_bill.n500 = data['n_500']
+        if data['n_500']>0:
+            mess_bill.intake += int(data['n_500'])*500
+        else:
+            mess_bill.outtake -= int(data['n_500'])*500
+        mess_bill.n200 = data['n_200']
+        if data['n_200']>0:
+            mess_bill.intake += int(data['n_200'])*200
+        else:
+            mess_bill.outtake -= int(data['n_200'])*200
+        mess_bill.n100 = data['n_100']
+        if data['n_100']>0:
+            mess_bill.intake += int(data['n_100'])*100
+        else:
+            mess_bill.outtake -= int(data['n_100'])*100
+        mess_bill.n50 = data['n_50']
+        if data['n_50']>0:
+            mess_bill.intake += int(data['n_50'])*50
+        else:
+            mess_bill.outtake -= int(data['n_50'])*50
+        mess_bill.n20 = data['n_20']
+        if data['n_20']>0:
+            mess_bill.intake += int(data['n_20'])*20
+        else:
+            mess_bill.outtake -= int(data['n_20'])*20
+        mess_bill.n10 = data['n_10']
+        if data['n_10']>0:
+            mess_bill.intake += int(data['n_10'])*10
+        else:
+            mess_bill.outtake -= int(data['n_10'])*10
+        mess_bill.amount = mess_bill.intake - mess_bill.outtake
+        mess_bill.created_by = data['created_by']
+        mess_bill.save()
+        return redirect(reverse('messportal:view_all_mess_bills'))
+    return render(request, 'messportal/create_mess_bill.html',)
+
+@staff_member_required
+def create_profshow_bill(request):
+    if request.method == 'POST':
+        data = request.POST
+        profshow_bill = ProfShowBill()
+        prof_show = ProfShow.objects.get(id=dataa['prof_show'])
+        profshow_bill.prof_show = prof_show
+        profshow_bill.buyer_id = data['barcode']
+        profshow_bill.quantity = data['count']
+        profshow_bill.n2000 = int(data['n_2000'])
+        profshow_bill.intake = 0
+        profshow_bill.outtake = 0
+        if data['n_2000']>0:
+            profshow_bill.intake += int(data['n_2000'])*2000
+        else:
+            profshow_bill.outtake -= int(data['n_2000'])*2000
+        profshow_bill.n500 = data['n_500']
+        if data['n_500']>0:
+            profshow_bill.intake += int(data['n_500'])*500
+        else:
+            profshow_bill.outtake -= int(data['n_500'])*500
+        profshow_bill.n200 = data['n_200']
+        if data['n_200']>0:
+            profshow_bill.intake += int(data['n_200'])*200
+        else:
+            profshow_bill.outtake -= int(data['n_200'])*200
+        profshow_bill.n100 = data['n_100']
+        if data['n_100']>0:
+            profshow_bill.intake += int(data['n_100'])*100
+        else:
+            profshow_bill.outtake -= int(data['n_100'])*100
+        profshow_bill.n50 = data['n_50']
+        if data['n_50']>0:
+            profshow_bill.intake += int(data['n_50'])*50
+        else:
+            profshow_bill.outtake -= int(data['n_50'])*50
+        profshow_bill.n20 = data['n_20']
+        if data['n_20']>0:
+            profshow_bill.intake += int(data['n_20'])*20
+        else:
+            profshow_bill.outtake -= int(data['n_20'])*20
+        profshow_bill.n10 = data['n_10']
+        if data['n_10']>0:
+            profshow_bill.intake += int(data['n_10'])*10
+        else:
+            profshow_bill.outtake -= int(data['n_10'])*10
+        profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
+        profshow_bill.created_by = data['created_by']
+        profshow_bill.save()
+
+        barcode = 'oasis17' + data['barcode']
+        participant = Participant.objects.get(barcode=barcode)
+        try:
+            attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+            attendance.count += data['count']
+            attendance.save()
+        except:
+            attendance = Attendance()
+            attendance.participant = participant
+            attendance.prof_show = prof_show
+            attendance.paid = True
+            attendance.count = data['count']
+            attendance.save()
+        
+        return redirect(reverse('messportal:view_all_profshow_bills'))
+    
+    return render(request, 'messportal/create_profshow_bill.html')
+
+@staff_member_required
+def view_all_mess_bills(request):
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.item.name, bill.mess,Participant.objects.get(barcode='oasis17'+bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:mess_bill_details', kwargs={'mb_id':bill.id}))}]} for bill in MessBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Item', 'Mess', 'Participant Name', 'View Details']
+    title = 'Mess Bill Details'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'messportal/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def view_all_profshow_bills(request):
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.prof_show.name, Participant.objects.get(barcode='oasis17'+bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:profshow_bill_details', kwargs={'ps_id':bill.id}))}]} for bill in ProfShowBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Prof Show', 'Participant Name', 'View Details']
+    title = 'Prof Show Bill Details'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'messportal/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def mess_bill_details(request, mb_id):
+    bill = get_object_or_404(MessBill, id=mb_id)
+    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    return render(request, 'messportal/bill_details.html', {'bill':bill, 'mess':True, 'participant':participant})
+
+@staff_member_required
+def profshow_bill_details(request, ps_id):
+    bill = get_object_or_404(ProfShowBill, id=ps_id)
+    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    return render(request, 'messportal/bill_details.html', {'bill':bill, 'profshow':True, 'participant':participant})
+
+@staff_member_required
+def mess_bill_receipt(request, mb_id):
+    bill = get_object_or_404(MessBill, id=mb_id)
+    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant})
+
+@staff_member_required
+def profshow_bill_receipt(request, ps_id):
+    bill = get_object_or_404(ProfShowBill, id=ps_id)
+    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'profshow':True, 'participant':participant})

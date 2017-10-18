@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from registrations.models import *
 from events.models import *
+from messportal.models import *
 from registrations.views import *
 from django.views.decorators.csrf import csrf_exempt
 import sendgrid
@@ -337,16 +338,60 @@ def add_profshow(request):
 		return Response({'message':'Please check barcode of Participant'})
 	try:
 		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-		attendance.count += 1
+		attendance.count += data['count']
 		attendance.save()
 	except:
 		attendance = Attendance()
 		attendance.participant = participant
 		attendance.prof_show = prof_show
 		attendance.paid = True
-		attendance.count += 1
+		attendance.count = data['count']
 		attendance.save()
 	
+	profshow_bill = ProfShowBill()
+	profshow_bill.prof_show = prof_show
+	profshow_bill.buyer_id = data['barcode']
+	profshow_bill.quantity = data['count']
+	profshow_bill.n2000 = int(data['n_2000'])
+	profshow_bill.intake = 0
+	profshow_bill.outtake = 0
+	if data['n_2000']>0:
+		profshow_bill.intake += int(data['n_2000'])*2000
+	else:
+		profshow_bill.outtake -= int(data['n_2000'])*2000
+	profshow_bill.n500 = data['n_500']
+	if data['n_500']>0:
+		profshow_bill.intake += int(data['n_500'])*500
+	else:
+		profshow_bill.outtake -= int(data['n_500'])*500
+	profshow_bill.n200 = data['n_200']
+	if data['n_200']>0:
+		profshow_bill.intake += int(data['n_200'])*200
+	else:
+		profshow_bill.outtake -= int(data['n_200'])*200
+	profshow_bill.n100 = data['n_100']
+	if data['n_100']>0:
+		profshow_bill.intake += int(data['n_100'])*100
+	else:
+		profshow_bill.outtake -= int(data['n_100'])*100
+	profshow_bill.n50 = data['n_50']
+	if data['n_50']>0:
+		profshow_bill.intake += int(data['n_50'])*50
+	else:
+		profshow_bill.outtake -= int(data['n_50'])*50
+	profshow_bill.n20 = data['n_20']
+	if data['n_20']>0:
+		profshow_bill.intake += int(data['n_20'])*20
+	else:
+		profshow_bill.outtake -= int(data['n_20'])*20
+	profshow_bill.n10 = data['n_10']
+	if data['n_10']>0:
+		profshow_bill.intake += int(data['n_10'])*10
+	else:
+		profshow_bill.outtake -= int(data['n_10'])*10
+	profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
+	profshow_bill.created_by = data['created_by']
+	profshow_bill.save()
 	attendance_serializer = AttendanceSerializer(attendance)
 	return Response({'profshow':attendance_serializer.data, 'participant':participant_serializer.data})
 
