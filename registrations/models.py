@@ -90,7 +90,7 @@ class Participant(models.Model):
 	events = models.ManyToManyField(Event, through=Participation)
 	cr_approved = models.BooleanField(default=False)
 	checkout_group = models.ForeignKey('CheckoutGroup', on_delete=models.SET_NULL, null=True)
-
+	ems_code = models.CharField(max_length=10, default='', null=True)
 	def __unicode__(self):
 		return (self.name) + ' - ' + str(self.college.name)
 
