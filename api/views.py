@@ -282,9 +282,10 @@ def cr_disapprove(request):
 @permission_classes((IsAuthenticated,))
 def get_profile(request):
 	participant = Participant.objects.get(user=request.user)
-	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
-	participant_serializer = ParticipantSerializer(participant, context={'request':request})
-	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
+	event_set = [participation.event for participation in Participation.objects.filter(participant=participant, pcr_approved=True)]
+	event_serializer = EventSerializer(event_set, many=True)
+	participant_serializer = ProfileSerializer(participant, context={'request':request})
+	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data})
 
 @api_view(['POST', ])
 @permission_classes((IsAuthenticated, ))
@@ -302,6 +303,13 @@ def edit_profile(request):
 def all_events(request):
 	event_serializer = BaseEventSerializer(Event.objects.all(), many=True)
 	return Response(event_serializer.data)
+
+@api_view(['GET',])
+def all_prof_shows(request):
+	if not request.user.is_staff:
+		return Response({'message':'Invalid Access'})
+	prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
+	return Response(prof_show_serializer.data)
 
 @api_view(['GET', ])
 def get_event(request, e_id):
@@ -324,6 +332,7 @@ def add_profshow(request):
 		return Response({'message':'Invalid Prof Show'})
 	try:
 		participant = Participant.objects.get(barcode=data['barcode'])
+		participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	except:
 		return Response({'message':'Please check barcode of Participant'})
 	try:
@@ -335,10 +344,11 @@ def add_profshow(request):
 		attendance.participant = participant
 		attendance.prof_show = prof_show
 		attendance.paid = True
+		attendance.count += 1
 		attendance.save()
 	
 	attendance_serializer = AttendanceSerializer(attendance)
-	return Response(attendance_serializer.data)
+	return Response({'profshow':attendance_serializer.data, 'participant':participant_serializer.data})
 
 @api_view(['POST',])
 @permission_classes((IsAuthenticated, ))
@@ -356,6 +366,7 @@ def validate_profshow(request):
 		return Response({'message':'Invalid Prof Show'})
 	try:
 		participant = Participant.objects.get(barcode=data['barcode'])
+		participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	except:
 		return Response({'message':'Please check barcode of Participant'})
 	try:
@@ -366,6 +377,6 @@ def validate_profshow(request):
 		attendance.count -= 1
 		attendance.passed_count += 1
 		attendance.save()
-		return Response({'message':'Success. Passes Left = ' + attendance.count})
+		return Response({'message':'Success. Passes Left = ' + str(attendance.count), 'participant':participant_serializer.data})
 	else:
 		return Response({'message':'No more passes left. Please register at DoLE Booth.'})

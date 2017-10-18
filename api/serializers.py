@@ -13,7 +13,7 @@ class EventSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Event
-		fields = ('id', 'name', 'min_team_size', 'max_team_size', 'start_date' ,'venue', 'appcontent')
+		fields = ('id', 'name', 'date', 'time','venue', 'appcontent')
 
 class ProfShowSerializer(serializers.ModelSerializer):
 
@@ -24,7 +24,7 @@ class ProfShowSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
 	pic_url = serializers.SerializerMethodField()
 	class Meta:
-		models = Participant
+		model = Participant
 		fields = ('name', 'college', 'barcode', 'phone', 'city', 'pcr_approved', 'id', 'paid', 'pic_url')
 	
 	def get_pic_url(self, participant):
@@ -32,20 +32,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 		pic_url = 	participant.profile_pic.url
 		return request.build_absolute_uri(pic_url)  # get complete url of profile picture
 
-class ParticipationSerializer(serializers.ModelSerializer):
-	
-	participant = ParticipantSerializer(required=True, write_only=True)
-	event = EventSerializer(required=True, write_only=True)
-	class Meta:
-		model = Participation
-		fields = '__all__'
-
 class AttendanceSerializer(serializers.ModelSerializer):
 	
 	participant = ParticipantSerializer(required=True, write_only=True)
 	prof_show = ProfShowSerializer(required=True, write_only=True)
 	class Meta:
-		model = Participation
+		model = Attendance
 		fields = '__all__'
 
 class BaseEventSerializer(serializers.ModelSerializer):
@@ -59,3 +51,11 @@ class EventDetailSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Event
 		fields = ('id', 'name', 'content', 'rules','category_name', 'detail_rules','contact')
+
+class ParticipationSerializer(serializers.ModelSerializer):
+	
+	participant = ParticipantSerializer(required=True, write_only=True)
+	event = EventSerializer(required=True, write_only=True)
+	class Meta:
+		model = Participation
+		fields = ('participant', 'event', 'id')
