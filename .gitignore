@@ -7,3 +7,4 @@ preregistrations/instaconfig.py
 registrations/sg_config.py
 keyconfig.py
 media/
+requirements.txt
