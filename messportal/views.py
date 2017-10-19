@@ -37,7 +37,7 @@ def create_mess_bill(request):
         data = request.POST
         mess_bill = MessBill()
         mess_bill.item = Item.objects.get(id=data['item_id'])
-        mess_bill.buyer_id = oasis17 + data['barcode']
+        mess_bill.buyer_id = 'oasis17' + data['barcode']
         mess_bill.quantity = data['count']
         mess_bill.mess = data['mess']
         mess_bill.n2000 = int(data['n_2000'])
@@ -81,16 +81,17 @@ def create_mess_bill(request):
         mess_bill.created_by = data['created_by']
         mess_bill.save()
         return redirect(reverse('messportal:view_all_mess_bills'))
-    return render(request, 'messportal/create_mess_bill.html',)
+    items = Item.objects.all()
+    return render(request, 'messportal/create_mess_bill.html',{'items':items})
 
 @staff_member_required
 def create_profshow_bill(request):
     if request.method == 'POST':
         data = request.POST
         profshow_bill = ProfShowBill()
-        prof_show = ProfShow.objects.get(id=dataa['prof_show'])
+        prof_show = ProfShow.objects.get(id=data['prof_show'])
         profshow_bill.prof_show = prof_show
-        profshow_bill.buyer_id = data['barcode']
+        profshow_bill.buyer_id = 'oasis17' + data['barcode']
         profshow_bill.quantity = data['count']
         profshow_bill.n2000 = int(data['n_2000'])
         profshow_bill.intake = 0
@@ -148,8 +149,8 @@ def create_profshow_bill(request):
             attendance.save()
         
         return redirect(reverse('messportal:view_all_profshow_bills'))
-    
-    return render(request, 'messportal/create_profshow_bill.html')
+    prof_shows = ProfShow.objects.all()
+    return render(request, 'messportal/create_profshow_bill.html', {'prof_shows':prof_shows})
 
 @staff_member_required
 def view_all_mess_bills(request):
@@ -178,23 +179,46 @@ def view_all_profshow_bills(request):
 @staff_member_required
 def mess_bill_details(request, mb_id):
     bill = get_object_or_404(MessBill, id=mb_id)
-    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    participant = Participant.objects.get(barcode = bill.buyer_id)
     return render(request, 'messportal/bill_details.html', {'bill':bill, 'mess':True, 'participant':participant})
 
 @staff_member_required
 def profshow_bill_details(request, ps_id):
     bill = get_object_or_404(ProfShowBill, id=ps_id)
-    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
+    participant = Participant.objects.get(barcode = bill.buyer_id)
     return render(request, 'messportal/bill_details.html', {'bill':bill, 'profshow':True, 'participant':participant})
 
 @staff_member_required
 def mess_bill_receipt(request, mb_id):
+    from datetime import datetime
     bill = get_object_or_404(MessBill, id=mb_id)
-    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
-    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant})
+    participant = Participant.objects.get(barcode = bill.buyer_id)
+    time = datetime.now()
+    number = MessBill.objects.count() + 1
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant, 'time':time, 'number':number})
 
 @staff_member_required
 def profshow_bill_receipt(request, ps_id):
+    from datetime import datetime
     bill = get_object_or_404(ProfShowBill, id=ps_id)
-    participant = Participant.objects.get(barcode = 'oasis17'+bill.buyer_id)
-    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'profshow':True, 'participant':participant})
+    participant = Participant.objects.get(barcode = bill.buyer_id)
+    time = datetime.now()
+    number = ProfShowBill.objects.count() + 1
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'profshow':True, 'participant':participant, 'time':time, 'number':number})
+
+@staff_member_required
+def delete_mess_bill(request, mb_id):
+    mess_bill = get_object_or_404(MessBill, id=mb_id)
+    mess_bill.delete()
+    return redirect(reverse('messportal:view_all_mess_bills'))
+
+@staff_member_required
+def delete_profshow_bill(request, ps_id):
+    profshow_bill = get_object_or_404(ProfShowBill, id=ps_id)
+    participant = Participant.objects.get(barcode=profshow_bill.buyer_id)
+    prof_show = profshow_bill.prof_show
+    attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+    attendance.count -= profshow_bill.quantity
+    attendance.save()
+    profshow_bill.delete()
+    return redirect(reverse('messportal:view_all_profshow_bills'))

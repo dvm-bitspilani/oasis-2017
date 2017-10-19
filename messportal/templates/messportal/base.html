@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    {% load messportal_tags %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>MessPortal | Oasis'17</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+    <link href="{% static 'pcradmin/plugins/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+    <link href="{% static 'pcradmin/plugins/node-waves/waves.css' %}" rel="stylesheet" />
+
+    <link href="{% static 'pcradmin/plugins/animate-css/animate.css' %}" rel="stylesheet" />
+    <link href="{% static 'pcradmin/plugins/bootstrap-select/css/bootstrap-select.css' %}" rel="stylesheet" />
+    
+    <!-- <link href="{% static 'pcradmin/plugins/morrisjs/morris.css' %}" rel="stylesheet" /> -->
+    <link href="{% static 'pcradmin/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css' %}" rel="stylesheet">
+
+    <link href="{% static 'pcradmin/css/style.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'pcradmin/css/materialize.min.css' %}" rel="stylesheet"> -->
+
+    {% block head %}
+    {% endblock %}
+    <link href="{% static 'pcradmin/css/themes/all-themes.css' %}" rel="stylesheet" />
+    <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
+    
+</head>
+
+<body class="theme-cyan">
+    <div class="page-loader-wrapper">
+        <div class="loader">
+            <div class="preloader">
+                <div class="spinner-layer pl-red">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p>Loading...</p>
+        </div>
+    </div>
+    <!-- #END# Page Loader -->
+    <!-- Overlay For Sidebars -->
+    <div class="overlay"></div>
+    <!-- #END# Overlay For Sidebars -->
+    <!-- Top Bar -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
+                <a href="javascript:void(0);" class="bars"></a>
+                <a class="navbar-brand" href="{% url 'pcradmin:index' %}">MessPortal | Oasis'17</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="pull-right"><a href="javascript:void(0);" class="js-right-sidebar" data-close="true"><i class="material-icons">more_vert</i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- #Top Bar -->
+    <section>
+        <!-- Left Sidebar -->
+        <aside id="leftsidebar" class="sidebar">
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="image">
+                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" width="60" height="60" alt="User" />
+                </div>
+                <div class="info-container">
+                    <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><strong>{{request.user.username}}</strong></div>
+                    <div class="email">{{request.user.email}}</div>
+                    <div class="btn-group user-helper-dropdown">
+                        <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">keyboard_arrow_down</i>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="#"><i class="material-icons">person</i>Contacts</a></li>
+                            <li role="seperator" class="divider"></li>
+                            <li><a href="{% url 'pcradmin:user-logout' %}"><i class="material-icons">input</i>Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- #User Info -->
+            <!-- Menu -->
+            <div class="menu">
+                <ul class="list">
+                    <li class="header">MAIN NAVIGATION</li>
+                    <li class="active">
+                        <a href="{% url 'messportal:index' %}">
+                            <i class="material-icons">home</i>
+                            <span>Home</span>
+                        </a>
+                        
+                    </li>
+                    <li class="active">
+                                <a href="{% url 'messportal:add_mess_item' %}">
+                                <!-- <i class="material-icons">home</i> -->
+                                <span>Add Mess Item</span>
+                                </a>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'messportal:add_prof_show' %}">
+                            <span>Add ProfShow</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'messportal:create_mess_bill' %}">
+                            <span>Create Mess Bill</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'messportal:create_profshow_bill' %}">
+                            <span>Create ProfShow Bill</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="javascript:void(0);" class="menu-toggle">
+                            <span>Show Bills</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="{% url 'messportal:view_all_mess_bills' %}"><span>Mess Bills</span></a>
+                            </li>
+                            <li>
+                                <a href="{% url 'messportal:view_all_profshow_bills' %}"><span>ProfShow Bills</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="header">LABELS</li>
+                    <li>
+                        <a href="{% url 'messportal:contacts' %}">
+                            <i class="material-icons col-amber">donut_large</i>
+                            <span>Contacts</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- #Menu -->
+            <!-- Footer -->
+            <div class="legal">
+                <div class="copyright">
+                    &copy; for OASIS'17  <a href="javascript:void(0);">DVM, BITS Pilani</a>
+                </div>
+                <div class="version">
+                    <b>Thanks, </b> AdminBSB
+                </div>
+            </div>
+            <!-- #Footer -->
+        </aside>
+        <!-- #END# Left Sidebar -->
+        <!-- Right Sidebar -->
+        <aside id="rightsidebar" class="right-sidebar">
+            <ul class="nav nav-tabs tab-nav-right" role="tablist">
+                <li role="presentation" class="active"><a href="#settings" data-toggle="tab">SETTINGS</a></li>
+            </ul>
+            <div class="tab-content">
+               
+                <div role="tabpanel" class="tab-pane fade in active in active" id="settings">
+                    <div class="demo-settings">
+                        <p>GENERAL LINKS</p>
+                        <ul class="setting-list">
+                            <li>
+                                <a class="btn btn-block bg-blue waves-effect" href="https://bits-oasis.org">Go to the main site</a>
+                            </li>
+                            <li>
+                                <a class="btn btn-block bg-blue waves-effect" href="https://bits-oasis.org/2017/admin">Admin Login</a>
+                            </li>
+                        </ul>
+                        <p>ACCOUNT SETTINGS</p>
+                        <ul class="setting-list">
+                            <li>
+                                <span>Logout</span>
+                                <div class="switch">
+                                    <label><input type="checkbox" onclick='window.location.assign("{% url 'pcradmin:user-logout' %}")' checked><span class="lever"></span></label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- #END# Right Sidebar -->
+    </section>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="block-header">
+                <h2>DASHBOARD</h2>
+            </div>
+            {% show_tags %}
+            {% block body %}
+            {% endblock %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Jquery Core Js -->
+    <script src="{% static 'pcradmin/plugins/jquery/jquery.min.js' %}"></script>
+
+    <!-- Bootstrap Core Js -->
+    <script src="{% static 'pcradmin/plugins/bootstrap/js/bootstrap.js' %}"></script>
+
+    <!-- Select Plugin Js -->
+    <script src="{% static 'pcradmin/plugins/bootstrap-select/js/bootstrap-select.js' %}"></script>
+
+    <!-- Slimscroll Plugin Js -->
+    <script src="{% static 'pcradmin/plugins/jquery-slimscroll/jquery.slimscroll.js' %}"></script>
+
+    <!-- Waves Effect Plugin Js -->
+    <script src="{% static 'pcradmin/plugins/node-waves/waves.js' %}"></script>
+    <!-- <script src="{% static 'pcradmin/js/materialize.min.js' %}"></script> -->
+
+
+    <script src="{% static 'pcradmin/plugins/jquery-countto/jquery.countTo.js' %}"></script>
+    
+ 
+    <script src="{% static 'pcradmin/js/pages/index.js' %}"></script>
+
+    <!-- Demo Js -->
+    <script src="{% static 'pcradmin/js/demo.js' %}"></script>
+    
+        <!-- Jquery DataTable Plugin Js -->
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/buttons.flash.min.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/jszip.min.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/pdfmake.min.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/vfs_fonts.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'pcradmin/plugins/jquery-datatable/extensions/export/buttons.print.min.js' %}"></script>
+    <script src="{% static 'pcradmin/js/pages/tables/jquery-datatable.js' %}"></script>
+
+    <script src="{% static 'pcradmin/js/admin.js' %}"></script>
+    <script src="{% static 'pcradmin/js/demo.js' %}"></script>
+    <script src="{% static 'pcradmin/js/script.js' %}"></script>
+    
+</body>
+
+</html>

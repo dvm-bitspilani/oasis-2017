@@ -36,9 +36,10 @@ class AttendanceSerializer(serializers.ModelSerializer):
 	
 	participant = ParticipantSerializer(required=True, write_only=True)
 	prof_show = ProfShowSerializer(required=True, write_only=True)
+	prof_show_name = serializers.ReadOnlyField(source='prof_show.name', read_only=True)
 	class Meta:
 		model = Attendance
-		fields = '__all__'
+		fields = ('id', 'participant', 'prof_show', 'count', 'passed_count', 'prof_show_name')
 
 class BaseEventSerializer(serializers.ModelSerializer):
 	category_name = serializers.ReadOnlyField(source='category.name', read_only=True)

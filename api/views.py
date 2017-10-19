@@ -286,7 +286,8 @@ def get_profile(request):
 	event_set = [participation.event for participation in Participation.objects.filter(participant=participant, pcr_approved=True)]
 	event_serializer = EventSerializer(event_set, many=True)
 	participant_serializer = ProfileSerializer(participant, context={'request':request})
-	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data})
+	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
 
 @api_view(['POST', ])
 @permission_classes((IsAuthenticated, ))
