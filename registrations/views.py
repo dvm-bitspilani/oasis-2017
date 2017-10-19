@@ -708,16 +708,15 @@ def resize_uploaded_image(buf, height, width):
 def return_qr(request):
     text = request.GET.get('text')
     qr = generate_qr_code(text)
-    response = HttpResponse(content_type="image/svg+xml")
-    qr.save(response, "SVG")
+    response = HttpResponse(content_type="image/jpeg")
+    qr.save(response, "JPEG")
     return response
 
 def generate_qr_code(data):
 	import qrcode
 	import qrcode.image.svg
 	from PIL import Image
-	factory = qrcode.image.svg.SvgImage	
-	part_code = qrcode.make(data, image_factory=factory)
+	part_code = qrcode.make(data)
 	# part_code = 
 	return part_code
 ########################### END OF HELPER FUNCTIONS ############################33
