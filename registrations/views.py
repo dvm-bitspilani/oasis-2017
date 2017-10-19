@@ -594,7 +594,13 @@ def upload_docs(request):
 	participant = Participant.objects.get(user=request.user)
 	if request.method == 'POST':
 		from django.core.files import File
-		print request.FILES
+		if participant.pcr_approved:
+			context = {
+					'error_heading': "Permission Denied",
+					'message': "You have already been approved by PCr, BITS Pilani as a partcipant. Contact pcr@bits-oasis.org to change your uploads.",
+					'url':request.build_absolute_uri(reverse('registrations:index'))
+					}
+			return render(request, 'registrations/message.html', context)
 		try:
 			image = request.FILES['profile_pic']
 			print 'here'

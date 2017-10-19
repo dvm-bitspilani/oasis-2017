@@ -5,18 +5,21 @@
         <div class="card">
             <div class="header bg-cyan">
                 <h2>
-                    Profile Picture <small>Upload a clear picture here(JPG/JPEG Format)</small>
+                    Profile Picture <small>Upload a clear picture here(JPG/JPEG Format). Cannot be changed once approved by PCr. Cpntact at pcr@bits-oasis.org for correspondence.</small>
                 </h2>
             </div>
             <div class="body">
             {% if image %}
             <img src="{{image_url}}">
             {% endif %}
+            {% if not participant.pcr_approved %}
             <form action="{% url 'registrations:upload_docs' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="profile_pic">
                 <br><br>
+                
                 <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Upload profile picture</button>
+                {% endif %}
             </form>
             </div>
         </div>
@@ -25,18 +28,20 @@
         <div class="card">
             <div class="header bg-cyan">
                 <h2>
-                    Verification documents <small>Upload a clear picture here(JPG/JPEG Format)</small>
+                    Verification documents <small>Upload a clear picture here(JPG/JPEG Format). Cannot be changed once approved by PCr. Cpntact at pcr@bits-oasis.org for correspondence.</small>
                 </h2>
             </div>
             <div class="body">
             {% if docs %}
             <img src="{{docs_url}}">
             {% endif %}
+            {% if not participant.pcr_approved %}
             <form action="{% url 'registrations:upload_docs' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="verify_docs">
                 <br><br>
                 <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Upload verification documents</button>
+                {% endif %}
             </form>
             </div>
         </div>
