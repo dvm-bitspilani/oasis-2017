@@ -300,6 +300,7 @@ def edit_profile(request):
 	participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
 
+@permission_classes((AllowAny,))
 @api_view(['GET',])
 def all_events(request):
 	event_serializer = BaseEventSerializer(Event.objects.all(), many=True)
@@ -312,6 +313,7 @@ def all_prof_shows(request):
 	prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
 	return Response(prof_show_serializer.data)
 
+@permission_classes((AllowAny,))
 @api_view(['GET', ])
 def get_event(request, e_id):
 	event_serializer = EventDetailSerializer(Event.objects.get(id=e_id))
