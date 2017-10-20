@@ -6,6 +6,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
+def index(request):
+    return render(request, 'messportal/index.html')
+
+@staff_member_required
 def add_mess_item(request):
     if request.method == 'POST':
         data = request.POST
@@ -32,6 +36,34 @@ def add_prof_show(request):
     return render(request, 'messportal/add_prof_show.html', {'prof_shows':prof_shows})
 
 @staff_member_required
+def edit_item(request, i_id):
+    item = get_object_or_404(Item, id=i_id)
+    if request.method == 'POST':
+        data = request.POST
+        item.name = data['name']
+        item.price = int(data['price'])
+        item.save()
+        items = Item.objects.all()
+        return render(request, 'messportal/add_mess_item.html', {'items':items})        
+    return render(request, 'messportal/edit_item.html', {'item':item})
+
+@staff_member_required
+def edit_profshow(request, ps_id):
+    profshow = get_object_or_404(ProfShow, id=ps_id)
+    if request.method == 'POST':
+        data = request.POST
+        profshow.name = data['name']
+        profshow.price = int(data['price'])
+        profshow.appcontent = data['app_content']
+        profshow.date = data['date']
+        profshow.venue = data['venue']
+        profshow.contact = data['contact']
+        profshow.save()
+        prof_shows = ProfShow.objects.all()
+        return render(request, 'messportal/add_prof_show.html', {'prof_shows':prof_shows})        
+    return render(request, 'messportal/edit_profshow.html', {'profshow':profshow})
+
+@staff_member_required
 def create_mess_bill(request):
     if request.method == 'POST':
         data = request.POST
@@ -43,37 +75,37 @@ def create_mess_bill(request):
         mess_bill.n2000 = int(data['n_2000'])
         mess_bill.intake = 0
         mess_bill.outtake = 0
-        if data['n_2000']>0:
+        if int(data['n_2000'])>0:
             mess_bill.intake += int(data['n_2000'])*2000
         else:
             mess_bill.outtake -= int(data['n_2000'])*2000
-        mess_bill.n500 = data['n_500']
-        if data['n_500']>0:
+        mess_bill.n500 = int(data['n_500'])
+        if int(data['n_500'])>0:
             mess_bill.intake += int(data['n_500'])*500
         else:
             mess_bill.outtake -= int(data['n_500'])*500
-        mess_bill.n200 = data['n_200']
-        if data['n_200']>0:
+        mess_bill.n200 = int(data['n_200'])
+        if int(data['n_200'])>0:
             mess_bill.intake += int(data['n_200'])*200
         else:
             mess_bill.outtake -= int(data['n_200'])*200
-        mess_bill.n100 = data['n_100']
-        if data['n_100']>0:
+        mess_bill.n100 = int(data['n_100'])
+        if int(data['n_100'])>0:
             mess_bill.intake += int(data['n_100'])*100
         else:
             mess_bill.outtake -= int(data['n_100'])*100
-        mess_bill.n50 = data['n_50']
-        if data['n_50']>0:
+        mess_bill.n50 = int(data['n_50'])
+        if int(data['n_50'])>0:
             mess_bill.intake += int(data['n_50'])*50
         else:
             mess_bill.outtake -= int(data['n_50'])*50
-        mess_bill.n20 = data['n_20']
-        if data['n_20']>0:
+        mess_bill.n20 = int(data['n_20'])
+        if int(data['n_20'])>0:
             mess_bill.intake += int(data['n_20'])*20
         else:
             mess_bill.outtake -= int(data['n_20'])*20
-        mess_bill.n10 = data['n_10']
-        if data['n_10']>0:
+        mess_bill.n10 = int(data['n_10'])
+        if int(data['n_10'])>0:
             mess_bill.intake += int(data['n_10'])*10
         else:
             mess_bill.outtake -= int(data['n_10'])*10
@@ -92,41 +124,41 @@ def create_profshow_bill(request):
         prof_show = ProfShow.objects.get(id=data['prof_show'])
         profshow_bill.prof_show = prof_show
         profshow_bill.buyer_id = 'oasis17' + data['barcode']
-        profshow_bill.quantity = data['count']
+        profshow_bill.quantity = int(data['count'])
         profshow_bill.n2000 = int(data['n_2000'])
         profshow_bill.intake = 0
         profshow_bill.outtake = 0
-        if data['n_2000']>0:
+        if int(data['n_2000'])>0:
             profshow_bill.intake += int(data['n_2000'])*2000
         else:
             profshow_bill.outtake -= int(data['n_2000'])*2000
-        profshow_bill.n500 = data['n_500']
-        if data['n_500']>0:
+        profshow_bill.n500 = int(data['n_500'])
+        if int(data['n_500'])>0:
             profshow_bill.intake += int(data['n_500'])*500
         else:
             profshow_bill.outtake -= int(data['n_500'])*500
-        profshow_bill.n200 = data['n_200']
-        if data['n_200']>0:
+        profshow_bill.n200 = int(data['n_200'])
+        if int(data['n_200'])>0:
             profshow_bill.intake += int(data['n_200'])*200
         else:
             profshow_bill.outtake -= int(data['n_200'])*200
-        profshow_bill.n100 = data['n_100']
-        if data['n_100']>0:
+        profshow_bill.n100 = int(data['n_100'])
+        if int(data['n_100'])>0:
             profshow_bill.intake += int(data['n_100'])*100
         else:
             profshow_bill.outtake -= int(data['n_100'])*100
-        profshow_bill.n50 = data['n_50']
-        if data['n_50']>0:
+        profshow_bill.n50 = int(data['n_50'])
+        if int(data['n_50'])>0:
             profshow_bill.intake += int(data['n_50'])*50
         else:
             profshow_bill.outtake -= int(data['n_50'])*50
-        profshow_bill.n20 = data['n_20']
-        if data['n_20']>0:
+        profshow_bill.n20 = int(data['n_20'])
+        if int(data['n_20'])>0:
             profshow_bill.intake += int(data['n_20'])*20
         else:
             profshow_bill.outtake -= int(data['n_20'])*20
-        profshow_bill.n10 = data['n_10']
-        if data['n_10']>0:
+        profshow_bill.n10 = int(data['n_10'])
+        if int(data['n_10'])>0:
             profshow_bill.intake += int(data['n_10'])*10
         else:
             profshow_bill.outtake -= int(data['n_10'])*10
@@ -135,10 +167,18 @@ def create_profshow_bill(request):
         profshow_bill.save()
 
         barcode = 'oasis17' + data['barcode']
-        participant = Participant.objects.get(barcode=barcode)
+        try:
+            participant = Participant.objects.get(barcode=barcode)
+        except:
+            context = {
+                'error_heading':'No match found',
+                'message':'Participant does not exist.',
+                'url':request.build_absolute_uri('messportal:index')
+            }
+            return render(request, 'registrations/message.html', context)
         try:
             attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-            attendance.count += data['count']
+            attendance.count += int(data['count'])
             attendance.save()
         except:
             attendance = Attendance()
@@ -154,7 +194,7 @@ def create_profshow_bill(request):
 
 @staff_member_required
 def view_all_mess_bills(request):
-    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.item.name, bill.mess,Participant.objects.get(barcode='oasis17'+bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:mess_bill_details', kwargs={'mb_id':bill.id}))}]} for bill in MessBill.objects.all()]
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.item.name, bill.mess,Participant.objects.get(barcode=bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:mess_bill_details', kwargs={'mb_id':bill.id}))}]} for bill in MessBill.objects.all()]
     headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Item', 'Mess', 'Participant Name', 'View Details']
     title = 'Mess Bill Details'
     table = {
@@ -166,7 +206,7 @@ def view_all_mess_bills(request):
 
 @staff_member_required
 def view_all_profshow_bills(request):
-    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.prof_show.name, Participant.objects.get(barcode='oasis17'+bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:profshow_bill_details', kwargs={'ps_id':bill.id}))}]} for bill in ProfShowBill.objects.all()]
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.prof_show.name, Participant.objects.get(barcode=bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:profshow_bill_details', kwargs={'ps_id':bill.id}))}]} for bill in ProfShowBill.objects.all()]
     headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Prof Show', 'Participant Name', 'View Details']
     title = 'Prof Show Bill Details'
     table = {
@@ -194,8 +234,7 @@ def mess_bill_receipt(request, mb_id):
     bill = get_object_or_404(MessBill, id=mb_id)
     participant = Participant.objects.get(barcode = bill.buyer_id)
     time = datetime.now()
-    number = MessBill.objects.count() + 1
-    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant, 'time':time, 'number':number})
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant, 'time':time,})
 
 @staff_member_required
 def profshow_bill_receipt(request, ps_id):
@@ -203,8 +242,7 @@ def profshow_bill_receipt(request, ps_id):
     bill = get_object_or_404(ProfShowBill, id=ps_id)
     participant = Participant.objects.get(barcode = bill.buyer_id)
     time = datetime.now()
-    number = ProfShowBill.objects.count() + 1
-    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'profshow':True, 'participant':participant, 'time':time, 'number':number})
+    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'profshow':True, 'participant':participant, 'time':time, })
 
 @staff_member_required
 def delete_mess_bill(request, mb_id):

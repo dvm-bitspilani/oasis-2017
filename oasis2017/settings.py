@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'wordwars.middleware.WordWarsMiddleware',
+    'messportal.middleware.MessPortalMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
+    'messportal.middleware.MessPortalMiddleware',
     'wordwars.middleware.WordWarsMiddleware',
 ]
 

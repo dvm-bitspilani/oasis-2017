@@ -342,10 +342,7 @@ def add_profshow(request):
 	except:
 		return Response({'message':'Please check barcode of Participant'})
 	try:
-		print 'Here'
 		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-		print 'Here'
-		print attendance.count
 		attendance.count += int(data['count'])
 		attendance.save()
 	except:

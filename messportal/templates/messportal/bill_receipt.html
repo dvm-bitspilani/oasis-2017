@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    {% load static %}
     <meta charset="utf-8">
     {% if mess %}
     <title>Mess Bill Receipt</title>
@@ -86,6 +87,7 @@
         }
     }
     </style>
+    <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
 </head>
 
 <body>
@@ -96,11 +98,11 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:300px;">
+                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
                             </td>
                             
                             <td>
-                                Invoice #: {{number}}<br>
+                                Invoice #: {{bill.id}}<br>
                                 Created: {{time}}
                             </td>
                         </tr>
@@ -180,11 +182,11 @@
                         <table>
                             <tr>
                                 <td class="title">
-                                    <img src="http://nextstepwebs.com/images/logo.png" style="width:100%; max-width:300px;">
+                                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
                                 </td>
                                 
                                 <td>
-                                    Invoice #: {{number}}<br>
+                                    Invoice #: {{bill.id}}<br>
                                     Created: {{time}}
                                 </td>
                             </tr>

@@ -4,7 +4,7 @@
 {% block body %}
 
 
-<form method="POST" action="{% url 'regsoft:create_bill' g_leader.id %}">
+<form method="POST" action="{% url 'messportal:create_profshow_bill' %}">
         {% csrf_token %}
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">

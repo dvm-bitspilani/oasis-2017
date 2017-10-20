@@ -1,56 +1,57 @@
 {% extends 'messportal/base.html' %}
 {% block body %}
 
-<form method="POST" action="{% url 'messportal:add_prof_show' g_leader.id %}">
-    {% csrf_token %}
-<div class="row clearfix">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="card">
-            <div class="header">
-                <h2>
-                    Add details to add a new prof show.
-                </h2>
-            </div>
+<form method="POST" action="{% url 'messportal:add_prof_show' %}">
+        {% csrf_token %}
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        Add Prof Show
+                    </h2>
+                </div>
 
-        <div class="body">
-        <label for="name">Name</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="text" id="name" class="form-control" placeholder="Name of ProfShow" name="name">
+<div class="body">
+            <label for="name">Enter ProfShow Name</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="name" class="form-control" placeholder="ProfShow Name" name="name">
+                </div>
             </div>
-        </div>
-        <label for="price">Price</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="number" id="price" class="form-control" placeholder="Price of ProfShow" name="price">
+            <label for="price">Price</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="number" id="price" class="form-control" placeholder="ProfShow Price" name="price" value=0>
+                </div>
             </div>
-        </div>
-        <label for="app_content">App Content</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="text" id="app_content" class="form-control" placeholder="AppContent" name="app_content">
+            <label for="app_content">App Content</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="app_content" class="form-control" placeholder="App Content" name="app_content" value=''>
+                </div>
             </div>
-        </div>
-        <label for="date">Date</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="text" id="date" class="form-control" placeholder="Date of ProfShow" name="date">
+            <label for="date">Date</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="date" class="form-control" placeholder="DD/MM/YYYY" name="date" value='TBA'>
+                </div>
             </div>
-        </div>
-        <label for="venue">Venue</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="text" id="venue" class="form-control" placeholder="Venue of ProfShow" name="venue">
+            <label for="venue">Venue</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="venue" class="form-control" placeholder="ProfShow Venue" name="venue" value='TBA'>
+                </div>
             </div>
-        </div>
-        <label for="contact">Contact</label>
-        <div class="form-group">
-            <div class="form-line">
-                <input type="text" id="contact" class="form-control" placeholder="Contact for ProfShow" name="contact">
+            <label for="contact">Contact</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="contact" class="form-control" placeholder="ProfShow Contact" name="contact" value=''>
+                </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add prof show</button>
-    </form>
+            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add item</button>
+        </form>
+</div>
 </div>
 </div>
 </div>
@@ -66,7 +67,7 @@
             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th>Name(Edit)</th>
                         <th>Price</th>
                         <th>Venue</th>
                         <th>Contact</th>
@@ -75,7 +76,7 @@
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Name</th>
+                        <th>Name(Edit)</th>
                         <th>Price</th>
                         <th>Venue</th>
                         <th>Contact</th>
@@ -85,7 +86,7 @@
                 <tbody>
                     {% for show in prof_shows %}
                     <tr>
-                        <td>{{show.name}}</td>
+                        <td><a href="{% url 'messportal:edit_profshow' show.id %}">{{show.name}}</a></td>
                         <td>{{show.price}}</td>
                         <td>{{show.venue}}</td>
                         <td>{{show.contact}}</td>
@@ -98,4 +99,4 @@
     </div>
 </div>
 </div>
-{% endblock }
+{% endblock %}
