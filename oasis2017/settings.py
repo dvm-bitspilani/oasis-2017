@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 from keyconfig import *
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'regsoft',
     'pcradmin',
     'ems',
+    'messportal',
     'rest_framework',
     'tarang',
     'wordwars',
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'wordwars.middleware.WordWarsMiddleware',
+    'messportal.middleware.MessPortalMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -64,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'regsoft.middleware.RegsoftMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
+    'messportal.middleware.MessPortalMiddleware',
     'wordwars.middleware.WordWarsMiddleware',
 ]
 
@@ -84,6 +88,23 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA':datetime.timedelta(seconds=600),
+    'JWT_ALLOW_REFRESH':True,
+    'JWT_REFRESH_EXPIRATION_DELTA':datetime.timedelta(days=30),
+}
 
 WSGI_APPLICATION = 'oasis2017.wsgi.application'
 

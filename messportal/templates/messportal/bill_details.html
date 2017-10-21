@@ -1,0 +1,98 @@
+{% extends 'messportal/base.html' %}
+
+{% block body %}
+<div class="row clearfix">
+<div class="card">
+    <div class="header">
+        <h2>
+            Bill details for {{participant.name}}
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Determinant</th>
+                        <th>Value</th>
+                </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Determinant</th>
+                        <th>Value</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{participant.name}}</td>
+                    </tr>
+                    <tr>
+                        {% if mess %}
+                        <td>Item</td>
+                        <td>{{bill.item.name}}</td>
+                        {% elif profshow %}
+                        <td>ProfShow</td>
+                        <td>{{bill.prof_show.name}}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Quantity</td>
+                        <td>{{bill.quantity}}</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>{{bill.amount}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Two Thousands</td>
+                        <td>{{bill.n2000}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Five Hundreds</td>
+                        <td>{{bill.n500}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Two Hundreds</td>
+                        <td>{{bill.n200}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Hundreds</td>
+                        <td>{{bill.n100}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Fifties</td>
+                        <td>{{bill.n50}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Twenties</td>
+                        <td>{{bill.n20}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Tens</td>
+                        <td>{{bill.n10}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total intake</td>
+                        <td>{{bill.intake}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total outtake</td>
+                        <td>{{bill.outtake}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if mess %}
+    <a href="{% url 'messportal:mess_bill_receipt' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
+    <a href="{% url 'messportal:delete_mess_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
+    {% elif profshow %}
+    <a href="{% url 'messportal:profshow_bill' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
+    <a href="{% url 'messportal:delete_profshow_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

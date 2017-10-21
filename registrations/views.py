@@ -26,7 +26,7 @@ try:
 	from oasis2017.config import *
 	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN)
 except:
-	api = Instamojo(api_key=INSTA_API_KEY_test, auth_token=AUTH_TOKEN_test, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 def home(request):
 	if request.method == 'POST':
@@ -594,7 +594,13 @@ def upload_docs(request):
 	participant = Participant.objects.get(user=request.user)
 	if request.method == 'POST':
 		from django.core.files import File
-		print request.FILES
+		if participant.pcr_approved:
+			context = {
+					'error_heading': "Permission Denied",
+					'message': "You have already been approved by PCr, BITS Pilani as a partcipant. Contact pcr@bits-oasis.org to change your uploads.",
+					'url':request.build_absolute_uri(reverse('registrations:index'))
+					}
+			return render(request, 'registrations/message.html', context)
 		try:
 			image = request.FILES['profile_pic']
 			print 'here'
@@ -708,16 +714,15 @@ def resize_uploaded_image(buf, height, width):
 def return_qr(request):
     text = request.GET.get('text')
     qr = generate_qr_code(text)
-    response = HttpResponse(content_type="image/svg+xml")
-    qr.save(response, "SVG")
+    response = HttpResponse(content_type="image/jpeg")
+    qr.save(response, "JPEG")
     return response
 
 def generate_qr_code(data):
 	import qrcode
 	import qrcode.image.svg
 	from PIL import Image
-	factory = qrcode.image.svg.SvgImage	
-	part_code = qrcode.make(data, image_factory=factory)
+	part_code = qrcode.make(data)
 	# part_code = 
 	return part_code
 ########################### END OF HELPER FUNCTIONS ############################33

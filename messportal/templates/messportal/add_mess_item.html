@@ -1,0 +1,71 @@
+{% extends 'messportal/base.html' %}
+{% block body %}
+
+<form method="POST" action="{% url 'messportal:add_mess_item' %}">
+        {% csrf_token %}
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        Add Mess Item
+                    </h2>
+                </div>
+
+<div class="body">
+            <label for="name">Enter Item Name</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="name" class="form-control" placeholder="Item Name" name="name">
+                </div>
+            </div>
+            <label for="price">Price</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="number" id="price" class="form-control" placeholder="Item Price" name="price" value=0>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add item</button>
+        </form>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+    <div class="header">
+        <h2>
+            Added Items
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            
+            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                <thead>
+                    <tr>
+                        <th>Name(Edit)</th>
+                        <th>Price</th>
+                </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name(Edit)</th>
+                        <th>Price</th> 
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td><a href="{% url 'messportal:edit_item' item.id %}">{{item.name}}</a></td>
+                        <td>{{item.price}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}
