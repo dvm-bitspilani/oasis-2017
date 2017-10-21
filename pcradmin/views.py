@@ -491,6 +491,11 @@ def final_email_send(request, eg_id):
 		attachment = Attachment()
 		attachment.content = encoded_string1
 		attachment.name = 'Confirmed Participants'
+	with open(_dir+'Instructions_to_Participants', 'rb') as output_doc:
+		encoded_string2 = base64.b64encode(output_doc.read())
+		attachment_1 = Attachment()
+		attachment_1.content = encoded_string2
+		attachment_1.name = 'Instructions to Participants.docx'
 	body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
 			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
@@ -524,6 +529,7 @@ pcr@bits-oasis.org
 		try:
 			mail = Mail(from_email, subject, to_email, content)
 			mail.add_attachment(attachment)
+			mail.add_attachment(attachment_1)
 			response = sg.client.mail.send.post(request_body=mail.get())
 			messages.warning(request,'Email sent to ' + part.name)
 			part.pcr_final=True
