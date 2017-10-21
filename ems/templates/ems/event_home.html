@@ -1,6 +1,79 @@
 {% extends 'ems/base.html' %}
 
 {% block body %}
+<div class="row clearfix">
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<label class='error' for='answer' generated="true">{{message}}</label>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+
+
+{% if winners %}
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        Winners
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <form action="{% url 'ems:event_home' event.id %}" method="post">
+                        {% csrf_token %}
+                        <table class="table table-bordered table-striped table-hover dataTable">
+                            <thead>
+                                <tr> 
+                                    <th>S.no.</th>                                   
+                                    <th>Name</th>
+                                    <th>Leader</th>
+                                    <th>Total Score</th>
+                                    <td>Select</td>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>S.no.</th>                                   
+                                    <th>Name</th>
+                                    <th>Leader</th>
+                                    <th>Total Score</th>   
+                                    <td>Select</td>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for team in winners %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{team.team.name}}</td>
+                                    {% if team.team.leader %}
+                                    <td>{{team.team.leader}}</td>
+                                    {% else %}
+                                    <td>{{team.team.leader_bitsian}}</td>
+                                    {% endif %}
+                                    <td>{{team.score}}</td>
+                                    <td><input type="checkbox" name="team_list" id="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="remove-winners" name="submit">Remove Winner</button>
+
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+
+
+
+
 {% if tables %}
 {% for table in tables %}
 <div class="row clearfix">
@@ -9,14 +82,14 @@
             <div class="card">
                 <div class="header">
                     <h2>
-                        Level {{table.p}}
+                        Level {{table.level}}
                     </h2>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
-                        <form action="" method="post">
+                        <form action="{% url 'ems:event_home' event.id %}" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="position" value="{{table.p}}">
+                        <input type="hidden" name="position" value="{{table.level}}">
                         <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr> 
@@ -39,21 +112,27 @@
                             <tbody>
                                 {% for team in table.teams %}
                                 <tr>
-                                    <td>{{forlooop.counter}}</td>
+                                    <td>{{forloop.counter}}</td>
                                     <td>{{team.team.name}}</td>
                                     {% if team.team.leader %}
-                                    <td>{{team.team.leader</td>
+                                    <td>{{team.team.leader}}</td>
                                     {% else %}
                                     <td>{{team.team.leader_bitsian}}</td>
                                     {% endif %}
                                     <td>{{team.score}}</td>
-                                    <td><input type="checkbox" name="team_list" id="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
+                                    <td><input type="checkbox" name="team_list" id="{{team.team.id}}" value="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
+                        {% if not forloop.first %}
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="Promote" name="submit">Promote</button>
-						<button type="submit" class="btn btn-primary m-t-15 waves-effect" value="Demote" name="submit">Demote</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="add-winners" name="submit">Select Winners</button>
+                        {% endif %}
+                        {% if not forloop.last %}
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect" value="Demote" name="submit">Demote</button>
+                        {% endif %}
 
                         </form>
                     </div>

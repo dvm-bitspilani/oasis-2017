@@ -8,10 +8,10 @@ from registrations.models import *
 class Team(models.Model):
     name = models.CharField(max_length=200, default='')
     members = models.ManyToManyField('registrations.Participant')
-    leader = models.OneToOneField('registrations.Participant', related_name='team_leader', null=True)
+    leader = models.ForeignKey('registrations.Participant', related_name='team_leader', null=True)
     members_bitsian = models.ManyToManyField('ems.Bitsian')
-    leader_bitsian = models.OneToOneField('ems.Bitsian', related_name='bitsian_leader', null=True)
-    event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
+    leader_bitsian = models.ForeignKey('ems.Bitsian', related_name='bitsian_leader', null=True)
+    event = models.ForeignKey('events.Event', on_delete=models.CASCADE, null=True)
     rank = models.PositiveSmallIntegerField(default=0)
     is_winner = models.BooleanField(default=False)
     is_finalist = models.BooleanField(default=False)
@@ -21,21 +21,22 @@ class Team(models.Model):
         return self.name
 
 class ClubDepartment(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=200)
     co_ordinator = models.CharField(max_length=200)
     phone = models.BigIntegerField(default=0)
     email_id = models.EmailField()
     events = models.ManyToManyField('events.Event', blank=True)
-    
+    password = models.CharField(max_length=20, null=True, blank=True)
     
     def __unicode__(self):
         return self.name + '-' + self.co_ordinator
 
 class Judge(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=200, default='')
     event = models.ForeignKey('events.Event', null=True, blank=True)
+    password = models.CharField(max_length=20, null=True, blank=True)
 
     def __unicode__(self):
         return self.name + '-' + self.event.name 
@@ -63,6 +64,9 @@ class Bitsian(models.Model):
     long_id = models.CharField(max_length=20, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
     ems_code = models.CharField(max_length=10, null=True, blank=True)
+    gender = models.CharField(max_length=1, null=True, blank=True)
+    email = models.EmailField(null=True)
+
     def __unicode__(self):
 		return str(self.long_id) + str(self.name)
 
@@ -70,30 +74,51 @@ class Score(models.Model):
     is_frozen = models.BooleanField(default=False)
     level = models.ForeignKey('ems.Level', null=True)
     team = models.ForeignKey('ems.Team', related_name='scores', null=True)
-    score = models.CharField(max_length=500, default="{}") # dictionary with keys related to Parameter's id and values to score in that parameter
+    score = models.CharField(max_length=500, default="{}") # eg. {judge_id1:{parameter_id1:score, parameter_id2:score},
+                                                           # judge_id2:{parameter_id1:score, parameter_id2:score}}
     total_score = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return str(self.team.name) + ' - ' +str(self.level.event.name) + ' - ' + str(self.level.position)
 
-    def get_socre(self):
+    def get_score(self):
         return eval(self.score)
 
     def get_score_p(self, p_id):
-        return eval(self.score)[p_id]
+        score_dict = eval(self.score)
+        x=0
+        for i in score_dict:
+            x+=score_dict[i][p_id]
+        return x
 
-    def save(self):
+    def get_score_j(self, j_id):
+        score_dict = eval(self.score)
+        return score_dict[j_id]
+
+    def get_score_j_p(self, j_id, p_id):
+        score_dict = eval(self.score)
+        return score_dict[j_id][p_id]
+
+    def save(self, *args, **kwargs):
         parameters = self.level.parameter_set.all()
-        socre_str = self.score
-        if score_str == None:
+        judges = self.level.event.judge_set.all()
+        score_str = self.score
+        if not score_str:
             score = {}
         else:
             score = eval(score_str)
-        for p in parameters:
-            score.setdefault(p.id,0)
+        for j in judges:
+            score.setdefault(j.id, {})
+            s = score[j.id]
+            for p in parameters:
+                s.setdefault(p.id, 0)
+            score[j.id] = s
         self.score = str(score)
         super(Score, self).save(*args, **kwargs)
 
     def get_total_score(self):
-        return sum(eval(self.score).values())
-
+        score_dict = eval(self.score)
+        x=0
+        for i in score_dict.keys():
+            x+=sum(score_dict[i].values())
+        return x

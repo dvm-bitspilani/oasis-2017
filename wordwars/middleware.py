@@ -14,7 +14,7 @@ class WordWarsMiddleware(object):
 
 	def process_view(self, request, view_func, view_args, view_kwargs):
 
-		if 'admin' in request.path:
+		if 'admin' in request.path and request.user.is_superuser:
 			return None
 
 		if 'wordwars' in request.path:

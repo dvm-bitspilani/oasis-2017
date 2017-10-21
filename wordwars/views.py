@@ -21,7 +21,7 @@ def home(request):
 		context['player'] = Player.objects.get(user=user)
 	return render(request, 'wordwars/index.html', context)
 
-@login_required(login_url='/wordwars')
+@login_required(login_url=reverse_lazy('wordwars:login'))
 def play(request, day=None):
 	user = request.user
 	player = Player.objects.get(user=user)

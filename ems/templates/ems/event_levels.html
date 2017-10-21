@@ -1,9 +1,56 @@
 {% extends 'ems/base.html' %}
 
 {% block body %}
-<button type="button" class="btn btn-primary btn-circle-lg waves-effect waves-circle waves-float"  onclick='window.location.assign("{% url 'ems:add_level' event.id %}")'>
-                                    <i class="material-icons">add</i>
-                                </button>
+
+
+
+<div class="row clearfix">
+ {% if messages %}
+<div class="body">
+{% for message in messages %}
+<label class='error' for='answer' generated="true">{{message}}</label>
+{% endfor %}
+</div>
+{% endif %}
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+        <form action="{% url 'ems:add_level' event.id %}" method="post">
+        {% csrf_token %}
+            <div class="header">
+            <h2>Add Level</h2>
+            </div>
+            <div class="body">
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="name" id="name" placeholder="Level Name" class="form-control" required><label for="name">Level Name</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" class="form-control" required name="parameters" placeholder="Name of the parameters separated by '?'" id="parameters"><label for="parameters">Parameters</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="values" id="values" class="form-control" required placeholder="Max-Values for the above parameters respectively separated by '?'"><label for="values">Values</label>
+                    </div>
+                </div>
+                <div class="row">
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit">Add Level</button>
+                        </div>
+                </div>
+            </div>
+        </form>
+        </div>
+            
+
+        </div>
+    </div>
+
+
+
+
 {% if levels %}
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -36,7 +83,7 @@
                             <tbody>
                                 {% for level in levels %}
                                 <tr>
-                                    <td>{{forlooop.counter}}</td>
+                                    <td>{{forloop.counter}}</td>
                                     <td>{{level.name}}</td>
                                     <td>{{level.position}}</td>
                                     <td><a href="#">Select</a></td>

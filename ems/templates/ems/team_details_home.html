@@ -1,11 +1,53 @@
 {% extends 'ems/base.html' %}
 
 {% block body %}
+
+
+
+<div class="row clearfix">
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<label class='error' for='answer' generated="true">{{message}}</label>
+{% endfor %}
+</div>
+{% endif %}
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+        <div class="body">
+        <form action="{% url 'ems:add_team' event.id%}" method="post">
+        {% csrf_token %}
+            <div class="header">
+            <h2>Add Teams</h2>   
+            </div>
+            <div class="body">
+            <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="teams" placeholder="Enter ',' separated Ems codes for the Participants and '?' to add multiple teams" class="form-control" id="teams"><label for="name">Add Teams</label>
+                    </div>
+            </div>
+            <div class="row">
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit">Submit</button>
+                        </div>
+            </div>
+            </div>
+
+        </div>
+        </form>
+        </div>
+
+        </div>
+    </div>
+
+
+
+
+{% if teams %}
+
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-<button onclick='window.location.assign("{% url 'ems:add_team' event.id %}")' class="btn btn-primary m-t-15 waves-effect">Add Teams</button>
-<br><br>
-        {% if teams %}
+        
             <div class="card">
                 <div class="header">
                     <h2>
@@ -36,12 +78,12 @@
                             <tbody>
                                 {% for team in teams %}
                                 <tr>
-                                    <td>{{forlooop.counter}}</td>
+                                    <td>{{forloop.counter}}</td>
                                     <td>{{team.name}}</td>
                                     {% if team.leader %}
-                                    <td>{{team.leader</td>
+                                    <td>{{team.leader}}</td>
                                     {% else %}
-                                    <td>{{team.leader_bitsian}}</td>
+                                    <td>b-{{team.leader_bitsian}}</td>
                                     {% endif %}
                                     <td>{{team.level}}</td>
                                     <td><button onclick='window.location.assign("{% url 'ems:team_details' event.id team.id %}")' class="btn btn-primary m-t-15 waves-effect">View</button></td>
@@ -58,7 +100,7 @@
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                 No teams in this event. Click on Add Team.
             </div>
-            {% endif %}
         </div>
     </div>
+{% endif %}
 {% endblock %}

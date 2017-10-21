@@ -1,0 +1,118 @@
+{% extends 'ems/base1.html' %}
+
+{% block body %}
+{% load ems_tags %}
+<div class="row clearfix">
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<label class='error' for='answer' generated="true">{{message}}</label>
+{% endfor %}
+</div>
+{% endif %}
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+        <form action="{% url 'ems:add_cd' %}" method="post">
+        {% csrf_token %}
+            <div class="header">
+            <h2>Add Clubs/Departments</h2>
+            </div>
+            <div class="body">
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="name" id="name" placeholder="Name" class="form-control" required><label for="name"></label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="co_ordinator" id="co_ordinator" placeholder="Co-Oridnator" class="form-control" required><label for="co_ordinator"></label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="email" id="email" placeholder="Email" class="form-control" required><label for="email"></label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="phone" id="phone" placeholder="Phone No." class="form-control" required><label for="phone"></label>
+                    </div>
+                </div>
+                <select class="form-control show-tick" name="event_ids" data-live-search="true" multiple>
+                    {% for event in events %}
+                        <option value="{{event.id}}">{{event.name}}</option>        
+                    {% endfor %}
+                        <option value="">None</option>
+                </select>
+                <br><br>
+                <div class="row">
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name='submit' value="add">Submit</button>
+                        </div>
+                </div>
+            </div>
+        </form>
+        </div>
+            
+
+        </div>
+    </div>
+
+{% if cds %}
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Club n Departments<h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <form action="{% url 'ems:add_cd' %}" method="post">
+                        {% csrf_token %}
+                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Events</th>
+                                    <th>Co-Oridnator</th>
+                                    <th>Username</th>
+                                    <th>Pasword</th>
+                                    <th>Select</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Events</th>
+                                    <th>Co-Oridnator</th>
+                                    <th>Username</th>
+                                    <th>Pasword</th> 
+                                    <th>Select</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                {% for cd in cds %}
+                                <tr>
+                                    <td>{{cd.name}}</td>
+                                    <td>{% get_events cd %}</td>
+                                    <td>{{cd.co_ordinator}}</td>
+                                    <td>{{cd.user.username}}</td>
+                                    <td>{{cd.password}}</td>
+                                    <td><input type="checkbox" name="cd_id" id="{{cd.id}}" value="{{cd.id}}"><label for="{{cd.id}}"></label></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="row">
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="delete">Delete</button>
+                        </div>
+                </div>
+                </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
