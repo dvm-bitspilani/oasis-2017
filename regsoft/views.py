@@ -252,6 +252,10 @@ def manage_vacancies(request, r_id):
     if request.method == 'POST':
         data = request.POST
         try:
+            note = data['note']
+        except:
+            messages.warning(request, 'Please add a note.')
+        try:
             room.vacancy = data['vacancy']
             room.save()
         except:
@@ -261,13 +265,18 @@ def manage_vacancies(request, r_id):
             room.save()
         except:
             pass
-        return redirect(reverse('regsoft:room_details'))
+        re_note = Note()
+        re_note.note = note
+        re_note.room = room
+        re_note.save()
+        return redirect(reverse('regsoft:recnacc_bhavans'))
     else:
-        return render(request, 'regsoft/manage_vacanacies.html', {'room':room})
+        notes = room.note_set.all()
+        return render(request, 'regsoft/manage_vacancies.html', {'room':room, 'notes':notes})
 
 @staff_member_required
 def recnacc_bhavans(request):
-    rows =[{'data':[bhavan.name, reduce(lambda x,y:x+y.vacancy, bhavan.room_set.all(), 0),], 'link':[{'title':'Details', 'url':reverse('regsoft:bhavan_details', kwargs={'b_id':bhavan.id})},] } for bhavan in Bhavan.objects.all()]
+    rows =[{'data':[bhavan.name, reduce(lambda x,y:x+y.vacancy, bhavan.room_set.all(), 0),], 'link':[{'title':'Details', 'url':request.build_absolute_uri(reverse('regsoft:bhavan_details', kwargs={'b_id':bhavan.id}))},] } for bhavan in Bhavan.objects.all()]
     headings = ['Bhavan', 'Vacancy', 'Room-wise details']
     tables = [{'title':'All Bhavans', 'headings':headings, 'rows':rows}]
     return render(request,'regsoft/tables.html', {'tables':tables})
@@ -275,8 +284,8 @@ def recnacc_bhavans(request):
 @staff_member_required
 def bhavan_details(request, b_id):
 	bhavan = Bhavan.objects.get(id=b_id)
-	rows = [{'data':[room.room, room.vacancy, room.capacity], 'link':[]} for room in bhavan.room_set.all()]
-	headings = ['Room', 'Vacancy', 'Capacity']
+	rows = [{'data':[room.room, room.vacancy, room.capacity], 'link':[{'title':'Details', 'url':request.build_absolute_uri(reverse('regsoft:manage_vacancies', kwargs={'r_id':room.id}))},]} for room in bhavan.room_set.all()]
+	headings = ['Room', 'Vacancy', 'Capacity', 'Manage Vacancies']
 	tables = [{'title': 'Details for ' + bhavan.name + ' bhavan', 'headings':headings, 'rows':rows}]
 	return render(request, 'regsoft/tables.html', {'tables':tables})
 

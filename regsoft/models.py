@@ -40,3 +40,9 @@ class Bill(models.Model):
 	twenties_returned = models.IntegerField(null=True, blank=True, default=0)
 	tens_returned = models.IntegerField(null=True, blank=True, default=0)
 	coaches_list = models.CharField(max_length=200, null=True, blank=True)
+
+class Note(models.Model):
+
+	time = models.DateTimeField(auto_now=True, null=True)
+	room = models.ForeignKey(Room, on_delete=models.CASCADE)
+	note = models.CharField(max_length=100)
