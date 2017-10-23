@@ -6,22 +6,36 @@
         <div class="card">
             <div class="header">
                 <h2>
-                    {{team.name}} -- {% if team.leader %}<td>{{team.leader</td>{% else %}
+                    {{team.name}} -- {% if team.leader %}<td>{{team.leader}}</td>{% else %}
                                     <td>{{team.leader_bitsian}}</td>
                                     {% endif %}
 
                 </h2>
             <div class="body">
                 <ul class="list-group">
-                    {% for member in team.members %}
-                    <li>{{member.name}} -- {{member.barcode}}</li>
+                    {% for member in members %}
+                    <li>{{member.name}} -- {{member.ems_code}}</li>
                     {% endfor %}
-                    {% for member in team.members_bitsian %}
+                    {% for member in bitsians %}
                     <li>{{member.name}} -- {{member.long_id}}</li>
                     {% endfor %}
-                </ul>                
+                </ul>           
             </div>
+            <form action="{% url 'ems:team_details' event.id team.id %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                    <div class="form-line">
+                        <input type="text" name="teams" placeholder="Enter  ' , '  separated Ems codes for the Participants to add members" class="form-control" id="teams"><label for="name">Add Members</label>
+                    </div>
             </div>
+            <div class="row">
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="add">Submit</button>
+                        </div>
+            </div>
+            </form>
+            </div>
+
         </div>
             <div class="card">
                 <div class="header">

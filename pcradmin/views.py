@@ -478,15 +478,14 @@ def final_email_send(request, eg_id):
 	try:
 		_dir = '/root/live/oasis/backend/resources/oasis2017/'
 		doc_name = _dir + 'final_list.pdf'
-		a=create_final_pdf(eg_id, doc_name)
-	except:
-		_dir = '/home/auto-reload/Desktop/'
+		a=create_final_pdf(eg_id, doc_name, _dir)
+	except OSError:
+		_dir = '/home/tushar/'
 		doc_name = _dir + 'final_list.pdf'
-		a=create_final_pdf(eg_id, doc_name)
-	
+		a=create_final_pdf(eg_id, doc_name, _dir)
 	import base64
 
-	with open(doc_name, "rb") as output_pdf:
+	with open(a, "rb") as output_pdf:
 		encoded_string1 = base64.b64encode(output_pdf.read())
 		attachment = Attachment()
 		attachment.content = encoded_string1
@@ -518,6 +517,8 @@ Dept. of Publications & Correspondence, OASIS 2017
 BITS Pilani
 %s
 pcr@bits-oasis.org
+
+<b>Please reply to this email with number of people, if you require conveyance to or from Loharu and the timings for it.</b>
 </pre>
 			""" %(part.name,get_pcr_number())   
 	subject = 'Final Confirmation for Oasis'
@@ -543,9 +544,18 @@ pcr@bits-oasis.org
 
 @staff_member_required
 def download_pdf(request, eg_id):
-	response = HttpResponse(content_type='application/pdf')
+	try:
+		_dir = '/root/live/oasis/backend/resources/oasis2017/'
+		doc_name = _dir + 'final_list.pdf'
+		a=create_final_pdf(eg_id, doc_name, _dir)
+	except:
+		_dir = '/home/tushar/'
+		doc_name = _dir + 'final_list.pdf'
+		a=create_final_pdf(eg_id, doc_name, _dir)
+	pdf = open(a, 'rb')
+	response = HttpResponse(content_type='application/pdf', content=pdf)
 	response['Content-Disposition'] = 'attachment; filename="final_list.pdf"'
-	return create_final_pdf(eg_id, response)
+	return response
 
 ###################################    Send final email ###################################
 # def send_final_email
@@ -596,24 +606,49 @@ def how_much_paid(part):
 		return 300
 	return 0
 
-def create_final_pdf(eg_id, response):
+def create_final_pdf(eg_id, response, _dir):
 	email_group = EmailGroup.objects.get(id=eg_id)
-	from reportlab.platypus import SimpleDocTemplate
 	from reportlab.platypus.tables import Table
+	from reportlab.lib import colors
+	from reportlab.lib.units import inch
+	from reportlab.lib.pagesizes import letter
+	from reportlab.platypus import SimpleDocTemplate, Spacer, Table, TableStyle
 	elements = []
-	doc = SimpleDocTemplate(response, rightMargin=6.5*2.54, leftMargin=6.5*2.54, topMargin=0.3*2.54, bottomMargin=0)
-	data = []
+	doc = SimpleDocTemplate(response, pagesize=letter)
+	data = [('Name', 'Events', 'Payment')]
 	for part in email_group.participant_set.all():
 		events = ''
 		for participation in Participation.objects.filter(participant=part, pcr_approved=True):
 			events += participation.event.name + ', '
 		events = events[:-2]
 		amount = how_much_paid(part)
-		data.append(('', part.name, events, amount))
-	table = Table(data, colWidths=270, rowHeights=79)
-	elements.append(table)
-	doc.build(elements)
-	return response
+		data.append((part.name, events, amount))
+	table_with_style = Table(data, [3 * inch, 1.5 * inch, inch])
+
+	table_with_style.setStyle(TableStyle([
+	    ('FONT', (0, 0), (-1, -1), 'Helvetica'),
+	    ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
+	    ('FONTSIZE', (0, 0), (-1, -1), 8),
+	    ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+	    ('BOX', (0, 0), (-1, 0), 0.25, colors.green),
+	    ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+	]))
+
+	
+	doc.build([Spacer(1, 0.5 * inch),table_with_style])
+	watermark_name = _dir + 'Capture.pdf'
+	output_file = PdfFileWriter()
+	input_file = PdfFileReader(open(response, "rb"))
+	page_count = input_file.getNumPages()
+	for page_number in range(page_count):
+		watermark = PdfFileReader(open(watermark_name, "rb"))
+		input_page = watermark.getPage(0)
+		input_page.mergePage(input_file.getPage(page_number))
+		output_file.addPage(input_page)
+	output_name = _dir +'final_pdf.pdf'
+	with open(output_name, "wb") as outputStream:
+		output_file.write(outputStream)
+	return output_name
 
 
 ####  End of HELPER FUNCTIONS  ####

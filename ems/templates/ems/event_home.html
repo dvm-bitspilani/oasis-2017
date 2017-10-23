@@ -26,6 +26,7 @@
                     <div class="table-responsive">
                         <form action="{% url 'ems:event_home' event.id %}" method="post">
                         {% csrf_token %}
+                        <input type="hidden" name="position" value="{{w_position}}">
                         <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr> 
@@ -41,7 +42,7 @@
                                     <th>S.no.</th>                                   
                                     <th>Name</th>
                                     <th>Leader</th>
-                                    <th>Total Score</th>   
+                                    <th>Total Score</th>
                                     <td>Select</td>
                                 </tr>
                             </tfoot>
@@ -55,8 +56,8 @@
                                     {% else %}
                                     <td>{{team.team.leader_bitsian}}</td>
                                     {% endif %}
-                                    <td>{{team.score}}</td>
-                                    <td><input type="checkbox" name="team_list" id="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
+                                    <td>{{team.score}}</td>  
+                                    <td><input type="checkbox" name="team_list" id="{{team.team.id}}" value="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -97,6 +98,9 @@
                                     <th>Name</th>
                                     <th>Leader</th>
                                     <th>Total Score</th>
+                                    {% if forloop.first %}
+                                    <th>Is Winner</th>
+                                    {% endif %}
                                     <td>Select</td>
                             </tr>
                             </thead>
@@ -106,6 +110,9 @@
                                     <th>Name</th>
                                     <th>Leader</th>
                                     <th>Total Score</th>   
+                                    {% if forloop.first %}
+                                    <th>Is Winner</th>
+                                    {% endif %}
                                     <td>Select</td>
                                 </tr>
                             </tfoot>
@@ -120,6 +127,9 @@
                                     <td>{{team.team.leader_bitsian}}</td>
                                     {% endif %}
                                     <td>{{team.score}}</td>
+                                    {% if forloop.parentloop.first %}
+                                    <th>{{team.team.is_winner}}</th>
+                                    {% endif %}
                                     <td><input type="checkbox" name="team_list" id="{{team.team.id}}" value="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
                                 </tr>
                                 {% endfor %}

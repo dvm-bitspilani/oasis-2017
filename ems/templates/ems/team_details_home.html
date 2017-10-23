@@ -23,7 +23,7 @@
             <div class="body">
             <div class="input-group">
                     <div class="form-line">
-                        <input type="text" name="teams" placeholder="Enter ',' separated Ems codes for the Participants and '?' to add multiple teams" class="form-control" id="teams"><label for="name">Add Teams</label>
+                        <input type="text" name="teams" placeholder="Enter  ' , '  separated Ems codes for the Participants and  ' ? '  to add multiple teams" class="form-control" id="teams"><label for="name">Add Teams</label>
                     </div>
             </div>
             <div class="row">
@@ -55,8 +55,10 @@
                     </h2>
                 </div>
                 <div class="body">
+                    <form action="{% url 'ems:add_team' event.id %}" method="post">
+                    {% csrf_token %}
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover dataTable">
+                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
                                 <tr> 
                                 	<th>S.no.</th>                                   
@@ -64,6 +66,7 @@
                                     <th>Leader</th>
                                     <th>Level</th>
                                     <th>View</th>
+                                    <th>Select</th>
                             </tr>
                             </thead>
                             <tfoot>
@@ -73,6 +76,7 @@
                                     <th>Leader</th>
                                     <th>Level</th>
                                     <th>View</th>
+                                    <th>Select</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -86,13 +90,19 @@
                                     <td>b-{{team.leader_bitsian}}</td>
                                     {% endif %}
                                     <td>{{team.level}}</td>
-                                    <td><button onclick='window.location.assign("{% url 'ems:team_details' event.id team.id %}")' class="btn btn-primary m-t-15 waves-effect">View</button></td>
+                                    <td><a href="{% url 'ems:team_details' event.id team.id %}">View</a></td>
+                                    <td><input type="checkbox" name="delete_team_id" value="{{team.id}}" id="{{team.id}}"> <label for="{{team.id}}"></label></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        
                     </div>
+                        <div class="row">
+                        <div class="col-xs-2">
+                        <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="delete_teams">Delete Teams</button>
+                        </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             {% else %}

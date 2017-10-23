@@ -164,24 +164,24 @@ def event_home(request, e_id):
                 return redirect(request.META.get('HTTP_REFERER'))
             except:
                 pass
-            teamids = request.POST.getlist('registered')
-            teams1 = Team.objects.filter(id__in=teamid)
-            if all([t.level==position for t in teams1]):
-                teams1.update(is_winner=True)
+            print data
+            if all([t.level==position for t in team_list]):
+                team_list.update(is_winner=True)
             else:
                 messages.warning(request, 'Sorry first promote them to highest level.')
                 return redirect(request.META.get('HTTP_REFERER'))
         elif "remove-winners" == data['submit']:
-            teamids = request.POST.getlist('winners')
-            Team.objects.filter(id__in=teamids).update(is_winner=False)
+            team_list.update(is_winner=False)
     levels = Level.objects.filter(event=event)
     positions = range(levels.count(),0,-1)
     tables = [{'level':p, 'teams':sorted([{'team':team, 'score':Score.objects.get(team=team, level=Level.objects.get(event=event, position=p)).get_total_score()} for team in Team.objects.filter(event=event, level=p)], key=lambda x:-x['score'])} for p in positions]
     winners = event.team_set.filter(is_winner=True)
+    context = {'event':event,'levels':levels, 'tables':tables}
     if winners:
         w_position = winners[0].level
         winners_list = [{'team':team, 'score':Score.objects.get(team=team, level=Level.objects.get(event=event, position=w_position)).get_total_score()} for team in winners]
-    context = {'event':event,'levels':levels, 'tables':tables, 'winners':winners_list}
+        context['winners'] = winners_list
+        context['w_position'] = w_position
     return render(request, 'ems/event_home.html', context)
 
 
@@ -234,7 +234,7 @@ def event_levels_add(request, e_id):
 
 @permission_for_event
 @staff_member_required(login_url=login_url)
-def add_team(request, e_id):
+def add_delete_teams(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     count = Team.objects.filter(event=event).count()
     try:
@@ -246,6 +246,14 @@ def add_team(request, e_id):
     if request.method == 'POST':
         data = dict(request.POST)
         print data
+        if data['submit'][0] == 'delete_teams':
+            try:
+                team_ids = data['delete_team_id']
+            except:
+                messages.warning(request, 'Select atleast one team')
+                return redirect(request.META.get('HTTP_REFERER'))
+            Team.objects.filter(id__in=team_ids).delete()
+            return redirect(reverse('ems:add_team', kwargs={'e_id':e_id}))
         try:
             teams_str = data['teams'][0]
         except:
@@ -313,26 +321,26 @@ def team_details(request, e_id, team_id):
     if request.method == 'POST':
         data = request.POST
         try:
-            teams_lst = [a.strip() for a in data['ids'].split(',')]
+            teams_lst = [a.strip() for a in data['teams'].split(',')]
         except:
             messages.warning(request, 'put the codes properly')
             return redirect(request.META.get('HTTP_REFERER'))
         l1=[]
         l2=[]
-        for t in team_lst:
+        for t in teams_lst:
             if re.match(r'\d{7}', t):
                 try:
                     p = Participant.objects.get(ems_code=t)
                     l1.append(p)
                 except:
-                    messages.warning(request, 'put the codes properly')
+                    messages.warning(request, 'unmacthed ems codes')
                     return redirect(request.META.get('HTTP_REFERER'))
             elif re.match(r'[h,f]\d{6}', mem):
                 try:
                     b = Bitsian.objects.get(ems_code=mem)
                     l2.append(b)
                 except:
-                    messages.warning(request, 'put the codes properly')
+                    messages.warning(request, 'unmacthed ems codes')
                     return redirect(request.META.get('HTTP_REFERER'))
             else:
                 messages.warning(request, 'put the codes properly')
@@ -344,52 +352,52 @@ def team_details(request, e_id, team_id):
                 team.members_bitsian.add(i)
             team.save()
             messages.success(request, 'members added successfully.')
-            return redirect(reverse('ems:team_deatils', kwargs={'e_id':event.id, 'team_id':team.id}))
-        if data['submit'] == 'delete':
-            try:
-                team_lst = dict(data)['delete']
-            except:
-                messages.warning(request, 'Select atleast one member')
-                return redirect(request.META.get('HTTP_REFERER'))
-            l1=[]
-            l2=[]
-            for t in team_lst:
-                if re.match(r'\d{7}', t):
-                    try:
-                        p = Participant.objects.get(ems_code=t)
-                        l1.append(p)
-                    except:
-                        messages.warning(request, 'put the codes properly')
-                        return redirect(request.META.get('HTTP_REFERER'))
-                elif re.match(r'[h,f]\d{6}', t):
-                    try:
-                        b = Bitsian.objects.get(ems_code=t)
-                        l2.append(b)
-                    except:
-                        messages.warning(request, 'put the codes properly')
-                        return redirect(request.META.get('HTTP_REFERER'))
-                else:
-                    messages.warning(request, 'put the codes properly')
-                    return redirect(request.META.get('HTTP_REFERER'))
-            for i in l1:
-                team.members.remove(i)
-            for i in l2:
-                team.members_bitsian.remove(i)
-            team.save()
+            return redirect(reverse('ems:team_home', kwargs={'e_id':event.id})+team_id+'/')
+        # if data['submit'] == 'delete':
+        #     try:
+        #         team_lst = dict(data)['delete']
+        #     except:
+        #         messages.warning(request, 'Select atleast one member')
+        #         return redirect(request.META.get('HTTP_REFERER'))
+        #     l1=[]
+        #     l2=[]
+        #     for t in team_lst:
+        #         if re.match(r'\d{7}', t):
+        #             try:
+        #                 p = Participant.objects.get(ems_code=t)
+        #                 l1.append(p)
+        #             except:
+        #                 messages.warning(request, 'put the codes properly')
+        #                 return redirect(request.META.get('HTTP_REFERER'))
+        #         elif re.match(r'[h,f]\d{6}', t):
+        #             try:
+        #                 b = Bitsian.objects.get(ems_code=t)
+        #                 l2.append(b)
+        #             except:
+        #                 messages.warning(request, 'put the codes properly')
+        #                 return redirect(request.META.get('HTTP_REFERER'))
+        #         else:
+        #             messages.warning(request, 'put the codes properly')
+        #             return redirect(request.META.get('HTTP_REFERER'))
+        #     for i in l1:
+        #         team.members.remove(i)
+        #     for i in l2:
+        #         team.members_bitsian.remove(i)
+        #     team.save()
 
-        try:
-            leader_id = data['leader']
-            if re.match(r'\d{7}', leader_id):
-                p = Participant.objects.get(ems_code=leader_id)
-                team.leader = p
-            elif re.match(r'[h,f]\d{6}', leader_id):
-                b = Bitsian.objects.get(ems_code=leader_id)
-                team.leader_bitsian = b
-            team.save()
-        except:
-            pass
-    scores = [{'total':score.get_total_score(), 'level':score.level}for score in team.score_set.all()]
-    return render(request, 'ems/team_details.html', {'event':event, 'team':team, 'scores':scores})
+        # try:
+        #     leader_id = data['leader']
+        #     if re.match(r'\d{7}', leader_id):
+        #         p = Participant.objects.get(ems_code=leader_id)
+        #         team.leader = p
+        #     elif re.match(r'[h,f]\d{6}', leader_id):
+        #         b = Bitsian.objects.get(ems_code=leader_id)
+        #         team.leader_bitsian = b
+        #     team.save()
+        # except:
+        #     pass
+    scores = [{'total':score.get_total_score(), 'level':score.level}for score in team.scores.all()]
+    return render(request, 'ems/team_details.html', {'event':event, 'team':team, 'scores':scores, 'members':team.members.all(), 'bitsians':team.members_bitsian.all()})
 
 @permission_for_event
 @staff_member_required(login_url=login_url)
