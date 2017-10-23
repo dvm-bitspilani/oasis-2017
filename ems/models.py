@@ -84,20 +84,23 @@ class Score(models.Model):
     def get_score(self):
         return eval(self.score)
 
-    def get_score_p(self, p_id):
-        score_dict = eval(self.score)
-        x=0
-        for i in score_dict:
-            x+=score_dict[i][p_id]
-        return x
+    # def get_score_p(self, p_id):
+    #     score_dict = eval(self.score)
+    #     x=0
+    #     for i in score_dict:
+    #         x+=score_dict[i][p_id]
+    #     return x
 
     def get_score_j(self, j_id):
         score_dict = eval(self.score)
         return score_dict[j_id]
 
-    def get_score_j_p(self, j_id, p_id):
-        score_dict = eval(self.score)
-        return score_dict[j_id][p_id]
+    def get_total_j(self, j_id):
+        score_dict = eval(self.score)[j_id]
+        return sum(score_dict.values())
+    # def get_score_j_p(self, j_id, p_id):
+    #     score_dict = eval(self.score)
+    #     return score_dict[j_id][p_id]
 
     def save(self, *args, **kwargs):
         parameters = self.level.parameter_set.all()

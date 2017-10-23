@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load ems_tags %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -109,6 +110,20 @@
                                     <span>Levels</span>
                                 </a>
                     </li>
+                    {% if request|ems_judge %}
+                    <li class="active">
+                        <a href="javascript:void(0);" class="menu-toggle">
+                            <span>Scores</span>
+                        </a>
+                        <ul class="ml-menu">
+                        {% for level in request|ems_levels %}
+                            <li>
+                                <a href="{% url 'ems:show_scores' event.id level.id %}"><span>Level-{{level.position}}-{{level.name}}</span></a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
                     </li>
                     <li class="header">LABELS</li>
                     <li>

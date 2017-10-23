@@ -10,29 +10,30 @@ import re
 from django.contrib import messages
 import string
 from random import choice
+from django.contrib.auth.decorators import login_required
 chars = string.letters + string.digits
 
 login_url = reverse_lazy('ems:login')
 
 
 ### DECORATOR ###
-def permission_for_event(function):
-    def wrap(request, *args, **kwargs):
-        user = request.user
-        if request.user.is_superuser:
-            return function(request, *args, **kwargs)
-        event = get_object_or_404(Event, pk=kwargs['e_id'])
-        club_dept = ClubDepartment(user=user)
-        if not event in club_dept.events.all():
-            url = request.build_absolute_uri(reverse_lazy('ems:events_select'))
-            return render(request, 'ems/message.html',  {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
+# def permission_for_event(function):
+#     def wrap(request, *args, **kwargs):
+#         user = request.user
+#         if request.user.is_superuser:
+#             return function(request, *args, **kwargs)
+#         event = get_object_or_404(Event, pk=kwargs['e_id'])
+#         club_dept = ClubDepartment(user=user)
+#         if not event in club_dept.events.all():
+#             url = request.build_absolute_uri(reverse_lazy('ems:events_select'))
+#             return render(request, 'ems/message.html',  {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
 
-    wrap.__doc__ = function.__doc__
-    wrap.__name__ = function.__name__
-    return wrap
+#     wrap.__doc__ = function.__doc__
+#     wrap.__name__ = function.__name__
+#     return wrap
 
 
-def permission_for_judge(function):
+def permission_for_judge_cd(function):
     def wrap(request, *args, **kwargs):
         user = request.user
         if request.user.is_superuser:
@@ -41,7 +42,13 @@ def permission_for_judge(function):
         try:
             judge = Judge.objects.get(user=user, event=event)
         except:
-            return redirect('ems:index')
+            try:
+                club_dept = ClubDepartment.objects.get(user=user)
+                if not event in club_dept.events.all():
+                    raise Exception
+            except:
+                return redirect('ems:index')
+        return function(request, *args, **kwargs)
 
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
@@ -50,10 +57,23 @@ def permission_for_judge(function):
 ### DECORATORS END ###
 
 def index(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        return redirect(reverse_lazy('ems:events_select'))
-    else:
-        return redirect(reverse_lazy('ems:login'))
+    if request.user.is_authenticated():
+        if request.user.is_superuser:
+            return redirect(reverse_lazy('ems:events_select'))
+        if request.user.username=='controls':
+            return redirect('ems:add_judge')
+        try:
+            judge = request.user.judge
+            return redirect(reverse('ems:event_home', kwargs={'e_id':judge.event.id}))
+        except:
+            pass
+        try:
+            cd = ClubDepartment.objects.get(user=request.user)
+            return redirect('ems:events_select')
+        except:
+            pass
+        logout(request)
+    return redirect(reverse_lazy('ems:login'))
 
 
 def user_login(request):
@@ -62,27 +82,15 @@ def user_login(request):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            if user.is_active:
-                login(request, user)
-                url = re.compile(r'next=/(\S+)')
-                temp = url.search(request.get_full_path())
-                if temp is not None:
-                    return redirect('/'+temp.group(1))
-                return HttpResponseRedirect(reverse_lazy('ems:index'))
-            else:
-                url = request.build_absolute_uri(reverse_lazy('ems:index'))
-                context = {'error_heading' : "Account Inactive", 'message' :  'Your account is currently INACTIVE. To activate it, call the following members of the Department of Publications and Correspondence. Karthik Maddipoti: +91-7240105158, Additional Contacts:- +91-9829491835, +91-9829493083, +91-9928004772, +91-9928004778 - pcr@bits-bosm.org .', 'url':url}
-                return render(request, 'ems/message.html', context)
+            login(request, user)
+            return redirect('ems:index')    
         else:
-            url = request.build_absolute_uri(reverse_lazy('ems:index'))
-            context = {'error_heading' : "Invalid Login Credentials", 'message' :  'Invalid Login Credentials. Please try again', 'url':url}
-            return render(request, 'ems/message.html', context)
-
-    else:
-        return render(request, 'ems/login.html')
+            messages.warning(request, 'Wrong credentials')
+            return redirect(request.META.get('HTTP_REFERER'))
+    return render(request, 'ems/login.html')
 
 
-@staff_member_required(login_url=login_url)
+@login_required(login_url=login_url)
 def events_select(request):
     if request.user.is_superuser:
         event_list = Event.objects.all()
@@ -93,18 +101,16 @@ def events_select(request):
         except:
             logout(request)
             return redirect(reverse_lazy('ems:index'))
-    
     return render(request, 'ems/event_list.html', {'event_list':event_list})
 
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def event_home(request, e_id):
     event = get_object_or_404(Event, id=e_id)
 
     if request.method == 'POST':
         data = request.POST
-        print data
         position = int(data['position'])
         try:
             level = Level.objects.get(event=event, position=position)
@@ -151,12 +157,12 @@ def event_home(request, e_id):
                     score = Score.objects.get(team=team, level=prev_level)
                 except:
                     score = Score.objects.create(team=team, level=prev_level)
-        elif "add-finalists" == data['submit']:
-            teamids = request.POST.getlist('registered')
-            Team.objects.filter(id__in=teamids).update(is_finalist=True)
-        elif "remove-finalists" == data['submit']:
-            teamids = request.POST.getlist('finalists')
-            Team.objects.filter(id__in=teamids).update(is_finalist=False)
+        # elif "add-finalists" == data['submit']:
+        #     teamids = request.POST.getlist('registered')
+        #     Team.objects.filter(id__in=teamids).update(is_finalist=True)
+        # elif "remove-finalists" == data['submit']:
+        #     teamids = request.POST.getlist('finalists')
+        #     Team.objects.filter(id__in=teamids).update(is_finalist=False)
         elif "add-winners" == data['submit']:
             try:
                 next_level = Level.objects.get(event=event, position = position + 1)
@@ -164,7 +170,6 @@ def event_home(request, e_id):
                 return redirect(request.META.get('HTTP_REFERER'))
             except:
                 pass
-            print data
             if all([t.level==position for t in team_list]):
                 team_list.update(is_winner=True)
             else:
@@ -185,8 +190,8 @@ def event_home(request, e_id):
     return render(request, 'ems/event_home.html', context)
 
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def event_levels(request, e_id):
     event = get_object_or_404(Event, id=e_id)
 
@@ -205,8 +210,8 @@ def event_levels(request, e_id):
     return render(request, 'ems/event_levels.html', context)
 
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def event_levels_add(request, e_id):
     event = Event.objects.get(id=e_id)
     levels = Level.objects.filter(event=event)
@@ -232,8 +237,8 @@ def event_levels_add(request, e_id):
     return render(request, 'ems/event_levels_add.html', context)
 
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def add_delete_teams(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     count = Team.objects.filter(event=event).count()
@@ -245,7 +250,6 @@ def add_delete_teams(request, e_id):
 
     if request.method == 'POST':
         data = dict(request.POST)
-        print data
         if data['submit'][0] == 'delete_teams':
             try:
                 team_ids = data['delete_team_id']
@@ -258,13 +262,10 @@ def add_delete_teams(request, e_id):
             teams_str = data['teams'][0]
         except:
             return redirect(request.META.get('HTTP_REFERER'))
-        print teams_str
         team_q = teams_str.split('?')
-        print team_q
         team_lst=[]
         for i in team_q:
             team_lst.append([a.strip() for a in i.split(',')])
-        print team_lst
         count=Team.objects.all().count()
         for t in team_lst:
             count+=1
@@ -304,16 +305,15 @@ def add_delete_teams(request, e_id):
         messages.success(request, 'teams added successfully.')
     return redirect(reverse('ems:team_home', kwargs={'e_id':e_id}))
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def team_details_home(request, e_id):
     event = Event.objects.get(id=e_id)
     teams = event.team_set.all()
     return render(request, 'ems/team_details_home.html', {'event':event, 'teams':teams})
 
-
-@permission_for_event
-@staff_member_required(login_url=login_url)
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def team_details(request, e_id, team_id):
 
     event = Event.objects.get(id=e_id)
@@ -399,57 +399,109 @@ def team_details(request, e_id, team_id):
     scores = [{'total':score.get_total_score(), 'level':score.level}for score in team.scores.all()]
     return render(request, 'ems/team_details.html', {'event':event, 'team':team, 'scores':scores, 'members':team.members.all(), 'bitsians':team.members_bitsian.all()})
 
-@permission_for_event
-@staff_member_required(login_url=login_url)
-def scores_level(request, e_id, level):
+
+@login_required(login_url=login_url)
+def show_scores(request, e_id, level_id):
+    try:
+        judge = request.user.judge
+    except:
+        logout(request)
+        return redirect('ems:index')
+    j_id = judge.id
     event = Event.objects.get(id=e_id)
-    level = get_object_or_404(Level,position=level, event=event)
+    level = get_object_or_404(Level,id=level_id, event=event)
+    params = level.parameter_set.all()
+    teams = level.teams.all()
+    if request.method == 'POST':
+        try:
+            team_ids = dict(request.POST)['team_id']
+            teamss = Team.objects.filter(id__in=team_ids)
+            Score.object.filter(team__in=teamss,level=level).update(is_frozen=True)
+        except:
+            messages.success(request, 'No team chosen')
+            pass
+    tables = [{'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)} for team in teams]
+    return render(request, 'ems/show_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level})
+
+
+
+@login_required(login_url=login_url)
+def update_scores(request, e_id, level_id):
+    try:
+        judge = request.user.judge
+    except:
+        logout(request)
+        return redirect('ems:index')
+    j_id = judge.id
+    event = Event.objects.get(id=e_id)
+    level = get_object_or_404(Level, id=level_id, event=event)
     teams = level.teams.all()
     params = level.parameter_set.all()
-    if request.POST == 'POST':
+    if request.method == 'POST':
         data = request.POST
         for team in teams:
-            score = team.score_set.get(level=level)
-            score_dict = score.get_score()
+            score = team.scores.get(level=level)
+            score_dict_total = score.get_score()
+            score_dict = score.get_score_j(j_id)
             for param in params:
-                key = str(team.id) + ' ' + str(parma.id)
+                key = str(team.id) + '-' + str(param.id)
                 try:
-                    value = data['key']
-                    if not value:
+                    value = int(data[key])
+                    if not value or value>param.max_val:
                         raise Exception
                     score_dict[param.id] = value
                 except:
                     pass
-            score.score = str(score_dict)
+            score_dict_total[j_id] = score_dict
+            score.score = str(score_dict_total)
             score.save()
+        messages.success(request, 'Score updated successfully')
+    tables = [{'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)} for team in teams]
+    return render(request, 'ems/update_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level})
 
-    tables = [{'name':team.name, 'score':team.score_set.get(level=level).get_score()} for team in teams]
-    return render(request, 'ems/score.html', {'tables':tables, 'parameters':params, 'event':event, 'level':level})
+
+##### Controls #####
+
+@staff_member_required
+def events_controls(request):
+    events = Event.objects.all()
+    return render(request, 'ems/events_controls.html', {'events':events})
 
 
-def user_logout(request):
-    logout(request)
-    return redirect('ems:index')
-
-@permission_for_event
-@staff_member_required(login_url=login_url)
-def select_winner(request, e_id):
-    event = Event.objects.get(id=e_id)
+@staff_member_required
+def show_score_controls(request, e_id):
+    if not(request.user.username == 'controls' or request.user.is_superuser):
+        logout(request)
+        return redirect('ems:index')
+    event = get_object_or_404(Event, id=e_id)
     levels = event.level_set.all()
-    position = max([l.position for l in levels])
-    final_level = Level.objects.get(event=event, position=position)
-    finalists = final_level.teams.all()
-    if request.method == 'POST':
-        data = request.POST
-        team_id = data['team_id']
-        team = get_object_or_404(Team, id=team_id)
-        if all([not t.is_winner for team in finalists]) and team in finalists:
-            team.is_winner = True
-    return render(request, 'ems/select_winner.html', {'event':event, 'teams':finalists})
+    if not levels:
+        messages.warning(request, 'No levels in this event.')
+        return redirect(request.META.get('HTTP_REFERER'))
+    judges = Judge.objects.filter(event=event)
+    tables = []
+    for level in levels:
+        teams = level.teams.all()
+        params = level.parameter_set.all()
+        headings = ['Name', 'Leader'] + [judge.name for judge in judges] + ['Total',]
+        table = {'title':level.name+' ' + str(level.position), 'headings':headings}
+        rows = []
+        for team in teams:
+            try:
+                leader = team.leader
+            except:
+                leader = team.leader_bitsian
+            score = team.scores.get(level=level)
+            rows.append({'data':[team.name, leader]+[score.get_total_j(judge.id) for judge in judges] + [score.get_total_score()], 'link':[]})
+        table['rows'] = rows
+        tables.append(table)
+    return render(request, 'ems/show_score_controls.html', {'tables':tables, 'event':event})
+
 
 @staff_member_required
 def add_judge(request):
     if not(request.user.username == 'controls' or request.user.is_superuser):
+        logout(request)
         return redirect('ems:index')
     if request.method == 'POST':
         data = request.POST
@@ -478,6 +530,9 @@ def add_judge(request):
 
 @staff_member_required
 def add_cd(request):
+    if not(request.user == 'controls' or request.user.is_superuser):
+        logout(request)
+        return redirect('ems:index')
     if request.method == 'POST':
         data = request.POST
 
@@ -517,8 +572,12 @@ def add_cd(request):
     cds = ClubDepartment.objects.all()
     return render(request, 'ems/add_cd.html', {'events':events, 'cds':cds})
 
+
 @staff_member_required
 def add_bitsian(request):
+    if request.user.is_superuser:
+        logout(request)
+        return redirect('ems:index')
     from django.conf import settings
     import os
     import csv
@@ -544,3 +603,8 @@ def gen_emscode(request):
         a.ems_code = str(a.college.id).rjust(3,'0')+str(a.id).rjust(4,'0')
         a.save()
     return HttpResponse('Good')
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('ems:index')
