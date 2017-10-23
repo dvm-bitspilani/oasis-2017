@@ -1,0 +1,219 @@
+{% extends 'regsoft/base.html' %}
+{% block body %}
+{% load regsoft_tags %}
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% if unalloted %}
+<form action="{% url 'regsoft:allocate_participants' group.id %}" method="post">
+        {% csrf_token %}
+        <div class="card">
+        <div class="header">
+            <h2>
+                Select a Room for the group from {{group | get_group_college}}
+            </h2>
+        </div>
+    <div class="body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+            <thead>
+                    <tr>
+                        <th>Bhavan</th>
+                        <th>Room</th>
+                        <th>Vacancy</th>
+                        <th>Capacity</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Bhavan</th>
+                        <th>Room</th>
+                        <th>Vacancy</th>
+                        <th>Capacity</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                {% for r in rooms %}
+                    <tr>
+                        <td>{{r.bhavan}}</td>
+                        <td>{{r.room}}</td>
+                        <td>{{r.vacancy}}</td>
+                        <td>{{r.capacity}}</td>
+                        <td>
+                            <input name="room" type="radio" id="{{r.id}}" value="{{r.id}}"/>
+                            <label for="{{r.id}}"></label>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+    </table>
+        </div>
+    </div>
+        </div>
+    <div class="card">
+        <div class="header">
+            <h2>
+                Participants
+            </h2>
+        </div>
+        <div class="body">
+    	
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover dataTable">
+                    <thead>
+                            <tr>
+                                <th>Select All</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>
+                                    <input type="checkbox" id="selectAll">
+                                    <label for="selectAll"></label>
+                                </th>
+                            </tr>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Gender</th>
+                            <th>Event(s)</th>
+                            <th>College</th>
+                            <th>Phone</th>
+                            <th>Payment Status</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Gender</th>
+                            <th>Event(s)</th>
+                            <th>College</th>
+                            <th>Phone</th>
+                            <th>Payment Status</th>
+                            <th>Select</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                    	{% for i in unalloted %}
+                        <tr>
+                            <td>{{i.name}}</td>
+                            <td>{{i.gender}}</td>
+                            <td>{{i | get_events_list}}</td>
+                            <td>{{i.college.name}}</td>
+                            <td>{{i.phone}}</td>
+                            <td>
+                            {% if i.paid or i.curr_paid %}
+                            {% if i.controlz_paid or i.curr_controlz_paid %}
+                            950
+                            {% else %}
+                            300
+                            {% endif %}
+                            {% else %}
+                            0
+                            {% endif %}
+                            </td>
+                            <td>
+                                <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+                                <label for="{{i.id}}"></label>
+    						</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br><br>
+                <input type="hidden" value="allocate" name="action">
+                <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Allocate</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+
+
+{% if alloted %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Already Alloted Participants
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'regsoft:allocate_participants' group.id %}" method="POST">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Gender</th>
+                        <th>Event(s)</th>
+                        <th>College</th>
+                        <th>Phone</th>
+                        <th>Payment Status</th>
+                        <th>Room</th>
+                        <th>Bhavan</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Gender</th>
+                        <th>Event(s)</th>
+                        <th>College</th>
+                        <th>Phone</th>
+                        <th>Payment Status</th>
+                        <th>Room</th>
+                        <th>Bhavan</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in alloted %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.gender}}</td>
+                        <td>{{i | get_events_list}}</td>
+                        <td>{{i.college.name}}</td>
+                        <td>{{i.phone}}</td>
+                        <td>
+                        {% if i.paid or i.curr_paid %}
+                        {% if i.controlz_paid or i.curr_controlz_paid %}
+                        950
+                        {% else %}
+                        300
+                        {% endif %}
+                        {% else %}
+                        0
+                        {% endif %}
+                        </td>
+                        <td>{{i.room.room}}</td>
+                        <td>{{i.room.bhavan.name}}</td>
+                        <td>
+                            <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
+                            <label for="{{i.id}}"></label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="deallocate" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Deallocate</button>
+        </div>
+
+	</form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

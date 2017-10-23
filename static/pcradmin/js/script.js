@@ -1,6 +1,6 @@
 ﻿$(document).ready(function(){
     $('.chk input').on('change',function(){
-        var value = $(this).parent('td').next('td').html();
+        var value = $(this).parent('td').previous('td').html();
         value = parseInt(value);
         if(this.checked == true) {
             $("#amount").html( parseInt($("#amount").html()) + value );

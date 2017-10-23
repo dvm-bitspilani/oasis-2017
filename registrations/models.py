@@ -84,7 +84,7 @@ class Participant(models.Model):
 	controlz_paid = models.BooleanField(default=False)
 	curr_paid = models.BooleanField(default=False)
 	curr_controlz_paid = models.BooleanField(default=False)
-	bill = models.OneToOneField('regsoft.Bill' ,null=True, on_delete=models.SET_NULL)
+	bill = models.ForeignKey('regsoft.Bill' ,null=True, on_delete=models.SET_NULL)
 	recnacc_time = models.DateTimeField(null=True, auto_now=False)
 	is_g_leader = models.BooleanField(default=False)
 	events = models.ManyToManyField(Event, through=Participation)

@@ -9,7 +9,7 @@ register = template.Library()
 def show_tags():
     pcr_final = Participant.objects.filter(pcr_final=True).count()
     firewallz = Participant.objects.filter(firewallz_passed=True).count()
-    controlz = Participant.objects.filter(Q(paid=True,controlz_paid=True) | Q(curr_paid=True, curr_controlz_paid=True)).count()
+    controlz = Participant.objects.filter(controlz=True).count()
     recnacc = Participant.objects.filter(acco=True).count()
     return {'pcr_final':pcr_final, 'firewallz':firewallz, 'controlz':controlz, 'recnacc':recnacc}
 
@@ -42,3 +42,6 @@ def participant_count(group):
 def get_gleader_name(group):
     return group.participant_set.get(is_g_leader=True).name
 
+@register.filter
+def get_group_college(group):
+    return group.participant_set.get(is_g_leader=True).college.name

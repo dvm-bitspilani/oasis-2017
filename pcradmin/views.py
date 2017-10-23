@@ -32,6 +32,14 @@ chars = string.letters + string.digits
 from django.contrib import messages
 from django.db.models import Q
 
+def get_event_string(participant):
+    participation_set = Participation.objects.filter(participant=participant, pcr_approved=True)
+    events = ''
+    for participation in participation_set:
+        events += participation.event.name + ', '
+    events = events[:-2]
+    return events
+
 @staff_member_required
 def index(request):
 	return redirect('pcradmin:college')
@@ -273,11 +281,19 @@ def stats(request, order=None):
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
-		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(Q(pcr_approved=True), Q(paid=True)|Q(curr_paid=True))]
-		headings = ['Name', 'College', 'Gender', 'Phone', 'Email']
+		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, get_payment_status(part), get_event_string(part)], 'link':[]} for part in Participant.objects.filter(Q(pcr_approved=True), Q(paid=True)|Q(curr_paid=True))]
+		headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'Payment made', 'Events']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
+def get_payment_status(part):
+	if part.paid or part.curr_paid:
+		if part.controlz_paid or part.curr_controlz_paid:
+			return 950
+		else:
+			return 300
+	else:
+		return 0
 
 @staff_member_required
 def stats_event(request, e_id):
@@ -479,23 +495,28 @@ def final_email_send(request, eg_id):
 		_dir = '/root/live/oasis/backend/resources/oasis2017/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
-	except OSError:
-		_dir = '/home/tushar/'
+	except:
+		_dir = '/home/auto-reload/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	import base64
 
 	with open(a, "rb") as output_pdf:
 		encoded_string1 = base64.b64encode(output_pdf.read())
-		attachment = Attachment()
-		attachment.content = encoded_string1
-		attachment.name = 'Confirmed Participants'
+	attachment = Attachment()
+	attachment.content = encoded_string1
+	attachment.filename = 'Confirmed_Participants.pdf'
 	with open(_dir+'Instructions_to_Participants', 'rb') as output_doc:
 		encoded_string2 = base64.b64encode(output_doc.read())
-		attachment_1 = Attachment()
-		attachment_1.content = encoded_string2
-		attachment_1.name = 'Instructions to Participants.docx'
-	body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+	attachment_1 = Attachment()
+	attachment_1.content = encoded_string2
+	attachment_1.filename = 'Instructions to Participants.docx'   
+	subject = 'Final Confirmation for Oasis'
+	from_email = Email('register@bits-oasis.org')
+	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+	for part in parts:	
+		to_email = Email(part.email)
+		body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
 			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
@@ -520,25 +541,22 @@ pcr@bits-oasis.org
 
 <b>Please reply to this email with number of people, if you require conveyance to or from Loharu and the timings for it.</b>
 </pre>
-			""" %(part.name,get_pcr_number())   
-	subject = 'Final Confirmation for Oasis'
-	from_email = Email('register@bits-oasis.org')
-	content = Content('text/html', body)
-	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-	for part in parts:	
-		to_email = Email(part.email)
+			""" %(part.name,get_pcr_number())
+		content = Content('text/html', body)
 		try:
 			mail = Mail(from_email, subject, to_email, content)
 			mail.add_attachment(attachment)
 			mail.add_attachment(attachment_1)
 			response = sg.client.mail.send.post(request_body=mail.get())
+			print 'Here'
 			messages.warning(request,'Email sent to ' + part.name)
 			part.pcr_final=True
 			part.save()
 			if not part.is_cr:
 				encoded = gen_barcode(part)
 				part.save()
-		except :
+		except Exception,e:
+			print str(e)
 			messages.warning(request,'Error sending email')
 	return redirect(reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id}))
 
@@ -549,7 +567,7 @@ def download_pdf(request, eg_id):
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	except:
-		_dir = '/home/tushar/'
+		_dir = '/home/auto-reload/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	pdf = open(a, 'rb')

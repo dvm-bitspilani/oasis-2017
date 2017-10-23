@@ -1,0 +1,72 @@
+{% extends "regsoft/base.html" %}
+{% block body %}
+{% load regsoft_tags %}
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Participants confirmed at {{group.created_time}} from {{group | get_group_college}}
+        </h2>
+    </div>
+	<div class="body">
+	<form action="{% url 'regsoft:get_group_list' group.id %}" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                            <th>Select All</th>
+                            <th></th>
+                            <th></th>
+                            <th>
+                                <input type="checkbox" id="selectAll">
+                                <label for="selectAll"></label>
+                            </th>
+                        </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Events</th>
+                        <th>Group Leader</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Events</th>
+                        <th>Group Leader</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                	{% for i in participant_list %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i|get_events_list}}</td>
+                        <td>{{group | get_gleader_name }}</td>
+                        <td>
+                        	<input type="checkbox" name="id_list" id="{{i.id}}" value="{{i.id}}">
+                        	<label for="{{i.id}}"></label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="hidden" value="unconfirm" name="action">
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Unconfirm</button>
+        </div>
+    </form>
+    <br>
+    <a href="{% url 'regsoft:delete_group' group.id %}" class="btn btn-primary btn-lg m-l-15 waves-effect">Delete Group</a>
+    </div>
+</div>
+{% endblock %}

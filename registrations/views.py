@@ -638,6 +638,7 @@ def upload_docs(request):
 	try:
 		docs_url = request.build_absolute_uri('/')[:-1] + participant.verify_docs.url
 		docs = True
+		print docs_url
 	except:
 		docs_url = '#'
 		docs = False
