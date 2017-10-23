@@ -48,6 +48,21 @@ def generate_group_code(group):
 	group.save()
 	return encoded
 
+def generate_ckgroup_code(group):
+	group_id = group.id
+	encoded = group.group_code
+	if encoded == '':
+		raise ValueError
+	if encoded is not None:
+		return encoded
+	group_ida = "%04d" % int(group_id)
+	college_code = ''.join(group.participant_set.all()[0].college.name.split(' '))
+	if len(college_code)<4:
+		college_code += str(0)*(4-len(college_code))
+	group.group_code = 'oasis_group' + college_code + group_ida
+	group.save()
+	return encoded
+
 ########################################### End Of Helper Functions ##############################################################
 @staff_member_required
 def index(request):
@@ -208,8 +223,8 @@ def allocate_participants(request, g_id):
                 part.save()
         return redirect(reverse('regsoft:recnacc_group_list', kwargs={'c_id':get_group_leader(group).college.id}))
     else:
-        unalloted_participants = group.participant_set.filter(acco=False, checkout_group=None)
-        alloted_participants = group.participant_set.filter(acco=True, checkout_group=None)
+        unalloted_participants = group.participant_set.filter(acco=False, checkout_group=None, controlz=True)
+        alloted_participants = group.participant_set.filter(acco=True, checkout_group=None, controlz=True)
         rooms_list = Room.objects.all()
         return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list, 'group':group})
 
@@ -217,21 +232,21 @@ def allocate_participants(request, g_id):
 def recnacc_group_list(request, c_id):
     college = get_object_or_404(College, id=c_id)
     group_list = [group for group in Group.objects.all() if get_group_leader(group).college == college]
-    complete_groups = [group for group in group_list if all(part.acco for part in group.participant_set.all())]
-    complete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.all().count, group.participant_set.filter(acco=True,checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in complete_groups]
+    complete_groups = [group for group in group_list if all(part.acco for part in group.participant_set.filter(controlz=True))]
+    complete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(acco=True,checkout_group=None, controlz=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in complete_groups]
     incomplete_groups = [group for group in group_list if not group in complete_groups]
-    incomplete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.all().count, group.participant_set.filter(acco=True,checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in incomplete_groups]
-    complete_table = {
-        'rows':complete_rows,
-        'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
-        'title':'Completely Alloted Groups'
-    }
+    incomplete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(acco=True,checkout_group=None, controlz=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in incomplete_groups]
     incomplete_table = {
         'rows':incomplete_rows,
         'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
         'title':'Incompletely Alloted Groups'
     }
-    return render(request, 'regsoft/tables.html', {'tables':[complete_table, incomplete_table]})
+    complete_table = {
+        'rows':complete_rows,
+        'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
+        'title':'Completely Alloted Groups'
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[incomplete_table, complete_table]})
 
 @staff_member_required
 def room_details(request):
@@ -317,7 +332,7 @@ def college_detail(request, c_id):
 
 @staff_member_required
 def checkout_college(request):
-	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(),],'link':[{'title':'Checkout', 'url':reverse('regsoft:checkout', kwargs={'c_id':college.id})}] } for college in College.objects.all()]
+	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(),],'link':[{'title':'Checkout', 'url':request.build_absolute_uri(reverse('regsoft:checkout', kwargs={'c_id':college.id}))}] } for college in College.objects.all()]
 	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Alloted Participants', 'Checkout']}]
 	return render(request, 'regsoft/tables.html', {'tables':tables})
 
@@ -332,32 +347,33 @@ def checkout(request, c_id):
             return redirect(request.META.get('HTTP_REFERER'))
 
         checkout_group = CheckoutGroup.objects.create()
-
-        try:
-            checkout_group.amount_retained = data['amount_retained']
-        except:
-            pass
+        print data['retained']
+        # try:
+        checkout_group.amount_retained = int(data['retained'])
+        checkout_group.save()
+        # except:
+        #     pass
         for participant in part_list:
             room = participant.room
-            room.vacany += 1
+            room.vacancy += 1
             room.save()
             participant.room = None
             participant.checkout_group = checkout_group
             participant.acco = False
-            participant.checkout = True
             participant.save()
+        encoded = generate_ckgroup_code(checkout_group)
+        checkout_group.save()
         return redirect(reverse('regsoft:checkout_groups', kwargs={'c_id':college.id}))
     participant_list = college.participant_set.filter(acco=True)
-    return render(request, 'regsoft/checkout.html', {'college':college, 'participant_list':participant_list})
+    return render(request, 'regsoft/checkout.html', {'college':college, 'part_list':participant_list})
 
 @staff_member_required
 def checkout_groups(request, c_id):
     college = get_object_or_404(College, id=c_id)
     ck_group_list = [ck_group for ck_group in CheckoutGroup.objects.all() if ck_group.participant_set.all()[0].college == college]
-    ck_group_list = ck_group_list.order_by('-created_time')
     rows = [{'data':[ck_group.participant_set.all().count(), ck_group.created_time, ck_group.amount_retained], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:ck_group_details', kwargs={'ck_id':ck_group.id})), 'title':'View Details'}]} for ck_group in ck_group_list]
     headings = ['Participant Count', 'Time of Checkout', 'Amount Retained', 'View Details']
-    title = 'Checkout groups from ' + colllege.name
+    title = 'Checkout groups from ' + college.name
     table = {
         'rows':rows,
         'headings':headings,
@@ -370,20 +386,20 @@ def ck_group_details(request, ck_id):
     checkout_group = get_object_or_404(CheckoutGroup, id=ck_id)
     rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)],} for part in checkout_group.participant_set.all()]
     headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
-    title = 'Checkout detail at ' + checkout_group.created_time + ', Amount Retained:' + checkout_group.amount_retained
+    title = 'Checkout detail at ' + str(checkout_group.created_time) + ', Amount Retained:' + str(checkout_group.amount_retained)
     table = {
         'rows':rows,
         'headings':headings,
         'title':title,
     }
-    return render(request, 'regsoft/checkout_details.html', {'tables':[table,], 'ck_group':checkout_group})
+    return render(request, 'regsoft/tables.html', {'tables':[table,],})
 
 ############################################ Hope she likes it ;) ############################### PS Shitty comments coz gitlab! Hopefully yaad rhega change krna hai. Else divyam, sanchit, hemant, dekh lena
 
 ########################################### Controlz and not recnacc coz avvvaaaaaaaaannnnnnttttttiiiiiii lite####################
 @staff_member_required
-def controlz_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:create_bill', kwargs={'g_id':group.id}), 'title':'Create Bill'}]} for group in Group.objects.all()]
+def controls_home(request):
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:create_bill', kwargs={'g_id':group.id})), 'title':'Create Bill'}]} for group in Group.objects.all()]
     headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
     title = 'Groups that have passed firewallz'
     table = {
@@ -396,26 +412,28 @@ def controlz_home(request):
 @staff_member_required
 def create_bill(request, g_id):
     group  = get_object_or_404(Group, id=g_id)
-    paid_participants = group.participant_set.filter(Q(controlz_paid=True) | Q(curr_controlz_paid=True))
-    unpaid_participants = group.participant_set.filter(controlz_paid=False, curr_controlz_paid=False)
+    controlz_passed = group.participant_set.filter(controlz=True)
+    controlz_unpassed = group.participant_set.filter(controlz=False)
     if request.method == 'POST':
         data = request.POST
         id_list = data.getlist('data')
         bill = Bill()
         bill.two_thousands = data['twothousands']
         bill.five_hundreds = data['fivehundreds']
+        bill.two_hundreds = data['twohundreds']
         bill.hundreds = data['hundreds']
         bill.fifties = data['fifties']
         bill.twenties = data['twenties']
         bill.tens = data['tens']
         bill.two_thousands_returned = data['twothousandsreturned']
         bill.five_hundreds_returned = data['fivehundredsreturned']
+        bill.two_hundreds_returned = data['twohundredsreturned']
         bill.hundreds_returned = data['hundredsreturned']
         bill.fifties_returned = data['fiftiesreturned']
         bill.twenties_returned = data['twentiesreturned']
         bill.tens_returned = data['tensreturned']
-        amount_dict = {'twothousands':2000, 'fivehundreds':500, 'hundreds':100, 'fifties':50, 'twenties':20, 'tens':10}
-        return_dict = {'twothousandsreturned':2000, 'fivehundredsreturned':500, 'hundredsreturned':100, 'fiftiesreturned':50, 'twentiesreturned':20, 'tensreturned':10}
+        amount_dict = {'twothousands':2000, 'fivehundreds':500, 'twohundreds':200,'hundreds':100, 'fifties':50, 'twenties':20, 'tens':10}
+        return_dict = {'twothousandsreturned':2000, 'fivehundredsreturned':500, 'twohundredsreturned':200,'hundredsreturned':100, 'fiftiesreturned':50, 'twentiesreturned':20, 'tensreturned':10}
         bill.amount = 0
         for key,value in amount_dict.iteritems():
             bill.amount += int(data[key])*int(value)
@@ -439,44 +457,25 @@ def create_bill(request, g_id):
                 part.save()
             return redirect(reverse('regsoft:bill_details', kwargs={'b_id':bill.id}))
         else:
-			return redirect(reverse('regsoft:create_bill', kwargs={'g_id':group.id}))
-    
+            messages.warning(request, 'Please enter a bill amount.')
+            return redirect(reverse('regsoft:create_bill', kwargs={'g_id':group.id}))
     else:
-        college = paid_participants[0].college
-        return render(request, 'regsoft/controlz_group.html', {'paid':paid_participants, 'unpaid':unpaid_participants})
-
-# @staff_member_required
-# def controlz_participant_edit(request, p_id):
-#     participant = get_object_or_404(Participant, id=p_id)
-#     if request.method == 'POST':
-#         name = request.POST['name']
+        return render(request, 'regsoft/controls_group.html', {'controlz_passed':controlz_passed, 'controlz_unpassed':controlz_unpassed, 'group':group})
 
 @staff_member_required
-def controlz_participant_add(request, g_id):
-    group = get_object_or_404(Group, id=g_id)
-    if request.method == 'POST':
-        data = request.POST
-        g_leader = get_group_leader(group)
-        participant = Participant()
-        participant.name = str(data['name'])
-        participant.gender = str(data['gender'])
-        participant.email = str(data['email'])
-        participant.phone = int(data['phone'])
-        participant.college = g_leader.college
-        participant.group = group
-        participant.firewallz_passed = True
-        participant.pcr_final = True
-        participant.save()
-        for key in data.getlist('events[]'):
-            event = Event.objects.get(id=int(key))
-            Participation.objects.create(event=event, participant=participant)
-        participant.save()
-        return redirect(reverse('regsoft:create_bill', kwargs = {'g_id':group.id}))
-    else:
-        return render(request, 'regsoft/add_participant.html', {'group':group})
-        
+def show_all_bills(request):
+    rows = [{'data':[college.name, college.participant_set.filter(controlz=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:show_college_bills', kwargs={'c_id':college.id})), 'title':'Show bills'}]} for college in College.objects.all()]
+    headings = ['College', 'Controls passed participants', 'Show bills',]
+    title = 'Colleges for bill details'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
 @staff_member_required
-def show_all_bills(request, c_id):
+def show_college_bills(request, c_id):
     college = College.objects.get(id=c_id)
     bills = []
     for part in college.participant_set.filter(controlz=True):
@@ -499,20 +498,30 @@ def bill_details(request, b_id):
     bill = get_object_or_404(Bill, id=b_id)
     participants = bill.participant_set.all()
     college = participants[0].college
-    return render(request, 'regsoft/bill_details.html', {'bill':bill, 'participant_list':participants, 'college':college, 'curr_time':time_stamp})
+    bill = get_object_or_404(Bill, id=b_id)
+    c_rows = [{'data':[part.name, get_event_string(part), bill.time_paid,], 'link':[]} for part in bill.participant_set.all()]
+    table = {
+		'title' : 'Participant details for the bill from ' + college.name +'. Cash amount = Rs ' + str(bill.amount-bill.draft_amount) + '. Draft Amount = Rs ' + str(bill.draft_amount),
+		'headings' : ['Name', 'Event(s)', 'Time created',],
+		'rows':c_rows,
+	}
+    return render(request, 'regsoft/bill_details.html', {'tables':[table,],'bill':bill, 'participant_list':participants, 'college':college, 'curr_time':time_stamp})
 
 @staff_member_required
 def print_bill(request, b_id):
+    from datetime import datetime
+    time = datetime.now()
     bill = get_object_or_404(Bill, id=b_id)
     participants = bill.participant_set.all()
+    if not participants:
+        return redirect(reverse('regsoft:bill_details', kwargs={'b_id':bill.id}))
     college = participants[0].college
-    try:
-        draft = bill.draft_number
-    except:
-        draft = ''
+    cr = college.participant_set.get(is_cr=True)
+    draft = bill.draft_number
+    if not draft:
+        draft = 'null'
     payment_methods = [{'method':'Cash', 'amount':bill.amount-bill.draft_amount}, {'method':'Draft #'+draft, 'amount':bill.draft_amount}]
-    number = Bill.objects.all().count()
-    return render(request, 'regsoft/bill_invoice.html', {'bill':bill, 'participant_list':participants, 'college':college, 'number':number, 'payment_methods':payment_methods})
+    return render(request, 'regsoft/bill_invoice.html', {'bill':bill, 'part_list':participants, 'college':college, 'payment_methods':payment_methods, 'time':time, 'cr':cr})
 
 @staff_member_required
 def delete_bill(request, b_id):
@@ -528,11 +537,22 @@ def delete_bill(request, b_id):
     return redirect(reverse('regsoft:show_all_bills', kwargs={'c_id':college.id}))
 
 @staff_member_required
-def recnacc_list(request, c_id):
+def recnacc_list(request):
+    rows = [{'data':[college.name, college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:recnacc_list_college', kwargs={'c_id':college.id})), 'title':'Select Participants'}]} for college in College.objects.all()]
+    headings = ['College', 'Number of participants', 'Select']
+    title = 'Select college to generate list.'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
+def recnacc_list_college(request, c_id):
     college = get_object_or_404(College, id=c_id)
-    participant_list = Participant.objects.filter(college=college, acco=True)
-    participant_list.sort(key=lambda x: x.recnacc_time, reverse=True)
-    return render(request, 'regsoft/recnacc_list.html', {'participant_list':participant_list})
+    participant_list = college.participant_set.filter(acco=True).order_by('-recnacc_time')
+    return render(request, 'regsoft/recnacc_list.html', {'participant_list':participant_list, 'college':college})
 
 @staff_member_required
 def generate_recnacc_list(request):
@@ -542,13 +562,13 @@ def generate_recnacc_list(request):
         c_rows = []
         for p_id in id_list:
             part = Participant.objects.get(id=p_id)
-            c_rows.append({'data':[part.name, part.college.name, part.gender,get_cr_name(part), get_event_string(part), part.room.room, part.room.bhavan, 300], 'link':[]})
+            c_rows.append({'data':[part.name, part.college.name, part.gender,get_cr_name(part), get_event_string(part), part.room.room, part.room.bhavan, 400], 'link':[]})
         part = Participant.objects.get(id=id_list[0])
         amount = (len(id_list))*400
         c_rows.append({'data':['Total', '','','','','','',amount]})
         table = {
             'title':'Participant list for RecNAcc from ' + part.college.name,
-            'headings':['Name', 'College', 'Gender', 'CR Name', 'Events', 'Room','Bhavan', 'Caution Deposit'],
+            'headings':['Name', 'College', 'Gender', 'CR Name', 'Event(s)', 'Room','Bhavan', 'Caution Deposit'],
             'rows': c_rows
         }
         return render(request, 'regsoft/tables.html', {'tables':[table,]})
@@ -556,7 +576,7 @@ def generate_recnacc_list(request):
 @staff_member_required
 def get_profile_card(request):
     rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:get_profile_card_participant', kwargs={'p_id':part.id})), 'title':'Get profile card'}]} for part in Participant.objects.filter(pcr_final=True)]
-    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
+    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events', 'Get profile card']
     title = 'Generate Profile Card'
     table = {
         'rows':rows,

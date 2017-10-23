@@ -9,7 +9,7 @@ register = template.Library()
 def show_tags():
     pcr_final = Participant.objects.filter(pcr_final=True).count()
     firewallz = Participant.objects.filter(firewallz_passed=True).count()
-    controlz = Participant.objects.filter(Q(paid=True,controlz_paid=True) | Q(curr_paid=True, curr_controlz_paid=True)).count()
+    controlz = Participant.objects.filter(controlz=True).count()
     recnacc = Participant.objects.filter(acco=True).count()
     return {'pcr_final':pcr_final, 'firewallz':firewallz, 'controlz':controlz, 'recnacc':recnacc}
 
