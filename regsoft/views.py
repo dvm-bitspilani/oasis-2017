@@ -103,7 +103,7 @@ def firewallz_approval(request, c_id):
             part.save() 
         encoded = generate_group_code(group)
         group.save()
-        return redirect('regsoft:firewallz_home')
+        return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
     
     groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college == college]
     unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False)
@@ -122,14 +122,29 @@ def get_group_list(request, g_id):
 
         participant_list = Participant.objects.filter(id__in=id_list)
         for participant in participant_list:
+            if participant.is_g_leader:
+                messages.warning(request,'Cannot unconfirm a Group Leader.')
+                continue
             participant.group = None
             participant.firewallz_passed = False
             participant.save()
+        leader = get_group_leader(group)
         if group.participant_set.count == 0:
             group.delete()
-        return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
+        return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':leader.college.id}))
     participant_list = group.participant_set.all()
     return render(request, 'regsoft/group_list.html', {'participant_list':participant_list, 'group':group})
+
+@staff_member_required
+def delete_group(request, g_id):
+    group = get_object_or_404(Group, id=g_id)
+    leader = get_group_leader(group)
+    for part in group.participant_set.all():
+        part.firewallz_passed = False
+        part.is_g_leader = False
+        part.save()
+    group.delete()
+    return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':leader.college.id}))
 
 ########################################## End Firewallz #########################################################################
 
@@ -137,7 +152,7 @@ def get_group_list(request, g_id):
 
 @staff_member_required
 def recnacc_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri('regsoft:allocate_participants', kwargs={'g_id':group.id}), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
     headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
     title = 'Groups that have passed firewallz'
     table = {

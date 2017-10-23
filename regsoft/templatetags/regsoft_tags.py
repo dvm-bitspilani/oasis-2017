@@ -41,3 +41,7 @@ def participant_count(group):
 @register.filter
 def get_gleader_name(group):
     return group.participant_set.get(is_g_leader=True).name
+
+@register.filter
+def get_group_college(group):
+    return group.participant_set.get(is_g_leader=True).college.name

@@ -13,6 +13,7 @@ urlpatterns = [
 	url(r'^firewallz/$', views.firewallz_home, name='firewallz_home'),
     url(r'^firewallz/(?P<c_id>\d+)/$', views.firewallz_approval, name='firewallz_approval'),
     url(r'^firewallz/groups/(?P<g_id>\d+)/$', views.get_group_list, name='get_group_list'),
+	url(r'^firewallz/delete_group/(?P<g_id>\d+)/$', views.delete_group, name='delete_group'),
 	# url(r'^firewallz/edit/(?P<part_id>\d+)/$', views.firewallz_edit, name='firewallz_edit'),
 	# url(r'^firewallz/add/(?P<gl_id>\d+)/$', views.firewallz_add, name='firewallz_add'),
 	# url(r'^firewallz/delete/$', views.firewallz_delete, name='firewallz_delete'),
@@ -21,6 +22,7 @@ urlpatterns = [
 
 	# ########## RecNAcc #############
 	url(r'^recnacc/$', views.recnacc_home, name='recnacc_home'),
+	url(r'^recnacc/allocate/(?P<g_id>\d+)/$', views.allocate_participants, name='allocate_participants'),
 	# url(r'^recnacc/college/(?P<gl_id>\d+)/$', views.recnacc_college, name='recnacc-college'),
 	# url(r'^recnacc/add_coach/(?P<gl_id>\d+)/$', views.add_coach_recnacc, name='add_coach_recnacc'),
 	# url(r'^recnacc/change/$',views.recnacc_change, name='change'),

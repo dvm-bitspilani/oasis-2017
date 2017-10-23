@@ -479,22 +479,22 @@ def final_email_send(request, eg_id):
 		_dir = '/root/live/oasis/backend/resources/oasis2017/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
-	except OSError:
-		_dir = '/home/tushar/'
+	except:
+		_dir = '/home/auto-reload/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	import base64
 
 	with open(a, "rb") as output_pdf:
 		encoded_string1 = base64.b64encode(output_pdf.read())
-		attachment = Attachment()
-		attachment.content = encoded_string1
-		attachment.name = 'Confirmed Participants'
+	attachment = Attachment()
+	attachment.content = encoded_string1
+	attachment.filename = 'Confirmed_Participants.pdf'
 	with open(_dir+'Instructions_to_Participants', 'rb') as output_doc:
 		encoded_string2 = base64.b64encode(output_doc.read())
-		attachment_1 = Attachment()
-		attachment_1.content = encoded_string2
-		attachment_1.name = 'Instructions to Participants.docx'   
+	attachment_1 = Attachment()
+	attachment_1.content = encoded_string2
+	attachment_1.filename = 'Instructions to Participants.docx'   
 	subject = 'Final Confirmation for Oasis'
 	from_email = Email('register@bits-oasis.org')
 	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
@@ -532,13 +532,15 @@ pcr@bits-oasis.org
 			mail.add_attachment(attachment)
 			mail.add_attachment(attachment_1)
 			response = sg.client.mail.send.post(request_body=mail.get())
+			print 'Here'
 			messages.warning(request,'Email sent to ' + part.name)
 			part.pcr_final=True
 			part.save()
 			if not part.is_cr:
 				encoded = gen_barcode(part)
 				part.save()
-		except :
+		except Exception,e:
+			print str(e)
 			messages.warning(request,'Error sending email')
 	return redirect(reverse('pcradmin:final_confirmation', kwargs={'c_id':college.id}))
 
@@ -549,7 +551,7 @@ def download_pdf(request, eg_id):
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	except:
-		_dir = '/home/tushar/'
+		_dir = '/home/auto-reload/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	pdf = open(a, 'rb')
