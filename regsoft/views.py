@@ -179,8 +179,11 @@ def allocate_participants(request, g_id):
                 room_id = data['room']
                 room = Room.objects.get(id=room_id)
             except:
+                messages.warning(request,'Incomplete selection')
                 return redirect(request.META.get('HTTP_REFERER'))
-                
+            if not parts_id:
+                messages.warning(request,'Incomplete selection')
+                return redirect(request.META.get('HTTP_REFERER')) 
             rows = []
             room.vacancy -= len(parts_id)
             room.save()
@@ -193,34 +196,42 @@ def allocate_participants(request, g_id):
         elif data['action'] == 'deallocate':
             try:
                 parts_id = data.getlist('data')
-                room_id = data['room']
-                room = Room.objects.get(id=room_id)
             except:
                 return redirect(request.META.get('HTTP_REFERER'))
-                
-            rows = []
-            room.vacancy += len(parts_id)
-            room.save()
             for part_id in parts_id:
                 part = Participant.objects.get(id=part_id)
+                room = part.room
+                room.vacancy += 1
+                room.save()
                 part.acco = False
                 part.room = None
                 part.save()
         return redirect(reverse('regsoft:recnacc_group_list', kwargs={'c_id':get_group_leader(group).college.id}))
     else:
-        unalloted_participants = group.participant_set.filter(acco=False)
-        alloted_participants = group.participant_set.filter(acco=True)
+        unalloted_participants = group.participant_set.filter(acco=False, checkout_group=None)
+        alloted_participants = group.participant_set.filter(acco=True, checkout_group=None)
         rooms_list = Room.objects.all()
-        return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list})
+        return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list, 'group':group})
 
 @staff_member_required
 def recnacc_group_list(request, c_id):
     college = get_object_or_404(College, id=c_id)
     group_list = [group for group in Group.objects.all() if get_group_leader(group).college == college]
     complete_groups = [group for group in group_list if all(part.acco for part in group.participant_set.all())]
+    complete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.all().count, group.participant_set.filter(acco=True,checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in complete_groups]
     incomplete_groups = [group for group in group_list if not group in complete_groups]
-
-    return render(request, 'regsoft/recnacc_group_list.html', {'complete_groups':complete_groups, 'incomplete_groups':incomplete_groups})
+    incomplete_rows = [{'data':[group.created_time, get_group_leader(group).name, group.participant_set.all().count, group.participant_set.filter(acco=True,checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Manage group'}]} for group in incomplete_groups]
+    complete_table = {
+        'rows':complete_rows,
+        'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
+        'title':'Completely Alloted Groups'
+    }
+    incomplete_table = {
+        'rows':incomplete_rows,
+        'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
+        'title':'Incompletely Alloted Groups'
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[complete_table, incomplete_table]})
 
 @staff_member_required
 def room_details(request):

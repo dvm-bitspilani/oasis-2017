@@ -23,7 +23,7 @@ urlpatterns = [
 	# ########## RecNAcc #############
 	url(r'^recnacc/$', views.recnacc_home, name='recnacc_home'),
 	url(r'^recnacc/allocate/(?P<g_id>\d+)/$', views.allocate_participants, name='allocate_participants'),
-	# url(r'^recnacc/college/(?P<gl_id>\d+)/$', views.recnacc_college, name='recnacc-college'),
+	url(r'^recnacc/grouplist/(?P<c_id>\d+)/$', views.recnacc_group_list, name='recnacc_group_list'),
 	# url(r'^recnacc/add_coach/(?P<gl_id>\d+)/$', views.add_coach_recnacc, name='add_coach_recnacc'),
 	# url(r'^recnacc/change/$',views.recnacc_change, name='change'),
 	# url(r'^recnacc/college_vs_bhavan/$', views.college_vs_bhavan, name='college_vs_bhavan'),

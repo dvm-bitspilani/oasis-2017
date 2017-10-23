@@ -15,6 +15,7 @@ class Room(models.Model):
 	bhavan = models.ForeignKey(Bhavan, on_delete=models.CASCADE)
 	room = models.CharField(max_length=30)
 	vacancy = models.IntegerField()
+	capacity = models.IntegerField(default=0)
 
 	def __unicode__(self):
 

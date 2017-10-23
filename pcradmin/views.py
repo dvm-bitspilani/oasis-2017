@@ -32,6 +32,14 @@ chars = string.letters + string.digits
 from django.contrib import messages
 from django.db.models import Q
 
+def get_event_string(participant):
+    participation_set = Participation.objects.filter(participant=participant, pcr_approved=True)
+    events = ''
+    for participation in participation_set:
+        events += participation.event.name + ', '
+    events = events[:-2]
+    return events
+
 @staff_member_required
 def index(request):
 	return redirect('pcradmin:college')
@@ -273,11 +281,19 @@ def stats(request, order=None):
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 	if order == 'paidwise':
-		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email], 'link':[]} for part in Participant.objects.filter(Q(pcr_approved=True), Q(paid=True)|Q(curr_paid=True))]
-		headings = ['Name', 'College', 'Gender', 'Phone', 'Email']
+		rows = [{'data':[part.name, part.college.name, part.gender, part.phone, part.email, get_payment_status(part), get_event_string(part)], 'link':[]} for part in Participant.objects.filter(Q(pcr_approved=True), Q(paid=True)|Q(curr_paid=True))]
+		headings = ['Name', 'College', 'Gender', 'Phone', 'Email', 'Payment made', 'Events']
 		title = 'Participants\' payment status'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
 
+def get_payment_status(part):
+	if part.paid or part.curr_paid:
+		if part.controlz_paid or part.curr_controlz_paid:
+			return 950
+		else:
+			return 300
+	else:
+		return 0
 
 @staff_member_required
 def stats_event(request, e_id):
