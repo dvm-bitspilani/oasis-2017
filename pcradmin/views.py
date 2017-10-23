@@ -494,8 +494,13 @@ def final_email_send(request, eg_id):
 		encoded_string2 = base64.b64encode(output_doc.read())
 		attachment_1 = Attachment()
 		attachment_1.content = encoded_string2
-		attachment_1.name = 'Instructions to Participants.docx'
-	body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+		attachment_1.name = 'Instructions to Participants.docx'   
+	subject = 'Final Confirmation for Oasis'
+	from_email = Email('register@bits-oasis.org')
+	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+	for part in parts:	
+		to_email = Email(part.email)
+		body = """<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
 			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
 			<pre style="font-family:Roboto,sans-serif">
 Hello %s!
@@ -520,13 +525,8 @@ pcr@bits-oasis.org
 
 <b>Please reply to this email with number of people, if you require conveyance to or from Loharu and the timings for it.</b>
 </pre>
-			""" %(part.name,get_pcr_number())   
-	subject = 'Final Confirmation for Oasis'
-	from_email = Email('register@bits-oasis.org')
-	content = Content('text/html', body)
-	sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
-	for part in parts:	
-		to_email = Email(part.email)
+			""" %(part.name,get_pcr_number())
+		content = Content('text/html', body)
 		try:
 			mail = Mail(from_email, subject, to_email, content)
 			mail.add_attachment(attachment)
