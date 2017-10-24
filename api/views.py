@@ -440,7 +440,7 @@ def get_events_cd(request):
 		if not user.is_superuser:
 			return Response({'status':2, 'message':'You don\'t have access to this.' })
 	event_serializer = BaseEventSerializer(cd.events.all(), many=True)
-	return Response(event_serializer.data)
+	return Response({'events':event_serializer.data})
 
 @api_view(['POST'])
 def register_team(request):
@@ -464,9 +464,9 @@ def register_team(request):
 	team = Team.objects.create(name='Team-'+str(count)+' ' + event.name, event=event)
 	x=0
 	for mem in team_ids:
-		if re.match(r'\d{7}', mem):
+		if re.match(r'oasis17\w{8}', mem):
 			try:
-				p = Participant.objects.get(ems_code=mem)
+				p = Participant.objects.get(barcode=mem)
 			except:
 				team.delete()
 				return Response({'status':0, 'message':'Invalid Codes'})
