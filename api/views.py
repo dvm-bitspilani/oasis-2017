@@ -309,9 +309,8 @@ def all_events(request):
 	return Response(event_serializer.data)
 
 @api_view(['GET',])
+@permission_classes((AllowAny,))
 def all_prof_shows(request):
-	if not request.user.is_staff:
-		return Response({'message':'Invalid Access'})
 	prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
 	return Response(prof_show_serializer.data)
 

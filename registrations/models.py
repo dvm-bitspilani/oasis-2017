@@ -91,6 +91,9 @@ class Participant(models.Model):
 	cr_approved = models.BooleanField(default=False)
 	checkout_group = models.ForeignKey('CheckoutGroup', on_delete=models.SET_NULL, null=True)
 	ems_code = models.CharField(max_length=10, default='', null=True)
+	is_guest = models.BooleanField(default=False)
+	bits_id = models.CharField(max_length=20, null=True, blank=True)
+
 	def __unicode__(self):
 		return (self.name) + ' - ' + str(self.college.name)
 

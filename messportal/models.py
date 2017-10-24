@@ -36,7 +36,7 @@ class MessBill(models.Model):
 class ProfShowBill(models.Model):
     prof_show = models.ForeignKey('events.ProfShow', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now=True)
-    buyer_id = models.CharField(max_length=10)
+    buyer_id = models.CharField(max_length=20)
     quantity = models.IntegerField(default=0)
     n2000 = models.IntegerField(default=0)
     n500 = models.IntegerField(default=0)
