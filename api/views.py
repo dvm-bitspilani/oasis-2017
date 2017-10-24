@@ -437,7 +437,8 @@ def get_events_cd(request):
 	try:
 		cd = ClubDepartment.objects.get(user=user)
 	except:
-		pass
+		if not user.is_superuser:
+			return Response({'status':2, 'message':'You don\'t have access to this.' })
 	event_serializer = BaseEventSerializer(cd.events.all(), many=True)
 	return Response(event_serializer.data)
 
@@ -452,7 +453,7 @@ def register_team(request):
 			raise Exception
 	except:
 		if not user.is_superuser:
-			return Response({'status':2, 'message':'Invalid User'})
+			return Response({'status':2, 'message':'You don\'t have access to this.'})
 	try:
 		level = Level.objects.get(position=1, event=event)
 	except:
