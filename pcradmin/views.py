@@ -266,9 +266,8 @@ def stats(request, order=None):
 	if order == 'eventwise':
 		rows = []
 		for event in Event.objects.all().iterator():
-			participations = event.participation_set.all()
-			if participations.count()>0:
-				parts = Participant.objects.filter(id__in=[p.participant.id for p in participations.iterator()])
+			parts = event.participant_set.all()
+			if parts.count()>0:
 				parts_m = parts.filter(gender='M')
 				parts_f = parts.filter(gender='F')
 				rows.append({'data':[event.name, event.category, participants_count(parts_m), 
@@ -588,7 +587,7 @@ def contacts(request):
 
 ####  HELPER FUNCTIONS  ####
 def participants_count(parts):
-	x1 = len(parts)
+	x1 = parts.count()
 	if x1 == 0:
 		return '- - - - '
 	x2 = parts.filter(cr_approved=True, email_verified=True).count()
