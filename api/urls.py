@@ -14,4 +14,6 @@ urlpatterns = [
 				url(r'^get_profile/$', views.get_profile),
 				url(r'^add_prof_show/$', views.add_profshow),
 				url(r'^validate_prof_show', views.validate_profshow),
-				]
+				url(r'^get_events_cd$', views.get_events_cd),
+				url(r'^register_team$', views.register_team),
+]

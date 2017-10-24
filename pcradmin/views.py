@@ -265,18 +265,13 @@ def stats(request, order=None):
 
 	if order == 'eventwise':
 		rows = []
-		for event in Event.objects.all():
-			participations = Participation.objects.filter(event=event)
-			if participations.count()>0:
-				parts = Participant.objects.filter(id__in=[p.participant.id for p in participations])
+		for event in Event.objects.all().iterator():
+			parts = event.participant_set.all()
+			if parts.count()>0:
 				parts_m = parts.filter(gender='M')
 				parts_f = parts.filter(gender='F')
 				rows.append({'data':[event.name, event.category, participants_count(parts_m), 
 					participants_count(parts_f), participants_count(parts)], 'link':[{'title':'View','url':reverse('pcradmin:stats_event', kwargs={'e_id':event.id})}]})
-		# parts = Participant.objects.filter(id__in=[p.id for p in Participant.objects.all() if p.participation_set.all().count()>0])
-		# parts_m  = parts.filter(gender='M')
-		# parts_f = parts.filter(gender='F')
-		# rows.append({'data':['Total', ' ', participants_count(parts_m), participants_count(parts_f), participants_count(parts)], 'link':[{'url':'#', 'title':'- - -'}]})
 		headings = ['Event', 'Category', 'Male', 'Female', 'Total', 'View']
 		title = 'Eventwise Participants Stats'
 		return render(request, 'pcradmin/tables.html', {'tables':[{'rows': rows, 'headings':headings, 'title':title}]})
@@ -592,7 +587,7 @@ def contacts(request):
 
 ####  HELPER FUNCTIONS  ####
 def participants_count(parts):
-	x1 = len(parts)
+	x1 = parts.count()
 	if x1 == 0:
 		return '- - - - '
 	x2 = parts.filter(cr_approved=True, email_verified=True).count()

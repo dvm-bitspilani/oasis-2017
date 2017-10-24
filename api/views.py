@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework import status
-
+from ems.models import *
 import string
 from random import sample, choice
 chars = string.letters + string.digits
@@ -429,3 +429,63 @@ def validate_profshow(request):
 		return Response({'message':'Success. Passes Left = ' + str(attendance.count), 'participant':participant_serializer.data})
 	else:
 		return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+
+@api_view(['GET'])
+def get_events_cd(request):
+	user = request.user
+	try:
+		cd = ClubDepartment.objects.get(user=user)
+	except:
+		if not user.is_superuser:
+			return Response({'status':2, 'message':'You don\'t have access to this.' })
+	event_serializer = BaseEventSerializer(cd.events.all(), many=True)
+	return Response({'events':event_serializer.data})
+
+@api_view(['POST'])
+def register_team(request):
+	data = request.data
+	event = Event.objects.get(id=data['event_id'])
+	user = request.user
+	try:
+		cd = ClubDepartment.objects.get(user=user)
+		if not event in cd.events.all():
+			raise Exception
+	except:
+		if not user.is_superuser:
+			return Response({'status':2, 'message':'You don\'t have access to this.'})
+	try:
+		level = Level.objects.get(position=1, event=event)
+	except:
+		return Response({'status':3, 'message':'Levels not added'}) 
+	team_str = data['team']
+	team_ids = team_str.split(',')
+	count=Team.objects.all().count()
+	team = Team.objects.create(name='Team-'+str(count)+' ' + event.name, event=event)
+	x=0
+	for mem in team_ids:
+		if re.match(r'oasis17\w{8}', mem):
+			try:
+				p = Participant.objects.get(barcode=mem)
+			except:
+				team.delete()
+				return Response({'status':0, 'message':'Invalid Codes'})
+			team.members.add(p)
+			if x==0:
+				team.leader = p
+		elif re.match(r'[h,f]\d{6}', mem):
+			try:
+				b = Bitsian.objects.filter(ems_code=mem)[0]
+			except:
+				team.delete()
+				return Response({'status':0, 'message':'Invalid Codes'})
+			team.members_bitsian.add(b)
+			if x==0:
+				team.leader_bitsian = b
+		else:
+			team.delete()
+			return Response({'status':0, 'message':'Invalid Codes'})
+	team.save()
+	level.teams.add(team)
+	s = Score(team=team, level=level)
+	s.save()
+	return Response({'status':1, 'message':'Team added successfully.'})
