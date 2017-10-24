@@ -449,7 +449,7 @@ def register_team(request):
 	user = request.user
 	try:
 		cd = ClubDepartment.objects.get(user=user)
-		if not event in events:
+		if not event in cd.events.all():
 			raise Exception
 	except:
 		if not user.is_superuser:
