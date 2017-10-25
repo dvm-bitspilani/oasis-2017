@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from .forms import *
 import sendgrid
 import os
 from sendgrid.helpers.mail import *
