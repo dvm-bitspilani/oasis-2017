@@ -207,7 +207,30 @@ def day_activate(request):
 	day3 = Day.objects.get(day_no=3).is_active
 	return render(request, 'wordwars/day_activate.html',{'day1':day1, 'day2':day2, 'day3':day3})
 
-# @staff_member_required
-# def delete_questions(request):
+@staff_member_required
+def all_questions(request):
+	questions = Question.objects.all()
+	return render(request, 'wordwars/all_questions.html', {'questions':questions})
 
-# 	return render(request, 'wordwars/')
+
+@staff_member_required
+def view_question(request, q_id):
+	question = get_object_or_404(Question, id=q_id)
+	if request.method=='POST':
+		data = request.POST
+		try:
+			if data['submit'] == 'delete':
+				day = question.day
+				questions = Question.objects.filter(question_no__gte=question.question_no, day=day)
+				for q in questions:
+					q.question_no-=1
+					q.save()
+				question.delete()
+			messages.success(request, 'deleted successfully')
+			return redirect('wordwars:all_questions')
+
+		except:
+			messages.warning(request, 'Not deleted')
+			return redirect(request.META.get('HTTP_REFERER'))
+	return render(request, 'wordwars/view_question.html', {'question':question})
+

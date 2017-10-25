@@ -20,7 +20,7 @@ class WordWarsMiddleware(object):
 		if 'wordwars' in request.path:
 			if request.user.is_authenticated():
 
-				if ('add_question' in request.path or 'day_activate' in request.path) and not 'ohp' == request.user.username:
+				if any([i in request.path for i in ['add_question', 'day_activate', 'all_questions', 'view_question']]) and not 'ohp' == request.user.username:
 					return redirect('wordwars:home')
 				try:
 					day = view_kwargs['day']
