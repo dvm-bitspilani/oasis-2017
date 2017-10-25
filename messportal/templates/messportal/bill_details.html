@@ -16,7 +16,7 @@
                     <tr>
                         <th>Determinant</th>
                         <th>Value</th>
-                </tr>
+                    </tr>
                 </thead>
                 <tfoot>
                     <tr>
@@ -82,6 +82,18 @@
                         <td>Total outtake</td>
                         <td>{{bill.outtake}}</td>
                     </tr>
+                    {% if profshow %}
+                    <tr>
+                        <td>Bits Id</td>
+                        <td>
+                            {% if bill.bits_id %}
+                            {{bill.bits_id}}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

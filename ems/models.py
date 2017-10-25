@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from events.models import *
 from registrations.models import *
-
+from django.contrib.auth.models import User
 
 class Team(models.Model):
     name = models.CharField(max_length=200, default='')
@@ -57,7 +57,7 @@ class Parameter(models.Model):
     max_val = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return self.level.event.name + '-' + self.name
+        return str(self.level.event.name) + '-' + str(self.name)
 
 class Bitsian(models.Model):
 	

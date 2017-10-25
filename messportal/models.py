@@ -48,7 +48,19 @@ class ProfShowBill(models.Model):
     amount = models.IntegerField(default=0)
     intake = models.IntegerField(default=0)
     outtake = models.IntegerField(default=0)
+    bits_id = models.CharField(max_length=20, null=True)
     created_by = models.CharField(max_length=50)
 
     def __unicode__(self):
         return 'profshow-' + self.buyer_id + '-' + str(self.amount)
+
+class BitsProfShowBill(models.Model):
+    prof_show = models.ForeignKey('events.ProfShow', on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now=True)
+    buyer_id = models.CharField(max_length=20)
+    quantity = models.IntegerField(default=0)
+    created_by = models.CharField(max_length=50)
+    amount = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return 'bitsprofshow-' + self.buyer_id + '-' + str(self.amount)

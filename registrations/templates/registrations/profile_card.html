@@ -100,7 +100,7 @@
       <div id="events">Event(s): {{events}}</div>
       {% comment %} <div id="qr" style="background-image:url(qrcode.svg)"></div> {% endcomment %}
       {% get_qrcode_image participant.barcode %}
-      <span><div id="bar">{{participant.barcode}}</div></span>
+      <span><div id="bar">{{participant.barcode}} | {{participant.ems_code}}</div></span>
     </div>
   </body>
 </html>

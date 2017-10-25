@@ -17,6 +17,7 @@
 
 <div class="body">
         
+            <label for="prof_show">Select Prof Show</label>
             <select class="form-control show-tick" name="prof_show" data-live-search="true">
             {% for show in prof_shows %}
                 <option value="{{show.id}}">{{show.name}}</option>        
@@ -86,6 +87,12 @@
             <div class="form-group">
                 <div class="form-line">
                     <input type="text" id="created_by" class="form-control" placeholder="Bill Created By" name="created_by">
+                </div>
+            </div>
+            <label for="bits_id">Bitsian ID</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="bits_id" class="form-control" placeholder="Bits ID of guest correspondence" name="bits_id">
                 </div>
             </div>
             <button type="submit" class="btn btn-primary m-t-15 waves-effect">Create Bill</button>

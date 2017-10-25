@@ -1,0 +1,37 @@
+<html>
+    <head>
+        {% load static %}
+        <style type="text/css" id="night-mode-pro-style"></style>
+        <link type="text/css" rel="stylesheet" id="night-mode-pro-link">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type="text/css">
+            div {
+                background: #FFFFFF; height: 20px; color: #000000; font-size: 18px; padding: 10px; vertical-align: middle; margin-top:10px;
+            }
+        </style>
+        <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
+</head>
+<body style="width=200px">
+	<div>
+		<pre style="">
+Oasis 2017 
+Date/Time: {{time}} 
+Receipt: {{bill.id}}
+Buyer: {{participant.name}}
+Item: {{bill.item.name}}		
+Quantity: {{bill.quantity}}
+Bhavan: {{bill.mess}}
+Total Amount: Rs. {{bill.amount}}
+		</pre>
+	</div>
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript">
+	window.onload = function() { 
+		var date = Date.call();
+		$('#date').html(date.substr(0, 21));
+		console.log(date);
+	}
+</script>
+</body>
+</html>

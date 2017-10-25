@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from ckeditor.fields import RichTextField
 from registrations.models import *
+from ems.models import *
 
 class Category(models.Model):
 	
@@ -70,6 +71,7 @@ class Attendance(models.Model):
 	attended = models.BooleanField(default=False)
 	count = models.IntegerField(default=0)
 	passed_count = models.IntegerField(default=0)
+	bitsian = models.ForeignKey('ems.Bitsian', on_delete=models.CASCADE, null=True)
 
 	def __unicode__(self):
 		return str(self.prof_show.name)+'-'+str(self.participant.name)

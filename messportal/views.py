@@ -4,6 +4,7 @@ from events.models import *
 from .models import *
 from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
+import re
 
 @staff_member_required
 def index(request):
@@ -165,7 +166,21 @@ def create_profshow_bill(request):
         profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
         profshow_bill.created_by = data['created_by']
         profshow_bill.save()
-
+        try:
+            bits_id = data['bits_id']
+            if not bits_id == '':
+                if not re.match(r'[h,f]\d{6}', bits_id):
+                    context = {
+                        'error_heading':'No match found',
+                        'message':'Bitsian does not exist.',
+                        'url':request.build_absolute_uri(reverse('messportal:index'))
+                        }
+                    profshow_bill.delete()
+                    return render(request, 'registrations/message.html', context)
+                profshow_bill.bits_id = bits_id
+                profshow_bill.save()
+        except:
+            pass 
         barcode = 'oasis17' + data['barcode']
         try:
             participant = Participant.objects.get(barcode=barcode)
@@ -173,8 +188,9 @@ def create_profshow_bill(request):
             context = {
                 'error_heading':'No match found',
                 'message':'Participant does not exist.',
-                'url':request.build_absolute_uri('messportal:index')
+                'url':request.build_absolute_uri(reverse('messportal:index'))
             }
+            profshow_bill.delete()
             return render(request, 'registrations/message.html', context)
         try:
             attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
@@ -194,8 +210,8 @@ def create_profshow_bill(request):
 
 @staff_member_required
 def view_all_mess_bills(request):
-    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.item.name, bill.mess,Participant.objects.get(barcode=bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:mess_bill_details', kwargs={'mb_id':bill.id}))}]} for bill in MessBill.objects.all()]
-    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Item', 'Mess', 'Participant Name', 'View Details']
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.item.name, bill.item.price,bill.mess,Participant.objects.get(barcode=bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:mess_bill_details', kwargs={'mb_id':bill.id}))}]} for bill in MessBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Item', 'Price/item','Mess', 'Participant Name', 'View Details']
     title = 'Mess Bill Details'
     table = {
         'rows':rows,
@@ -206,8 +222,8 @@ def view_all_mess_bills(request):
 
 @staff_member_required
 def view_all_profshow_bills(request):
-    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.prof_show.name, Participant.objects.get(barcode=bill.buyer_id).name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:profshow_bill_details', kwargs={'ps_id':bill.id}))}]} for bill in ProfShowBill.objects.all()]
-    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Prof Show', 'Participant Name', 'View Details']
+    rows = [{'data':[bill.created_time, bill.created_by, bill.amount, bill.quantity, bill.prof_show.name, bill.prof_show.price,Participant.objects.get(barcode=bill.buyer_id).name, get_bits_id(bill)], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('messportal:profshow_bill_details', kwargs={'ps_id':bill.id}))}]} for bill in ProfShowBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Amount', 'Quantity', 'Prof Show', 'Price/profshow','Participant Name', 'Bits ID','View Details',]
     title = 'Prof Show Bill Details'
     table = {
         'rows':rows,
@@ -215,6 +231,12 @@ def view_all_profshow_bills(request):
         'title':title,
     }
     return render(request, 'messportal/tables.html', {'tables':[table,]})
+
+def get_bits_id(bill):
+    if bill.bits_id:
+        return bits_id
+    else:
+        return ''
 
 @staff_member_required
 def mess_bill_details(request, mb_id):
@@ -234,7 +256,7 @@ def mess_bill_receipt(request, mb_id):
     bill = get_object_or_404(MessBill, id=mb_id)
     participant = Participant.objects.get(barcode = bill.buyer_id)
     time = datetime.now()
-    return render(request, 'messportal/bill_receipt.html', {'bill':bill, 'mess':True, 'participant':participant, 'time':time,})
+    return render(request, 'messportal/thermal_receipt.html', {'bill':bill, 'mess':True, 'participant':participant, 'time':time,})
 
 @staff_member_required
 def profshow_bill_receipt(request, ps_id):

@@ -187,7 +187,7 @@ Greetings from BITS Pilani!
 
 It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
            
-This is to inform you that you guest registration is complete.
+This is to inform you that your guest registration is complete.
 You can now login in the app using the following credentials and get your exclusive qrcode:
 username : '%s'
 password : '%s'
