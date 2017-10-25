@@ -12,7 +12,7 @@ import sendgrid
 import os
 from sendgrid.helpers.mail import *
 from oasis2017.keyconfig import *
-
+import re
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
@@ -335,69 +335,109 @@ def add_profshow(request):
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
-	try:
-		participant = Participant.objects.get(barcode=data['barcode'])
-		participant_serializer = ParticipantSerializer(participant, context={'request':request})
-	except:
+	barcode = data['barcode']
+	if re.match(r'[h,f]\d{6}', barcode):
+		try:
+			bitsian = Bitsian.objects.get(ems_code=barcode)
+			bitsian_serializer = BitsianSerializer(bitsian)
+		except:
+			return Response({'message':'Please check barcode of Bitsian'})
+		try:
+			attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+			attendance.count += int(data['count'])
+			attendance.save()
+		except:
+			attendance = Attendance()
+			attendance.bitsian = bitsian
+			attendance.prof_show = prof_show
+			attendance.paid = True
+			attendance.count = data['count']
+			attendance.save()
+		profshow_bill = BitsProfShowBill()
+		profshow_bill.prof_show = prof_show
+		profshow_bill.buyer_id = data['barcode']
+		profshow_bill.quantity = data['count']
+		profshow_bill.amount = prof_show.price
+		profshow_bill.created_by = data['created_by']
+		profshow_bill.save()
+		attendance_serializer = AttendanceSerializer(attendance)
+		return Response({'profshow':attendance_serializer.data, 'bitsian':bitsian_serializer.data})
+	elif re.match(r'oasis17\w{8}', barcode):
+		try:
+			participant = Participant.objects.get(barcode=data['barcode'])
+			participant_serializer = ParticipantSerializer(participant, context={'request':request})
+		except:
+			return Response({'message':'Please check barcode of Participant'})
+		try:
+			attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+			attendance.count += int(data['count'])
+			attendance.save()
+		except:
+			attendance = Attendance()
+			attendance.participant = participant
+			attendance.prof_show = prof_show
+			attendance.paid = True
+			attendance.count = data['count']
+			attendance.save()
+		profshow_bill = ProfShowBill()
+		profshow_bill.prof_show = prof_show
+		profshow_bill.buyer_id = data['barcode']
+		profshow_bill.quantity = data['count']
+		profshow_bill.n2000 = int(data['n_2000'])
+		profshow_bill.intake = 0
+		profshow_bill.outtake = 0
+		if data['n_2000']>0:
+			profshow_bill.intake += int(data['n_2000'])*2000
+		else:
+			profshow_bill.outtake -= int(data['n_2000'])*2000
+		profshow_bill.n500 = data['n_500']
+		if data['n_500']>0:
+			profshow_bill.intake += int(data['n_500'])*500
+		else:
+			profshow_bill.outtake -= int(data['n_500'])*500
+		profshow_bill.n200 = data['n_200']
+		if data['n_200']>0:
+			profshow_bill.intake += int(data['n_200'])*200
+		else:
+			profshow_bill.outtake -= int(data['n_200'])*200
+		profshow_bill.n100 = data['n_100']
+		if data['n_100']>0:
+			profshow_bill.intake += int(data['n_100'])*100
+		else:
+			profshow_bill.outtake -= int(data['n_100'])*100
+		profshow_bill.n50 = data['n_50']
+		if data['n_50']>0:
+			profshow_bill.intake += int(data['n_50'])*50
+		else:
+			profshow_bill.outtake -= int(data['n_50'])*50
+		profshow_bill.n20 = data['n_20']
+		if data['n_20']>0:
+			profshow_bill.intake += int(data['n_20'])*20
+		else:
+			profshow_bill.outtake -= int(data['n_20'])*20
+		profshow_bill.n10 = data['n_10']
+		if data['n_10']>0:
+			profshow_bill.intake += int(data['n_10'])*10
+		else:
+			profshow_bill.outtake -= int(data['n_10'])*10
+		profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
+		profshow_bill.created_by = data['created_by']
+		profshow_bill.save()
+		try:
+			bits_id = data['bits_id']
+			if not bits_id == '':
+				if not re.match(r'[h,f]\d{6}', bits_id):
+					profshow_bill.delete()
+					return Response({'message':'Invalid BITS Id'})
+				profshow_bill.bits_id = bits_id
+				profshow_bill.save()
+		except:
+			pass
+		attendance_serializer = AttendanceSerializer(attendance)
+		return Response({'profshow':attendance_serializer.data, 'participant':participant_serializer.data})
+	else:
 		return Response({'message':'Please check barcode of Participant'})
-	try:
-		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-		attendance.count += int(data['count'])
-		attendance.save()
-	except:
-		attendance = Attendance()
-		attendance.participant = participant
-		attendance.prof_show = prof_show
-		attendance.paid = True
-		attendance.count = data['count']
-		attendance.save()
 	
-	profshow_bill = ProfShowBill()
-	profshow_bill.prof_show = prof_show
-	profshow_bill.buyer_id = data['barcode']
-	profshow_bill.quantity = data['count']
-	profshow_bill.n2000 = int(data['n_2000'])
-	profshow_bill.intake = 0
-	profshow_bill.outtake = 0
-	if data['n_2000']>0:
-		profshow_bill.intake += int(data['n_2000'])*2000
-	else:
-		profshow_bill.outtake -= int(data['n_2000'])*2000
-	profshow_bill.n500 = data['n_500']
-	if data['n_500']>0:
-		profshow_bill.intake += int(data['n_500'])*500
-	else:
-		profshow_bill.outtake -= int(data['n_500'])*500
-	profshow_bill.n200 = data['n_200']
-	if data['n_200']>0:
-		profshow_bill.intake += int(data['n_200'])*200
-	else:
-		profshow_bill.outtake -= int(data['n_200'])*200
-	profshow_bill.n100 = data['n_100']
-	if data['n_100']>0:
-		profshow_bill.intake += int(data['n_100'])*100
-	else:
-		profshow_bill.outtake -= int(data['n_100'])*100
-	profshow_bill.n50 = data['n_50']
-	if data['n_50']>0:
-		profshow_bill.intake += int(data['n_50'])*50
-	else:
-		profshow_bill.outtake -= int(data['n_50'])*50
-	profshow_bill.n20 = data['n_20']
-	if data['n_20']>0:
-		profshow_bill.intake += int(data['n_20'])*20
-	else:
-		profshow_bill.outtake -= int(data['n_20'])*20
-	profshow_bill.n10 = data['n_10']
-	if data['n_10']>0:
-		profshow_bill.intake += int(data['n_10'])*10
-	else:
-		profshow_bill.outtake -= int(data['n_10'])*10
-	profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
-	profshow_bill.created_by = data['created_by']
-	profshow_bill.save()
-	attendance_serializer = AttendanceSerializer(attendance)
-	return Response({'profshow':attendance_serializer.data, 'participant':participant_serializer.data})
 
 @api_view(['POST',])
 @permission_classes((IsAuthenticated, ))
@@ -409,26 +449,47 @@ def validate_profshow(request):
 		if not user.username == 'deptlive':
 			return Response({'message':'Invalid Access'})
 	data = request.data
+	barcode = data['barcode']
 	try:
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
-	try:
-		participant = Participant.objects.get(barcode=data['barcode'])
-		participant_serializer = ParticipantSerializer(participant, context={'request':request})
-	except:
-		return Response({'message':'Please check barcode of Participant'})
-	try:
-		attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-	except:
-		return Response({'message':'No more passes left. Please register at DoLE Booth.'})
-	if attendance.count > 0:
-		attendance.count -= 1
-		attendance.passed_count += 1
-		attendance.save()
-		return Response({'message':'Success. Passes Left = ' + str(attendance.count), 'participant':participant_serializer.data})
+	if re.match(r'[h,f]\d{6}', barcode):
+		try:
+			bitsian = Bitsian.objects.get(ems_code=barcode)
+			bitsian_serializer = BitsianSerializer(bitsian)
+		except:
+			return Response({'message':'Please check barcode of Bitsian'})
+		try:
+			attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+		except:
+			return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+		if attendance.count > 0:
+			attendance.count -= 1
+			attendance.passed_count += 1
+			attendance.save()
+			return Response({'message':'Success. Passes Left = ' + str(attendance.count), 'bitsian':bitsian_serializer.data})
+		else:
+			return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+	elif re.match(r'oasis17\w{8}', barcode):
+		try:
+			participant = Participant.objects.get(barcode=data['barcode'])
+			participant_serializer = ParticipantSerializer(participant, context={'request':request})
+		except:
+			return Response({'message':'Please check barcode of Participant'})
+		try:
+			attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+		except:
+			return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+		if attendance.count > 0:
+			attendance.count -= 1
+			attendance.passed_count += 1
+			attendance.save()
+			return Response({'message':'Success. Passes Left = ' + str(attendance.count), 'participant':participant_serializer.data})
+		else:
+			return Response({'message':'No more passes left. Please register at DoLE Booth.'})
 	else:
-		return Response({'message':'No more passes left. Please register at DoLE Booth.'})
+		return Response({'message':'Invalid code.'})
 
 @api_view(['GET'])
 def get_events_cd(request):

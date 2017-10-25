@@ -2,6 +2,7 @@ from rest_framework import serializers
 from events.models import *
 from registrations.models import *
 from django.contrib.auth.models import User
+from ems.models import *
 
 class ParticipantSerializer(serializers.ModelSerializer):
 
@@ -60,3 +61,8 @@ class ParticipationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Participation
 		fields = ('participant', 'event', 'id')
+
+class BitsianSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Bitsian
+		fields = '__all__'
