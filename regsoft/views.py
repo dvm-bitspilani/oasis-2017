@@ -17,8 +17,18 @@ from oasis2017.settings import BASE_DIR
 import os
 from time import gmtime, strftime
 import string
-from pcradmin.views import get_cr_name
+from pcradmin.views import get_cr_name, gen_barcode, get_pcr_number
 from django.contrib import messages
+from django.contrib.auth.models import User
+import sendgrid
+import os
+import re   
+from sendgrid.helpers.mail import *
+from oasis2017.keyconfig import *
+import string
+from random import sample, choice
+from django.contrib import messages
+chars = string.letters + string.digits
 
 ############################### Helper Function ########################################################
 
@@ -121,9 +131,106 @@ def firewallz_approval(request, c_id):
         return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
     
     groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college == college]
-    unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False)
+    unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False, is_guest=False)
     print groups_passed
     return render(request, 'regsoft/firewallz_approval.html', {'groups_passed':groups_passed, 'unapproved_list':unapproved_list, 'college':college})
+
+@staff_member_required
+def add_guest(request):
+    if request.method == 'POST':
+        data = request.POST
+        email = data['email']
+        if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+            messages.warning(request,'Please enter a valid email address.')
+            return redirect(request.META.get('HTTP_REFERER'))
+        else:
+            try:
+                Participant.objects.get(email=data['email'])
+                messages.warning(request,'Email already registered.')
+                return redirect(request.META.get('HTTP_REFERER'))
+            except:
+                pass
+            participant = Participant()
+            participant.name = str(data['name'])
+            participant.gender = str(data['gender'])
+            participant.city = str(data['city'])
+            participant.email = str(data['email'])
+            participant.college = College.objects.get(name=str(data['college']))
+            participant.phone = int(data['phone'])
+            participant.is_guest = True
+            participant.email_verified = True
+            try:
+                participant.bits_id = str(data['bits_id'])
+            except:
+                messages.warning(request, 'Please enter the bits id')
+                return redirect(request.META.get('HTTP_REFERER'))
+            participant.firewallz_passed = True
+            participant.save()
+            encoded = gen_barcode(participant)
+            participant.save()
+            username = participant.name.split(' ')[0] + str(participant.id)
+            password = ''.join(choice(chars) for _ in xrange(8))
+            user = User.objects.create_user(username=username, password=password)
+            participant.user = user
+            participant.save()
+
+            send_to = participant.email
+            name = participant.name
+            body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+			<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+			<pre style="font-family:Roboto,sans-serif">
+Hello %s!
+
+Thank you for registering!
+
+Greetings from BITS Pilani!
+
+It gives me immense pleasure in inviting your institute to the 47th edition of OASIS, the annual cultural fest of Birla Institute of Technology & Science, Pilani, India. This year, OASIS will be held from October 31st to November 4th.             
+           
+This is to inform you that you guest registration is complete.
+You can now login in the app using the following credentials and get your exclusive qrcode:
+username : '%s'
+password : '%s'
+
+Regards,
+StuCCAn (Head)
+Dept. of Publications & Correspondence, OASIS 2017
+BITS Pilani
+%s
+pcr@bits-oasis.org
+</pre>
+			''' %(name, username, password, get_pcr_number())
+            sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+            from_email = Email('register@bits-oasis.org')
+            to_email = Email(send_to)
+            subject = "Registration for OASIS '17 REALMS OF FICTION"
+            content = Content('text/html', body)
+
+            try:
+                mail = Mail(from_email, subject, to_email, content)
+                response = sg.client.mail.send.post(request_body=mail.get())
+            except :
+                participant.user = None
+                participant.save()
+                user.delete()
+                participant.delete()
+                context = {
+                    'url':request.build_absolute_uri(reverse('regsoft:firewallz_home')),
+                    'error_heading': "Error sending mail",
+                    'message': "Sorry! Error in sending email. Please try again.",
+                }
+                return render(request, 'registrations/message.html', context)
+
+            context = {
+                'error_heading': "Emails sent",
+                'message': "Login credentials have been mailed to the corresponding new participants.",
+                'url':request.build_absolute_uri(reverse('regsoft:firewallz_home'))
+            }
+            return render(request, 'registrations/message.html', context)
+    else:
+        colleges = College.objects.all()
+        guests = Participant.objects.filter(is_guest=True)
+        return render(request, 'regsoft/add_guest.html', {'colleges':colleges, 'guests':guests})
 
 @staff_member_required
 def get_group_list(request, g_id):
@@ -167,8 +274,8 @@ def delete_group(request, g_id):
 
 @staff_member_required
 def recnacc_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
-    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(controlz=True, acco=True, checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
+    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'Total controls passed','Total alloted','View Participants']
     title = 'Groups that have passed firewallz'
     table = {
         'rows':rows,
@@ -305,6 +412,24 @@ def bhavan_details(request, b_id):
 	return render(request, 'regsoft/tables.html', {'tables':tables})
 
 @staff_member_required
+def group_vs_bhavan(request):
+    rows = []
+    for group in Group.objects.all():
+        if group.participant_set.filter(acco=True):
+            bhavans = []
+            for part in group.participant_set.filter(acco=True):
+                if not part.room.bhavan in bhavans:
+                    bhavans.append(part.room.bhavan)
+            for bhavan in bhavans:
+                rows.append({'data':[bhavan.name,get_group_leader(group).college.name,group.group_code, get_group_leader(group).name, group.participant_set.filter(acco=True, room__bhavan=bhavan).count(), get_group_leader(group).phone],'link':[]})
+    table = {
+        'rows':rows,
+        'headings':['Bhavan','College','Group Code', 'Group Leader', 'Number of participants in bhavan', 'Group Leader Phone'],
+        'title':'Group vs Bhavans'
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
 def recnacc_college_details(request):
     college_list = College.objects.all()
     rows = [{'data':[college.name, Participant.objects.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
@@ -399,8 +524,8 @@ def ck_group_details(request, ck_id):
 ########################################### Controlz and not recnacc coz avvvaaaaaaaaannnnnnttttttiiiiiii lite####################
 @staff_member_required
 def controls_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:create_bill', kwargs={'g_id':group.id})), 'title':'Create Bill'}]} for group in Group.objects.all()]
-    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'View Participants']
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time, group.participant_set.filter(is_guest=False).count(), group.participant_set.filter(controlz=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:create_bill', kwargs={'g_id':group.id})), 'title':'Create Bill'}]} for group in Group.objects.all()]
+    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'Total in group', 'Passed controls from group','View Participants']
     title = 'Groups that have passed firewallz'
     table = {
         'rows':rows,
@@ -412,8 +537,8 @@ def controls_home(request):
 @staff_member_required
 def create_bill(request, g_id):
     group  = get_object_or_404(Group, id=g_id)
-    controlz_passed = group.participant_set.filter(controlz=True)
-    controlz_unpassed = group.participant_set.filter(controlz=False)
+    controlz_passed = group.participant_set.filter(controlz=True, is_guest=False)
+    controlz_unpassed = group.participant_set.filter(controlz=False, is_guest=False)
     if request.method == 'POST':
         data = request.POST
         id_list = data.getlist('data')
@@ -534,7 +659,7 @@ def delete_bill(request, b_id):
         part.save()
     college = participants[0].college
     bill.delete()
-    return redirect(reverse('regsoft:show_all_bills', kwargs={'c_id':college.id}))
+    return redirect(reverse('regsoft:show_college_bills', kwargs={'c_id':college.id}))
 
 @staff_member_required
 def recnacc_list(request):
@@ -575,7 +700,7 @@ def generate_recnacc_list(request):
 
 @staff_member_required
 def get_profile_card(request):
-    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:get_profile_card_participant', kwargs={'p_id':part.id})), 'title':'Get profile card'}]} for part in Participant.objects.filter(pcr_final=True)]
+    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:get_profile_card_participant', kwargs={'p_id':part.id})), 'title':'Get profile card'}]} for part in Participant.objects.filter(Q(pcr_final=True) | Q(is_guest=True))]
     headings = ['Name', 'Phone', 'Email', 'Gender', 'Events', 'Get profile card']
     title = 'Generate Profile Card'
     table = {
