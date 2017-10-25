@@ -368,6 +368,15 @@ def add_profshow(request):
 			participant_serializer = ParticipantSerializer(participant, context={'request':request})
 		except:
 			return Response({'message':'Please check barcode of Participant'})
+		profshow_bill = ProfShowBill()
+		try:
+			bits_id = data['bits_id']
+			if not bits_id == '':
+				if not re.match(r'[h,f]\d{6}', bits_id):
+					return Response({'message':'Invalid BITS Id'})
+				profshow_bill.bits_id = bits_id
+		except:
+			pass
 		try:
 			attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
 			attendance.count += int(data['count'])
@@ -379,7 +388,6 @@ def add_profshow(request):
 			attendance.paid = True
 			attendance.count = data['count']
 			attendance.save()
-		profshow_bill = ProfShowBill()
 		profshow_bill.prof_show = prof_show
 		profshow_bill.buyer_id = data['barcode']
 		profshow_bill.quantity = data['count']
@@ -423,16 +431,6 @@ def add_profshow(request):
 		profshow_bill.amount = profshow_bill.intake - profshow_bill.outtake
 		profshow_bill.created_by = data['created_by']
 		profshow_bill.save()
-		try:
-			bits_id = data['bits_id']
-			if not bits_id == '':
-				if not re.match(r'[h,f]\d{6}', bits_id):
-					profshow_bill.delete()
-					return Response({'message':'Invalid BITS Id'})
-				profshow_bill.bits_id = bits_id
-				profshow_bill.save()
-		except:
-			pass
 		attendance_serializer = AttendanceSerializer(attendance)
 		return Response({'profshow':attendance_serializer.data, 'participant':participant_serializer.data})
 	else:

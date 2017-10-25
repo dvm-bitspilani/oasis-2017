@@ -87,7 +87,8 @@ def index(request):
 
 @staff_member_required
 def firewallz_home(request):
-    college_list = College.objects.all()
+    college_list = [college for college in College.objects.all() if college.participant_set.filter(is_cr=True)]
+    print college_list
     rows = [{'data':[college.name, college.participant_set.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'}]} for college in college_list]
     headings = ['College', 'CR', 'PCr Finalised Participants', 'Approve Participants']
     title = 'Select college to approve Participants'
