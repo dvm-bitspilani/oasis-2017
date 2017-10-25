@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'store.middleware.OasisStoreMiddleware',
     'wordwars.middleware.WordWarsMiddleware',
     'messportal.middleware.MessPortalMiddleware',
     'pcradmin.middleware.PCrAdminMiddleware',
@@ -70,6 +71,7 @@ MIDDLEWARE = [
     'pcradmin.middleware.PCrAdminMiddleware',
     'messportal.middleware.MessPortalMiddleware',
     'wordwars.middleware.WordWarsMiddleware',
+    'store.middleware.OasisStoreMiddleware',
 ]
 
 ROOT_URLCONF = 'oasis2017.urls'
