@@ -38,4 +38,4 @@ class Question(models.Model):
 	points = models.IntegerField(default=0)
 
 	def __unicode__(self):
-		return 'Question no. : ' + str(self.question_no) + ' Day : ' + str(self.day)
+		return u'Question no. : ' + str(self.question_no) + u' Day : ' + str(self.day)

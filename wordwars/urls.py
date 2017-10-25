@@ -13,7 +13,10 @@ urlpatterns = [
 	url(r'^rules/$', views.rules, name='rules'),
 	url(r'^rulespage/$', views.rulespage, name='rulespage'),
 	url(r'^contact/$', views.contact, name='contact'),
+	
+
 	url(r'^add_question/$', views.add_question, name='add_question'),
 	url(r'^day_activate/$', views.day_activate, name='day_activate'),
-
+	url(r'^all_questions/$', views.all_questions, name='all_questions'),
+	url(r'^view_question/(?P<q_id>\d+)/$', views.view_question, name="view_question"),
 	]

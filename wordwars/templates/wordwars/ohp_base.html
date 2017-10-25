@@ -100,7 +100,7 @@
                         
                     </li>
                     <li class="active">
-                                <a href="{% url 'wordwars:play' 1 %}">
+                                <a href="{% url 'wordwars:add_question' %}">
                                 <!-- <i class="material-icons">home</i> -->
                                 <span>Questions</span>
                                 </a>
@@ -111,19 +111,12 @@
                             <span>Activate Day</span>
                         </a>
                     </li>
-                    <li class="header">LABELS</li>
-                    <li>
-                        <a href="{% url 'pcradmin:contacts' %}">
-                            <i class="material-icons col-amber">donut_large</i>
-                            <span>Contacts</span>
+                    <li class="active">
+                        <a href="{% url 'wordwars:all_questions' %}">
+                            <span>All Questions</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="javascript:void(0);">
-                            <i class="material-icons col-light-blue">donut_large</i>
-                            <span>Information</span>
-                        </a>
-                    </li>
+                    
                 </ul>
             </div>
             <!-- #Menu -->
