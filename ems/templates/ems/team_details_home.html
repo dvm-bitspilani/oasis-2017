@@ -28,7 +28,7 @@
             </div>
             <div class="row">
                         <div class="col-xs-2">
-                            <button class="btn btn-block bg-blue waves-effect" type="submit">Submit</button>
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="add">Submit</button>
                         </div>
             </div>
             </div>
@@ -87,7 +87,7 @@
                                     {% if team.leader %}
                                     <td>{{team.leader}}</td>
                                     {% else %}
-                                    <td>b-{{team.leader_bitsian}}</td>
+                                    <td>{{team.leader_bitsian}}</td>
                                     {% endif %}
                                     <td>{{team.level}}</td>
                                     <td><a href="{% url 'ems:team_details' event.id team.id %}">View</a></td>
