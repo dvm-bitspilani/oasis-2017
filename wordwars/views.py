@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import re
 from django.shortcuts import render, redirect, get_object_or_404
@@ -205,3 +206,8 @@ def day_activate(request):
 	day2 = Day.objects.get(day_no=2).is_active
 	day3 = Day.objects.get(day_no=3).is_active
 	return render(request, 'wordwars/day_activate.html',{'day1':day1, 'day2':day2, 'day3':day3})
+
+# @staff_member_required
+# def delete_questions(request):
+
+# 	return render(request, 'wordwars/')

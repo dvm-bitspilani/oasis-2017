@@ -491,7 +491,7 @@ def final_email_send(request, eg_id):
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	except:
-		_dir = '/home/auto-reload/Downloads/'
+		_dir = '/home/tushar/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	import base64

@@ -7,13 +7,13 @@ register = template.Library()
 
 @register.inclusion_tag('regsoft/show_tags.html')
 def show_tags():
-    email_verified = Participant.objects.filter(email_verified=True).count()
     pcr_final = Participant.objects.filter(pcr_final=True).count()
     firewallz = Participant.objects.filter(firewallz_passed=True, is_guest=False).count()
     guests = Participant.objects.filter(firewallz_passed=True, is_guest=True).count()
     controlz = Participant.objects.filter(controlz=True).count()
     recnacc = Participant.objects.filter(acco=True).count()
-    return {'email_verified':email_verified,'pcr_final':pcr_final, 'firewallz':firewallz, 'controlz':controlz, 'recnacc':recnacc, 'guests':guests}
+    checkout = Participant.objects.filter(checkout_group__isnull=False).count()
+    return {'pcr_final':pcr_final, 'firewallz':firewallz, 'controlz':controlz, 'recnacc':recnacc, 'guests':guests, 'checkout':checkout}
 
 @register.simple_tag
 def navbar_color(name):
