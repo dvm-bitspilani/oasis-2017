@@ -1,0 +1,114 @@
+{% extends 'store/base.html' %}
+{% block body %}
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% if added_items %}
+<form action="{% url 'store:cart_details' cart.id %}" method="post">
+{% csrf_token %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Cart details
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>View details</th>
+                        {% if not cart.paid %}
+                        <th>Remove</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>View details</th>
+                        {% if not cart.paid %}
+                        <th>Remove</th>
+                        {% endif %}
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in added_items %}
+                    <tr>
+                        <td>{{i.item.name}}</td>
+                        <td>{{i.item.price}}</td>
+                        <td>{{i.quantity}}</td>
+                        <td>
+                            <a href="{% url 'store:item_details' cart.id i.item.id %}">Details</a>
+                        </td>
+                        {% if not cart.paid %}
+                        <td>
+                            <input type="checkbox" name="sale_list" id="{{i.id}}" value="{{i.id}}">
+                            <label for="{{i.id}}"></label>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not cart.paid %}
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Remove</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</form>
+{% endif %}
+{% if unadded_items %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Unadded Items
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>View details</th>>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>View details</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in unadded_items %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.price}}</td>
+                        <td>
+                            <a href="{% url 'store:item_details' cart.id i.id %}">Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

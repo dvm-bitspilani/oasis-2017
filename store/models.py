@@ -11,18 +11,25 @@ class Cart(models.Model):
     created_time = models.DateTimeField(auto_now=True)
     amount = models.IntegerField(default=0)
     email = models.EmailField()
+    cart_token = models.CharField(max_length=32, null=True, blank=True)
 
     def __unicode__(self):
         return str(self.buyer_id) + '-' + str(self.amount)
 
+class Sale(models.Model):
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+
 class Item(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     price = models.IntegerField(default=0)
-    cart = models.ManyToManyField(Cart)
+    cart = models.ManyToManyField(Cart, through=Sale)
     front_pic = models.ImageField(upload_to="store/front_pics/", null=True)
     back_pic = models.ImageField(upload_to="store/back_pics/", null=True)
-    colour = models.ManyToManyField('Colour', null=True, blank=True)
-    size = models.ManyToManyField('Size', null=True, blank=True)
+    colour = models.ForeignKey('Colour', null=True, blank=True)
+    size = models.ForeignKey('Size', null=True, blank=True)
+    quantity_left = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.name

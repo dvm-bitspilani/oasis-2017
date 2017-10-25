@@ -275,8 +275,8 @@ def delete_group(request, g_id):
 
 @staff_member_required
 def recnacc_home(request):
-    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(controlz=True, acco=True, checkout_group=None).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
-    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'Total controls passed','Total alloted','View Participants']
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(controlz=True, acco=True, checkout_group=None).count(), group.participant_set.filter(checkout_group__isnull=False).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:allocate_participants', kwargs={'g_id':group.id})), 'title':'Allocate Participants'}]} for group in Group.objects.all().order_by('-created_time')]
+    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'Total controls passed','Total alloted', 'Checkout','View Participants']
     title = 'Groups that have passed firewallz'
     table = {
         'rows':rows,
@@ -333,8 +333,9 @@ def allocate_participants(request, g_id):
     else:
         unalloted_participants = group.participant_set.filter(acco=False, checkout_group=None, controlz=True)
         alloted_participants = group.participant_set.filter(acco=True, checkout_group=None, controlz=True)
+        checked_out = group.participant_set.filter(checkout_group__isnull=False)
         rooms_list = Room.objects.all()
-        return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list, 'group':group})
+        return render(request, 'regsoft/allot.html', {'unalloted':unalloted_participants, 'alloted':alloted_participants, 'rooms':rooms_list, 'group':group, 'checked_out':checked_out})
 
 @staff_member_required
 def recnacc_group_list(request, c_id):
@@ -458,8 +459,8 @@ def college_detail(request, c_id):
 
 @staff_member_required
 def checkout_college(request):
-	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(),],'link':[{'title':'Checkout', 'url':request.build_absolute_uri(reverse('regsoft:checkout', kwargs={'c_id':college.id}))}] } for college in College.objects.all()]
-	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Alloted Participants', 'Checkout']}]
+	rows = [{'data':[college.name,college.participant_set.filter(acco=True).count(), college.participant_set.filter(checkout_group__isnull=False).count()],'link':[{'title':'Checkout', 'url':request.build_absolute_uri(reverse('regsoft:checkout', kwargs={'c_id':college.id}))}] } for college in College.objects.all()]
+	tables = [{'title':'List of Colleges', 'rows':rows, 'headings':['College', 'Alloted Participants', 'Checked out Participants','Checkout']}]
 	return render(request, 'regsoft/tables.html', {'tables':tables})
 
 @staff_member_required
@@ -542,7 +543,14 @@ def create_bill(request, g_id):
     controlz_unpassed = group.participant_set.filter(controlz=False, is_guest=False)
     if request.method == 'POST':
         data = request.POST
-        id_list = data.getlist('data')
+        try:
+            id_list = data.getlist('data')
+        except:
+            messages.warning(request, 'Please select participants')
+            return redirect(request.META.get('HTTP_REFERER'))
+        if not id_list:
+            messages.warning(request, 'Please select participants')
+            return redirect(request.META.get('HTTP_REFERER'))
         bill = Bill()
         bill.two_thousands = data['twothousands']
         bill.five_hundreds = data['fivehundreds']
@@ -642,12 +650,12 @@ def print_bill(request, b_id):
     if not participants:
         return redirect(reverse('regsoft:bill_details', kwargs={'b_id':bill.id}))
     college = participants[0].college
-    cr = college.participant_set.get(is_cr=True)
+    g_leader = bill.participant_set.all()[0].group.participant_set.get(is_g_leader=True)
     draft = bill.draft_number
     if not draft:
         draft = 'null'
     payment_methods = [{'method':'Cash', 'amount':bill.amount-bill.draft_amount}, {'method':'Draft #'+draft, 'amount':bill.draft_amount}]
-    return render(request, 'regsoft/bill_invoice.html', {'bill':bill, 'part_list':participants, 'college':college, 'payment_methods':payment_methods, 'time':time, 'cr':cr})
+    return render(request, 'regsoft/bill_invoice.html', {'bill':bill, 'part_list':participants, 'college':college, 'payment_methods':payment_methods, 'time':time, 'cr':g_leader})
 
 @staff_member_required
 def delete_bill(request, b_id):

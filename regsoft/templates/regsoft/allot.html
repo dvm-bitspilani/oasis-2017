@@ -216,4 +216,48 @@
     </div>
 </div>
 {% endif %}
+{% if checked_out %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Checked out Participants
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Gender</th>
+                        <th>Event(s)</th>
+                        <th>College</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Gender</th>
+                        <th>Event(s)</th>
+                        <th>College</th>
+                        <th>Phone</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in checked_out %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.gender}}</td>
+                        <td>{{i | get_events_list}}</td>
+                        <td>{{i.college.name}}</td>
+                        <td>{{i.phone}}</td>    
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

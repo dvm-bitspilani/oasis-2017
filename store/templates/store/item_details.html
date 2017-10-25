@@ -1,0 +1,102 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block body %}
+
+<h2>{{item.name}}'s details for the cart</h2>
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Front Picture</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            {% if item.front_pic %}
+                            <img src="{{item.front_pic.url}}" alt="No image"/>
+                            {% else %}
+                            <img alt="No image"/>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Back Picture</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            {% if item.back_pic %}
+                            <img src="{{item.back_pic.url}}" alt="No image"/>
+                            {% else %}
+                            <img alt="No image"/>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+
+                        <div class="header">
+                            <h2>
+                                Item Details
+                            </h2>
+                        </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                                <form action="{% url 'store:add_item' cart.id item.id %}" method="post">
+                                {% csrf_token %}
+                            <table class="table table-bordered table-striped table-hover dataTable">
+                            <thead>
+                                    <tr>
+                                        <th>Determinant</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Colour</td>
+                                        <td>{{item.colour.name}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Size</td>
+                                        <td>{{item.size.size}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <label for="quantity">Quantity</label>
+                            <div class="form-group">
+                                <div class="form-line">
+                                    {% if sale %}
+                                    <input type="number" id="quantity" class="form-control" placeholder="Quantity" name="quantity" value="{{sale.quantity}}">
+                                    {% else %}
+                                    <input type="number" id="quantity" class="form-control" placeholder="Quantity" name="quantity">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if not cart.paid %}
+                            <button type="submit" class="btn btn-primary m-t-15 waves-effect"name="submit">Update</button>
+                            {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        </div>
+	</div>
+
+
+
+{% endblock %}
