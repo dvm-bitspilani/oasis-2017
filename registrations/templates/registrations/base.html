@@ -127,7 +127,7 @@
                             <span>Manage Profile</span>
                         </a>
                     </li>
-                    {% if participant.pcr_final %}
+                    {% if participant.pcr_final or participant.is_guest %}
                     <li class="active">
                         <a href="{% url 'registrations:get_profile_card' %}" target="none">
                             <span>Get Profile Card</span>

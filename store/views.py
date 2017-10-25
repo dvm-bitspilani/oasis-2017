@@ -1,0 +1,220 @@
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.http import JsonResponse
+from .models import *
+from registrations.models import *
+from events.models import *
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from .forms import *
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
+from django.contrib.auth.decorators import login_required
+from instamojo_wrapper import Instamojo
+import re
+from oasis2017.keyconfig import *
+from django.contrib.auth.models import User
+import string
+from random import sample, choice
+from django.contrib import messages
+from django.db.models import Q
+chars = string.letters + string.digits
+import re
+import requests
+
+try:
+	from oasis2017.config import *
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN)
+except:
+	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+
+@staff_member_required
+def index(request):
+    return redirect(reverse('store:create_cart'))
+
+@staff_member_required
+def create_cart(request):
+    if request.method == 'POST':
+        data = request.POST
+        cart = Cart()
+        buyer_id = data['buyer_id']
+        cart.buyer_id = buyer_id
+        if re.match(r'oasis17\w{8}', buyer_id):
+            try:
+                part = Participant.objects.get(barcode=buyer_id)
+                cart.participant = part
+            except:
+                messages.warning(request, 'Invalid participant barcode')
+                return redirect(request.META.get('HTTP_REFERER'))
+        elif re.match(r'[h,f]\d{6}', buyer_id):
+            cart.is_bitsian = True
+        else:
+            messages.warning(request, 'Invalid codes entered')
+            return redirect(request.META.get('HTTP_REFERER'))
+        cart.email = data['email']
+        cart.save()
+        return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+    else:
+        carts = Cart.objects.all()
+        return render(request, 'store/create_cart.html', {'carts':carts})
+
+@staff_member_required
+def cart_details(request, c_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    added_items = cart.item_set.all()
+    if request.method == 'POST':
+        data = request.POST
+        item_list = Item.objects.filter(id__in=data.getlist('item_list'))
+        for item in item_list:
+            cart.amount -= item.price
+            cart.save()
+            cart.item_set.remove(item)
+    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items})
+
+@staff_member_required
+def manage_items(request, c_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    items = Item.objects.all()
+    added_items = cart.item_set.all()
+    unadded_items = [item for item in items if not item in added_items]
+    return render(request, 'store/manage_items.html', {'added_items':added_items, 'unadded_items':unadded_items, 'cart':cart})
+
+@staff_member_required
+def item_details(request, c_id, i_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    item = get_object_or_404(Item, id=i_id)
+    return render(request, 'store/item_details.html', {'cart':cart, 'item':item})
+
+@staff_member_required
+def add_item(request, c_id, i_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    item = get_object_or_404(Item, id=i_id)
+    item.cart.add(cart)
+    cart.amount += item.price
+    cart.save()
+    return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+
+@staff_member_required
+def make_cash_payment(request, c_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    if cart.is_bitsian:
+        cart.paid = True
+        cart.save()
+        return redirect(reverse('store:index'))
+    if request.method == 'POST':
+        data = request.POST
+        id_list = data.getlist('data')
+        bill = CartBill()
+        bill.two_thousands = data['twothousands']
+        bill.five_hundreds = data['fivehundreds']
+        bill.two_hundreds = data['twohundreds']
+        bill.hundreds = data['hundreds']
+        bill.fifties = data['fifties']
+        bill.twenties = data['twenties']
+        bill.tens = data['tens']
+        bill.two_thousands_returned = data['twothousandsreturned']
+        bill.five_hundreds_returned = data['fivehundredsreturned']
+        bill.two_hundreds_returned = data['twohundredsreturned']
+        bill.hundreds_returned = data['hundredsreturned']
+        bill.fifties_returned = data['fiftiesreturned']
+        bill.twenties_returned = data['twentiesreturned']
+        bill.tens_returned = data['tensreturned']
+        amount_dict = {'twothousands':2000, 'fivehundreds':500, 'twohundreds':200,'hundreds':100, 'fifties':50, 'twenties':20, 'tens':10}
+        return_dict = {'twothousandsreturned':2000, 'fivehundredsreturned':500, 'twohundredsreturned':200,'hundredsreturned':100, 'fiftiesreturned':50, 'twentiesreturned':20, 'tensreturned':10}
+        bill.amount = 0
+        for key,value in amount_dict.iteritems():
+            bill.amount += int(data[key])*int(value)
+        for key,value in return_dict.iteritems():
+            bill.amount -= int(data[key])*int(value)
+        if not (bill.amount == 0):
+            bill.cart = cart
+            bill.save()
+            cart.paid = True
+            cart.save()
+            return redirect(reverse('store:show_all_bills'))
+        else:
+            messages.warning(request, 'Please enter a bill amount.')
+            return redirect(reverse('store:make_cash_payment', kwargs={'c_id':cart.id}))
+    else:
+        return render(request, 'store/make_cash_payment.html', {'cart':cart})
+
+@staff_member_required
+def make_online_payment(request, c_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    if cart.is_bitsian:
+        cart.paid = True
+        cart.save()
+        return redirect(reverse('store:index'))
+    amount = cart.amount
+    participant = cart.participant
+    name = participant.name
+    email = participant.email
+    phone = participant.phone
+    purpose = 'Oasis Store Id :' + str(cart.id) 
+    response = api.payment_request_create(buyer_name= name,
+                        email= email,
+                        phone= phone,
+                        amount = amount,
+                        purpose=purpose,
+                        redirect_url= request.build_absolute_uri(reverse("store:api_request"))
+                        )
+    # print  email	, response['payment_request']['longurl']			
+    try:
+        url = response['payment_request']['longurl']
+        return HttpResponseRedirect(url)
+    except:
+        context = {
+            'error_heading': "Payment error",
+            'message': "An error was encountered while processing the request. Please contact PCr, BITS, Pilani.",
+            'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+            }
+        return render(request, 'registrations/message.html')
+
+def api_request(request):
+    import requests
+    payid=str(request.GET['payment_request_id'])
+    headers = {'X-Api-Key': INSTA_API_KEY,
+                'X-Auth-Token': AUTH_TOKEN}
+    try:
+        from oasis2017 import config
+        r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
+    except:
+        r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development
+    json_ob = r.json()
+    if (json_ob['success']):
+        payment_request = json_ob['payment_request']
+        purpose = payment_request['purpose']
+        amount = payment_request['amount']
+        amount = int(float(amount))
+        try:
+            c_id = str(purpose.split(':')[1])
+            cart = Cart.objects.get(id=c_id)
+            cart.paid = True
+            cart.save()
+        except:		
+            context = {
+            'error_heading': "404 Not Found",
+            'message': "The requested cart was not found.",
+            'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+            }
+        return render(request, 'registrations/message.html', context)
+        context = {
+        'error_heading' : "Payment successful",
+        'message':'Thank you for paying.',
+        'url':request.build_absolute_uri(reverse('store:index'))
+        }
+        return render(request, 'registrations/message.html', context)
+
+    else:
+
+        payment_request = json_ob['payment_request']
+        purpose = payment_request['purpose']
+        email = payment_request['email']
+        context = {
+            'error_heading': "Payment error",
+            'message': "An error was encountered while processing the payment. Please contact PCr, BITS, Pilani.",
+            'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+            }
+        return render(request, 'registrations/message.html', context)

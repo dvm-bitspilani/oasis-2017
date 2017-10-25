@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'tarang',
     'wordwars',
     'api',
+    'store',
 ]
 
 MIDDLEWARE = [

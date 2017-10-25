@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^firewallz/(?P<c_id>\d+)/$', views.firewallz_approval, name='firewallz_approval'),
     url(r'^firewallz/groups/(?P<g_id>\d+)/$', views.get_group_list, name='get_group_list'),
 	url(r'^firewallz/delete_group/(?P<g_id>\d+)/$', views.delete_group, name='delete_group'),
+	url(r'^firewallz/add_guest/$', views.add_guest, name='add_guest'),
 	# url(r'^firewallz/edit/(?P<part_id>\d+)/$', views.firewallz_edit, name='firewallz_edit'),
 	# url(r'^firewallz/add/(?P<gl_id>\d+)/$', views.firewallz_add, name='firewallz_add'),
 	# url(r'^firewallz/delete/$', views.firewallz_delete, name='firewallz_delete'),

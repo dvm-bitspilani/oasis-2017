@@ -649,12 +649,13 @@ def upload_docs(request):
 def get_profile_card(request):
 	participant = Participant.objects.get(user=request.user)
 	if not participant.pcr_final:
-		context = {
-				'error_heading': "Invalid Access",
-				'message': "Please complete your profile and make payments to access this page.",
-				'url':request.build_absolute_uri(reverse('registrations:index'))
-				}
-		return render(request, 'registrations/message.html', context)
+		if not participant.is_guest:
+			context = {
+					'error_heading': "Invalid Access",
+					'message': "Please complete your profile and make payments to access this page.",
+					'url':request.build_absolute_uri(reverse('registrations:index'))
+					}
+			return render(request, 'registrations/message.html', context)
 	participant = Participant.objects.get(user=request.user)
 	participation_set = Participation.objects.filter(participant=participant, pcr_approved=True)
 	events = ''

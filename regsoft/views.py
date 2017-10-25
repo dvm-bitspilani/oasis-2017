@@ -17,11 +17,12 @@ from oasis2017.settings import BASE_DIR
 import os
 from time import gmtime, strftime
 import string
-from pcradmin.views import get_cr_name
+from pcradmin.views import get_cr_name, gen_barcode, get_pcr_number
 from django.contrib import messages
 from django.contrib.auth.models import User
 import sendgrid
 import os
+import re   
 from sendgrid.helpers.mail import *
 from oasis2017.keyconfig import *
 import string
@@ -138,16 +139,17 @@ def firewallz_approval(request, c_id):
 def add_guest(request):
     if request.method == 'POST':
         data = request.POST
+        email = data['email']
         if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
             messages.warning(request,'Please enter a valid email address.')
             return redirect(request.META.get('HTTP_REFERER'))
-        try:
-            Participant.objects.get(email=data['email'])
-            messages.warning(request,'Email already registered.')
-            return redirect(request.META.get('HTTP_REFERER'))
-        except:
-            pass
         else:
+            try:
+                Participant.objects.get(email=data['email'])
+                messages.warning(request,'Email already registered.')
+                return redirect(request.META.get('HTTP_REFERER'))
+            except:
+                pass
             participant = Participant()
             participant.name = str(data['name'])
             participant.gender = str(data['gender'])
@@ -156,6 +158,7 @@ def add_guest(request):
             participant.college = College.objects.get(name=str(data['college']))
             participant.phone = int(data['phone'])
             participant.is_guest = True
+            participant.email_verified = True
             try:
                 participant.bits_id = str(data['bits_id'])
             except:
@@ -225,7 +228,9 @@ pcr@bits-oasis.org
             }
             return render(request, 'registrations/message.html', context)
     else:
-        return render(request, 'regsoft/add_guest.html')
+        colleges = College.objects.all()
+        guests = Participant.objects.filter(is_guest=True)
+        return render(request, 'regsoft/add_guest.html', {'colleges':colleges, 'guests':guests})
 
 @staff_member_required
 def get_group_list(request, g_id):
