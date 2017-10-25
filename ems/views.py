@@ -108,7 +108,6 @@ def events_select(request):
 @login_required(login_url=login_url)
 def event_home(request, e_id):
     event = get_object_or_404(Event, id=e_id)
-
     if request.method == 'POST':
         data = request.POST
         position = int(data['position'])
@@ -250,6 +249,11 @@ def add_delete_teams(request, e_id):
 
     if request.method == 'POST':
         data = dict(request.POST)
+        submit = ''
+        try:
+            submit = data['submit'][0]
+        except:
+            return redirect(request.META.get('HTTP_REFERER'))
         if data['submit'][0] == 'delete_teams':
             try:
                 team_ids = data['delete_team_id']
@@ -411,7 +415,7 @@ def show_scores(request, e_id, level_id):
     event = Event.objects.get(id=e_id)
     level = get_object_or_404(Level,id=level_id, event=event)
     params = level.parameter_set.all()
-    teams = level.teams.all()
+    teams = Team.objects.filter(event=event)
     if request.method == 'POST':
         try:
             team_ids = dict(request.POST)['team_id']
@@ -420,7 +424,14 @@ def show_scores(request, e_id, level_id):
         except:
             messages.success(request, 'No team chosen')
             pass
-    tables = [{'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)} for team in teams]
+    
+    tables = []
+    for team in teams:
+        try:
+            tables.append({'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)})
+        except:
+            continue
+
     return render(request, 'ems/show_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level})
 
 
@@ -435,12 +446,16 @@ def update_scores(request, e_id, level_id):
     j_id = judge.id
     event = Event.objects.get(id=e_id)
     level = get_object_or_404(Level, id=level_id, event=event)
-    teams = level.teams.all()
+    teams = Team.objects.filter(event=event)
     params = level.parameter_set.all()
     if request.method == 'POST':
         data = request.POST
         for team in teams:
-            score = team.scores.get(level=level)
+            try:
+                score = team.scores.get(level=level)
+            except:
+                continue
+            socre.save()
             score_dict_total = score.get_score()
             score_dict = score.get_score_j(j_id)
             for param in params:
@@ -456,7 +471,13 @@ def update_scores(request, e_id, level_id):
             score.score = str(score_dict_total)
             score.save()
         messages.success(request, 'Score updated successfully')
-    tables = [{'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)} for team in teams]
+    tables = []
+    for team in teams:
+        try:
+            tables.append({'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)})
+        except:
+            continue
+
     return render(request, 'ems/update_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level})
 
 
@@ -481,7 +502,7 @@ def show_score_controls(request, e_id):
     judges = Judge.objects.filter(event=event)
     tables = []
     for level in levels:
-        teams = level.teams.all()
+        teams = Team.objects.filter(event=event)
         params = level.parameter_set.all()
         headings = ['Name', 'Leader'] + [judge.name for judge in judges] + ['Total',]
         table = {'title':level.name+' ' + str(level.position), 'headings':headings}
@@ -491,7 +512,10 @@ def show_score_controls(request, e_id):
                 leader = team.leader
             except:
                 leader = team.leader_bitsian
-            score = team.scores.get(level=level)
+            try:
+                score = team.scores.get(level=level)
+            except:
+                continue
             rows.append({'data':[team.name, leader]+[score.get_total_j(judge.id) for judge in judges] + [score.get_total_score()], 'link':[]})
         table['rows'] = rows
         tables.append(table)
@@ -524,13 +548,17 @@ def add_judge(request):
             judge.user = user
             judge.password = password
             judge.save()
+            for team in Team.objects.filter(event=event):
+                for s in score.objects.all():
+                    s.save()
+
     events = Event.objects.all()
     judges = Judge.objects.all()
     return render(request, 'ems/add_judge.html', {'events':events, 'judges':judges})
 
 @staff_member_required
 def add_cd(request):
-    if not(request.user == 'controls' or request.user.is_superuser):
+    if not(request.user.username == 'controls' or request.user.is_superuser):
         logout(request)
         return redirect('ems:index')
     if request.method == 'POST':

@@ -491,7 +491,7 @@ def final_email_send(request, eg_id):
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	except:
-		_dir = '/home/auto-reload/Downloads/'
+		_dir = '/home/tushar/Downloads/'
 		doc_name = _dir + 'final_list.pdf'
 		a=create_final_pdf(eg_id, doc_name, _dir)
 	import base64
@@ -546,6 +546,8 @@ pcr@bits-oasis.org
 			print 'Here'
 			messages.warning(request,'Email sent to ' + part.name)
 			part.pcr_final=True
+			ems_code = str(part.college.id).rjust(3,'0') + str(part.id).rjust(4,'0')
+			part.ems_code = ems_code
 			part.save()
 			if not part.is_cr:
 				encoded = gen_barcode(part)
