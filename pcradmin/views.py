@@ -523,7 +523,7 @@ This is to confirm your participation at OASIS '17.
 We would be really happy to see your college represented at our fest.
 
 We look forward to seeing you at OASIS 2017.
-A new link would be active in your OASIS '17 account where you will find a profile card. A printed copy of the same is compulsory to enter the premises.
+A new link would be active in your OASIS '17 account once you clear the Firewallz booth at BITS with the access to your exclusive profile card.
 
 PFA A list of participants from your college.
 

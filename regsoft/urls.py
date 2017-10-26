@@ -13,7 +13,8 @@ urlpatterns = [
     url(r'^firewallz/groups/(?P<g_id>\d+)/$', views.get_group_list, name='get_group_list'),
 	url(r'^firewallz/delete_group/(?P<g_id>\d+)/$', views.delete_group, name='delete_group'),
 	url(r'^firewallz/add_guest/$', views.add_guest, name='add_guest'),
-
+	url(r'^firewallz/remove_guests/$', views.remove_guests, name='remove_guests'),
+	url(r'^firewallz/show_uploads/(?P<p_id>\d+)/$', views.show_uploads, name='show_uploads'),
 	# ########## RecNAcc #############
 	url(r'^recnacc/$', views.recnacc_home, name='recnacc_home'),
 	url(r'^recnacc/allocate/(?P<g_id>\d+)/$', views.allocate_participants, name='allocate_participants'),
@@ -28,6 +29,7 @@ urlpatterns = [
 	url(r'^recnacc/checkout/(?P<c_id>\d+)/$', views.checkout, name="checkout"),
 	url(r'^recnacc/checkout/groups/(?P<c_id>\d+)/$', views.checkout_groups, name="checkout_groups"),
 	url(r'^recnacc/checkout/groupdetails/(?P<ck_id>\d+)/$', views.ck_group_details, name="ck_group_details"),
+	url(r'^recnacc/checkout/master_checkout/$', views.master_checkout, name="master_checkout"),
 	
 	# ########## Controls #############
 	url(r'^controls/$', views.controls_home, name='controls_home'),
