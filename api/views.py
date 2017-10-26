@@ -312,9 +312,10 @@ def all_events(request):
 	return Response(event_serializer.data)
 
 @api_view(['GET',])
-@permission_classes((AllowAny,))
 def all_prof_shows(request):
-	prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
+	user = request.user
+	clubdept = ClubDepartment.objects.get(user=user)
+	prof_show_serializer = ProfShowSerializer(clubdept.profshow.all(), many=True)
 	return Response(prof_show_serializer.data)
 
 
@@ -331,7 +332,7 @@ def add_profshow(request):
 	if not user.is_staff:
 		return Response({'message':'Invalid access'})
 	if not user.is_superuser:
-		if not user.username == 'deptlive':
+		if not (user.username == 'deptlive' or user.username == 'controls'):
 			return Response({'message':'Invalid Access'})
 	data = request.data
 	try:
