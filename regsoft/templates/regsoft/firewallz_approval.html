@@ -84,9 +84,10 @@
     </div>
 	<div class="body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover dataTable">
+            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                 <thead>
                     <tr>
+                        <th>Sr No</th>
                         <th>Participant Count</th>
                         <th>Passed Time</th>
                         <th>Group Code</th>
@@ -96,6 +97,7 @@
                 </thead>
                 <tfoot>
                     <tr>
+                        <th>Sr No</th>
                         <th>Participant Count</th>
                         <th>Passed Time</th>
                         <th>Group Code</th>
@@ -106,6 +108,7 @@
                 <tbody>
                 	{% for i in groups_passed %}
                     <tr>
+                        <td>{{forloop.counter}}</td>
                         <td>{{i|participant_count}}</td>
                         <td>{{i.created_time}}</td>
                         <td>{{i.group_code}}</td>
