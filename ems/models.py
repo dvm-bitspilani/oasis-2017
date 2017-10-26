@@ -28,7 +28,8 @@ class ClubDepartment(models.Model):
     email_id = models.EmailField()
     events = models.ManyToManyField('events.Event', blank=True)
     password = models.CharField(max_length=20, null=True, blank=True)
-    
+    profshows = models.ManyToManyField('events.ProfShow', null=True)
+
     def __unicode__(self):
         return self.name + '-' + self.co_ordinator
 
@@ -66,6 +67,7 @@ class Bitsian(models.Model):
     ems_code = models.CharField(max_length=10, null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
     email = models.EmailField(null=True)
+    barcode = models.CharField(max_length=10, null=True, blank=True)
 
     def __unicode__(self):
 		return str(self.long_id) + str(self.name)

@@ -50,13 +50,13 @@ def play(request, day=None):
 				player.day1 += 1
 				player.score += question.points
 				player.save()
-				messages.warning(request, 'Correct! Now Solve the next question')
+				messages.success(request, 'CORRECT!')
 				try:
 					question = Question.objects.get(day__day_no=1, question_no=player.day1+1)
 				except:
 					return redirect(reverse('wordwars:play', kwargs={'day':1}))
 			else:
-				messages.warning(request, 'Wrong Answer!!!!!')
+				messages.warning(request, 'WRONG ANSWER!!!!!')
 	if day=='2':
 		if player.day2 == day2:
 			messages.success(request, 'This day is already complete. Wait for the day to end or start attempting Day-3.')
@@ -73,14 +73,14 @@ def play(request, day=None):
 				player.day2 += 1
 				player.score += question.points
 				player.save()
-				messages.warning(request, 'Correct!')
+				messages.success(request, 'CORRECT!')
 				try:
 					question = Question.objects.get(day__day_no=2, question_no=player.day2+1)
 				except:
 					return redirect(reverse('wordwars:play', kwargs={'day':2}))
 
 			else:
-				messages.warning(request, 'Wrong Answer!!!!!')
+				messages.warning(request, 'WRONG ANSWER!!!!!')
 	if day == '3':
 		if player.day3 == day3:
 			messages.success(request, 'Congratulations! You have successfully completed all the questions.')
@@ -97,14 +97,14 @@ def play(request, day=None):
 				player.day3 += 1
 				player.score += question.points
 				player.save()
-				messages.warning(request, 'Correct!')
+				messages.success(request, 'CORRECT!')
 				try:
 					question = Question.objects.get(day__day_no=3, question_no=player.day3+1)
 				except:
 					return redirect(reverse('wordwars:play', kwargs={'day':2}))
 
 			else:
-				messages.warning(request, 'Wrong Answer!!!!!')
+				messages.warning(request, 'WORNG ANSWER!!!!!')
 	return render(request, 'wordwars/question.html', {'day1':day1, 'day2':day2, 'day3':day3, 'player':player, 'question':question, 'day_no':day_no})
 
 def register(request):
