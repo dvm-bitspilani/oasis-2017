@@ -434,8 +434,8 @@ def group_vs_bhavan(request):
 @staff_member_required
 def recnacc_college_details(request):
     college_list = College.objects.all()
-    rows = [{'data':[college.name, Participant.objects.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
-    headings = ['College', 'Alloted Participants', 'View Details']
+    rows = [{'data':[college.name, college.participant_set.get(is_cr=True).name,college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
+    headings = ['College', 'Cr Name','Alloted Participants', 'View Details']
     title = 'Select college to approve Participants'
     table = {
         'rows':rows,
@@ -446,14 +446,21 @@ def recnacc_college_details(request):
 
 @staff_member_required
 def college_detail(request, c_id):
+    rows = []
     college = get_object_or_404(College, id=c_id)
-    rows = [{'data':[get_group_leader(group).name, get_group_leader(group).phone, get_group_leader(group).email,group.participant_set.filter(acco=True).count(), get_group_leader(group).room.room, get_group_leader(group).room.bhavan.name], 'link':[]} for group in Group.objects.all() if get_group_leader(group).college == college]
-    headings = ['Group Leader', 'GLeader Phone', 'GLeader Email','Participants Count', 'Room', 'Bhavan']
-    title = 'Groups alloted from ' + college.name
+    for group in Group.objects.all():
+        if get_group_leader(group).college == college:
+            if group.participant_set.filter(acco=True):
+                bhavans = []
+                for part in group.participant_set.filter(acco=True):
+                    if not part.room.bhavan in bhavans:
+                        bhavans.append(part.room.bhavan)
+                for bhavan in bhavans:
+                    rows.append({'data':[bhavan.name,get_group_leader(group).college.name,group.group_code, get_group_leader(group).name, group.participant_set.filter(acco=True, room__bhavan=bhavan).count(), get_group_leader(group).phone],'link':[]})
     table = {
         'rows':rows,
-        'headings':headings,
-        'title':title
+        'headings':['Bhavan','College','Group Code', 'Group Leader', 'Number of participants in bhavan', 'Group Leader Phone'],
+        'title':'Group vs Bhavans from ' + college.name,
     }
     return render(request, 'regsoft/tables.html', {'tables':[table,]})
 

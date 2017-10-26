@@ -9,6 +9,7 @@ urlpatterns = [
 	url(r'^events_select/$', views.events_select, name='events_select'),
 	url(r'^event_home/(?P<e_id>\d+)/$', views.event_home, name="event_home"),
 	url(r'^event_levels/(?P<e_id>\d+)/$', views.event_levels, name="event_levels"),
+	url(r'^show_level/(?P<level_id>\d+)/$', views.show_level, name="show_level"),
 	url(r'^add_level/(?P<e_id>\d+)/$', views.event_levels_add, name="add_level"),
 	url(r'^add_team/(?P<e_id>\d+)/$', views.add_delete_teams, name="add_team"),
     url(r'^teamdetails/(?P<e_id>\d+)/(?P<team_id>\d+)/$', views.team_details, name="team_details"),
