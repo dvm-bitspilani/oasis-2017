@@ -76,8 +76,8 @@ def generate_ckgroup_code(group):
 ########################################### End Of Helper Functions ##############################################################
 @staff_member_required
 def index(request):
-	if request.user.username.lower() == 'controlz':
-		return redirect(reverse('regsoft:controlz_home'))
+	if request.user.username.lower() == 'controls':
+		return redirect(reverse('regsoft:controls_home'))
 	if request.user.username.lower() == 'recnacc':
 		return redirect(reverse('regsoft:recnacc_home'))
 	if request.user.username == 'firewallz' or request.user.is_superuser:
@@ -435,7 +435,13 @@ def group_vs_bhavan(request):
 
 @staff_member_required
 def recnacc_college_details(request):
-    college_list = College.objects.all()
+    college_list = []
+    for c in College.objects.all():
+        try:
+            p = c.participant_set.get(is_cr=True)
+            college_list.append(c)
+        except:
+            pass
     rows = [{'data':[college.name, college.participant_set.get(is_cr=True).name,college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
     headings = ['College', 'Cr Name','Alloted Participants', 'View Details']
     title = 'Select college to approve Participants'
