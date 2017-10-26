@@ -201,7 +201,7 @@ def create_profshow_bill(request):
             attendance.participant = participant
             attendance.prof_show = prof_show
             attendance.paid = True
-            attendance.count = data['count']
+            attendance.count = int(data['count'])
             attendance.save()
         
         return redirect(reverse('messportal:view_all_profshow_bills'))

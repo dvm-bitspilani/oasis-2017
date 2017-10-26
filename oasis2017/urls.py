@@ -12,12 +12,13 @@ urlpatterns = [
     url(r'^mirage/',include("preregistrations.urls")),
     url(r'^api/',include("api.urls")),
     url(r'^register/', include("registrations.urls")),
-    # url(r'^regsoft/', include("regsoft.urls")),
+    url(r'^regsoft/', include("regsoft.urls")),
     url(r'^pcradmin/', include("pcradmin.urls")),
     url(r'^tarang/', include("tarang.urls")),
     url(r'^ems/', include("ems.urls")),
     # url(r'^messportal/', include("messportal.urls")),
     url(r'^wordwars/', include("wordwars.urls")),
+    # url(r'^store/', include("store.urls")),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

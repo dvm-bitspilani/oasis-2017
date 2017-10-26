@@ -12,16 +12,17 @@ import os
 from sendgrid.helpers.mail import *
 from django.contrib.auth.decorators import login_required
 from instamojo_wrapper import Instamojo
+import sendgrid
 import re
+from sendgrid.helpers.mail import *
 from oasis2017.keyconfig import *
 from django.contrib.auth.models import User
 import string
 from random import sample, choice
 from django.contrib import messages
 from django.db.models import Q
-chars = string.letters + string.digits
-import re
 import requests
+chars = string.letters + string.digits
 
 try:
 	from oasis2017.config import *
@@ -62,38 +63,63 @@ def create_cart(request):
 @staff_member_required
 def cart_details(request, c_id):
     cart = get_object_or_404(Cart, id=c_id)
-    added_items = cart.item_set.all()
+    added_items = Sale.objects.filter(cart=cart)
     if request.method == 'POST':
+        if cart.paid:
+            context = {
+                'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id})),
+                'error_heading': "Operation Denied",
+                'message': "Sorry! Payment has been done.",
+            }
+            return render(request, 'registrations/message.html', context)
         data = request.POST
-        item_list = Item.objects.filter(id__in=data.getlist('item_list'))
-        for item in item_list:
-            cart.amount -= item.price
+        sale_list = Sale.objects.filter(id__in=data.getlist('sale_list'))
+        for sale in sale_list:
+            cart.amount -= ((sale.quantity)*(sale.item.price))
             cart.save()
-            cart.item_set.remove(item)
-    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items})
-
-@staff_member_required
-def manage_items(request, c_id):
-    cart = get_object_or_404(Cart, id=c_id)
+            sale.delete()
     items = Item.objects.all()
-    added_items = cart.item_set.all()
-    unadded_items = [item for item in items if not item in added_items]
-    return render(request, 'store/manage_items.html', {'added_items':added_items, 'unadded_items':unadded_items, 'cart':cart})
+    sales = Sale.objects.filter(cart=cart)
+    present_items = [sale.item for sale in sales]
+    unadded_items = [item for item in items if not item in present_items]
+    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items, 'unadded_items':unadded_items})
 
 @staff_member_required
 def item_details(request, c_id, i_id):
     cart = get_object_or_404(Cart, id=c_id)
     item = get_object_or_404(Item, id=i_id)
-    return render(request, 'store/item_details.html', {'cart':cart, 'item':item})
+    try:
+        sale = Sale.objects.get(cart=cart, item=item)
+        return render(request, 'store/item_details.html', {'cart':cart, 'item':item, 'sale':sale})
+    except:    
+        return render(request, 'store/item_details.html', {'cart':cart, 'item':item})
 
 @staff_member_required
 def add_item(request, c_id, i_id):
-    cart = get_object_or_404(Cart, id=c_id)
-    item = get_object_or_404(Item, id=i_id)
-    item.cart.add(cart)
-    cart.amount += item.price
-    cart.save()
-    return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+    if request.method == 'POST':
+        data = request.POST
+        cart = get_object_or_404(Cart, id=c_id)
+        if cart.paid:
+            context = {
+                'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id})),
+                'error_heading': "Operation Denied",
+                'message': "Sorry! Payment has been done.",
+            }
+            return render(request, 'registrations/message.html', context)
+        item = get_object_or_404(Item, id=i_id)
+        quantity = int(data['quantity'])
+        if item.quantity_left < quantity:
+            messages.warning(request, 'Not enough items left.')
+            return redirect(request.META.get('HTTP_REFERER'))
+        try:
+            sale = Sale.objects.get(item=item, cart=cart)
+            sale.quantity = quantity
+            sale.save()
+        except:
+            sale = Sale.objects.create(item=item, cart=cart, quantity=quantity)
+        cart.amount += ((sale.quantity)*(sale.item.price))
+        cart.save()
+        return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
 
 @staff_member_required
 def make_cash_payment(request, c_id):
@@ -140,12 +166,75 @@ def make_cash_payment(request, c_id):
         return render(request, 'store/make_cash_payment.html', {'cart':cart})
 
 @staff_member_required
+def show_all_bills(request):
+    rows = [{'data':[bill.created_time, bill.amount, bill.cart.participant.name, bill.cart.participant.college.name], 'link':[]} for bill in MessBill.objects.all()]
+    headings = ['Created Time', 'Amount', 'Participant Name', 'Participant College']
+    title = 'Bill Details'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'store/tables.html', {'tables':[table,]})
+
+def generate_email_token(cart):
+
+	import uuid
+	token = uuid.uuid4().hex
+	registered_tokens = [cart.email_token for cart in Cart.objects.all()]
+
+	while token in registered_tokens:
+		token = uuid.uuid4().hex
+
+	cart.cart_token = token
+	cart.save()
+	return token
+
+@staff_member_required
 def make_online_payment(request, c_id):
     cart = get_object_or_404(Cart, id=c_id)
     if cart.is_bitsian:
         cart.paid = True
         cart.save()
         return redirect(reverse('store:index'))
+    participant = cart.participant
+    send_to = participant.email
+    name = participant.name
+    body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+    <pre style="font-family:Roboto,sans-serif">
+Hello %s!
+Thank you for using the facility of Oasis Store.
+Click on the link below to complete the payment and avail your cart items.
+<a href="%s">Pay with Instamojo.</a>
+</pre>
+    ''' %(name, name, str(request.build_absolute_uri(reverse("store:index"))) + 'payment_response/' + generate_cart_code(cart) + '/')
+    sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+    from_email = Email('store@bits-oasis.org')
+    to_email = Email(send_to)
+    subject = "Payment for Oasis Store"
+    content = Content('text/html', body)
+
+    try:
+        mail = Mail(from_email, subject, to_email, content)
+        response = sg.client.mail.send.post(request_body=mail.get())
+    except :
+        context = {
+            'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id})),
+            'error_heading': "Error sending mail",
+            'message': "Sorry! Error in sending email. Please try again.",
+        }
+        return render(request, 'registrations/message.html', context)
+
+    context = {
+        'error_heading': "Email sent",
+        'message': "Payment URL has been sent to the participant.",
+        'url':request.build_absolute_uri(reverse('store:index'))
+    }
+    return render(request, 'registrations/message.html', context)
+
+def payment_response(request, token):
+    cart = get_object_or_404(Cart, cart_token = token)
     amount = cart.amount
     participant = cart.participant
     name = participant.name

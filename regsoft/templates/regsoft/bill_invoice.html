@@ -95,7 +95,7 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
+                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
                             </td>
                             
                             <td>
@@ -146,31 +146,6 @@
                 </td>
             </tr>
             {% endfor %}
-            <tr class="heading">
-                <td>
-                    Participant
-                </td>
-                <td>
-                    Event
-                </td>
-            </tr>
-            {% for part in part_list %}
-            <tr class="item">
-                <td>
-                    {{part.name}}
-                </td>
-                <td>
-                    {{part | get_events_list}}
-                </td>
-            </tr>
-            {% endfor %}
-            <tr class="total">
-                <td></td>
-                
-                <td>
-                  Total : {{bill.amount}}
-                </td>
-            </tr>
         </table>
     </div>
     <div class="invoice-box">
@@ -180,7 +155,7 @@
                         <table>
                             <tr>
                                 <td class="title">
-                                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
+                                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
                                 </td>
                                 
                                 <td>
@@ -228,24 +203,6 @@
                     
                     <td>
                         {{method.amount}}
-                    </td>
-                </tr>
-                {% endfor %}
-                <tr class="heading">
-                    <td>
-                        Participant
-                    </td>
-                    <td>
-                        Event
-                    </td>
-                </tr>
-                {% for part in part_list %}
-                <tr class="item">
-                    <td>
-                        {{part.name}}
-                    </td>
-                    <td>
-                        {{part | get_events_list}}
                     </td>
                 </tr>
                 {% endfor %}
