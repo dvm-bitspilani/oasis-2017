@@ -543,6 +543,7 @@ def register_team(request):
 		else:
 			team.delete()
 			return Response({'status':0, 'message':'Invalid Codes'})
+		x+=1
 	team.save()
 	level.teams.add(team)
 	s = Score(team=team, level=level)
