@@ -27,7 +27,15 @@
                 <tbody>
                     <tr>
                         <td>Name</td>
+                        {% if participant %}
                         <td>{{participant.name}}</td>
+                        {% elif bitsian %}
+                        <td>{{bitsian.name}}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Buyer ID</td>
+                        <td>{{bill.buyer_id}}</td>
                     </tr>
                     <tr>
                         {% if mess %}

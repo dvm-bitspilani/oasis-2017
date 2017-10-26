@@ -20,7 +20,7 @@
             <label for="prof_show">Select Prof Show</label>
             <select class="form-control show-tick" name="prof_show" data-live-search="true">
             {% for show in prof_shows %}
-                <option value="{{show.id}}">{{show.name}}</option>        
+                <option value="{{show.id}}">{{show.name}}-{{show.price}}</option>        
             {% endfor %}
             </select>
             <label for="barcode">Enter Participant Barcode</label>

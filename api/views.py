@@ -338,7 +338,7 @@ def add_profshow(request):
 	barcode = data['barcode']
 	if re.match(r'[h,f]\d{6}', barcode):
 		try:
-			bitsian = Bitsian.objects.get(ems_code=barcode)
+			bitsian = Bitsian.objects.filter(ems_code=barcode)[0]
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
@@ -454,7 +454,7 @@ def validate_profshow(request):
 		return Response({'message':'Invalid Prof Show'})
 	if re.match(r'[h,f]\d{6}', barcode):
 		try:
-			bitsian = Bitsian.objects.get(ems_code=barcode)
+			bitsian = Bitsian.objects.filter(ems_code=barcode)[0]
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
