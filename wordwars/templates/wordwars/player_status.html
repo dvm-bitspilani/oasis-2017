@@ -1,0 +1,115 @@
+{% extends "wordwars/ohp_base.html" %}
+{% block body %}
+{% if messages %}
+{% for message in messages %}
+<div class="body">
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    <large>{{message}}</large>
+</div>
+</div>
+{% endfor %}
+{% endif %}
+{% if active %}
+<div class="card">
+    <div class="header">
+        <h2>
+            Active PLayers
+        </h2>
+    </div>
+	<div class="body">
+	<form action="" method="post">
+	{% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                	
+                    {% for p in active %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{p.user.username}}</td>
+                        <td>{{p.email}}</td>
+                        <td>
+                            <input type="checkbox" name="player_id" id="{{p.id}}" value="{{p.id}}">
+                            <label for="{{p.id}}"></label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect" name="submit" value="deactivate">Deactivate</button>
+        </div>
+	</form>
+    </div>
+</div>
+{% endif %}
+
+
+{% if inactive %}
+<div class="card">
+    <div class="header">
+        <h2>
+            InActive PLayers
+        </h2>
+    </div>
+    <div class="body">
+    <form action="" method="post">
+    {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Select</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    
+                    {% for p in inactive %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{p.user.username}}</td>
+                        <td>{{p.email}}</td>
+                        <td>
+                            <input type="checkbox" name="player_id" id="{{p.id}}" value="{{p.id}}">
+                            <label for="{{p.id}}"></label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect" name="submit" value="activate">Activate</button>
+        </div>
+    </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

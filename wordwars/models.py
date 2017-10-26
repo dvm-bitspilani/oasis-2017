@@ -16,7 +16,7 @@ class Player(models.Model):
 	day1 = models.IntegerField(default=0)
 	day2 = models.IntegerField(default=0)
 	day3 = models.IntegerField(default=0)
-
+	is_active = models.BooleanField(default=True)
 	def __unicode__(self):
 		return str(self.email)
 
