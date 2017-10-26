@@ -357,7 +357,7 @@ def add_profshow(request):
 		profshow_bill.prof_show = prof_show
 		profshow_bill.buyer_id = data['barcode']
 		profshow_bill.quantity = data['count']
-		profshow_bill.amount = prof_show.price
+		profshow_bill.amount = prof_show.price*int(data['count'])
 		profshow_bill.created_by = data['created_by']
 		profshow_bill.save()
 		attendance_serializer = AttendanceSerializer(attendance)
