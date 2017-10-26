@@ -22,6 +22,7 @@ from random import sample, choice
 from django.contrib import messages
 from django.db.models import Q
 import requests
+from ems.models import *
 chars = string.letters + string.digits
 
 try:
@@ -45,15 +46,21 @@ def create_cart(request):
             try:
                 part = Participant.objects.get(barcode=buyer_id)
                 cart.participant = part
+                cart.email = part.email
             except:
                 messages.warning(request, 'Invalid participant barcode')
-                return redirect(request.META.get('HTTP_REFERER'))
+                return redirect(reverse('store:create_cart'))
         elif re.match(r'[h,f]\d{6}', buyer_id):
             cart.is_bitsian = True
+            try:
+                bitsian = Bitsian.objects.filter(ems_code=buyer_id)[0]
+                cart.email = bitsian.email
+            except:
+                messages.warning(request, 'Invalid bitsian code')
+                return redirect(request.META.get('HTTP_REFERER'))
         else:
             messages.warning(request, 'Invalid codes entered')
             return redirect(request.META.get('HTTP_REFERER'))
-        cart.email = data['email']
         cart.save()
         return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
     else:
@@ -107,17 +114,24 @@ def add_item(request, c_id, i_id):
             }
             return render(request, 'registrations/message.html', context)
         item = get_object_or_404(Item, id=i_id)
-        quantity = int(data['quantity'])
+        try:
+            quantity = int(data['quantity'])
+        except:
+            messages.warning(request, 'Invalid Quantity.')
+            return redirect(request.META.get('HTTP_REFERER'))
         if item.quantity_left < quantity:
             messages.warning(request, 'Not enough items left.')
             return redirect(request.META.get('HTTP_REFERER'))
         try:
             sale = Sale.objects.get(item=item, cart=cart)
+            cart.amount += ((quantity-sale.quantity)*(sale.item.price))
             sale.quantity = quantity
             sale.save()
         except:
             sale = Sale.objects.create(item=item, cart=cart, quantity=quantity)
-        cart.amount += ((sale.quantity)*(sale.item.price))
+            cart.amount += ((sale.quantity)*(sale.item.price))
+        item.quantity_left -= quantity
+        item.save()
         cart.save()
         return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
 
@@ -167,8 +181,8 @@ def make_cash_payment(request, c_id):
 
 @staff_member_required
 def show_all_bills(request):
-    rows = [{'data':[bill.created_time, bill.amount, bill.cart.participant.name, bill.cart.participant.college.name], 'link':[]} for bill in MessBill.objects.all()]
-    headings = ['Created Time', 'Amount', 'Participant Name', 'Participant College']
+    rows = [{'data':[bill.created_time, bill.amount, bill.cart.participant.name, bill.cart.participant.college.name], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('store:bill_details', kwargs={'cb_id':bill.id}))}]} for bill in CartBill.objects.all()]
+    headings = ['Created Time', 'Amount', 'Participant Name', 'Participant College', 'View Details']
     title = 'Bill Details'
     table = {
         'rows':rows,
@@ -177,11 +191,34 @@ def show_all_bills(request):
     }
     return render(request, 'store/tables.html', {'tables':[table,]})
 
-def generate_email_token(cart):
+@staff_member_required
+def bill_details(request, cb_id):
+    bill = get_object_or_404(CartBill, id=cb_id)
+    participant = bill.cart.participant
+    return render(request, 'store/bill_details.html', {'bill':bill, 'participant':participant,})
+
+@staff_member_required
+def bill_receipt(request, cb_id):
+    from datetime import datetime
+    bill = get_object_or_404(CartBill, id=cb_id)
+    participant = bill.cart.participant
+    time = datetime.now()
+    return render(request, 'store/bill_receipt.html', {'bill':bill,'participant':participant, 'time':time,})
+
+@staff_member_required
+def delete_bill(request, cb_id):
+    bill = get_object_or_404(CartBill, id=cb_id)
+    cart = bill.cart
+    cart.paid = False
+    cart.save()
+    bill.delete()
+    return redirect(reverse('store:show_all_bills'))
+
+def generate_cart_code(cart):
 
 	import uuid
 	token = uuid.uuid4().hex
-	registered_tokens = [cart.email_token for cart in Cart.objects.all()]
+	registered_tokens = [cart.cart_token for cart in Cart.objects.all()]
 
 	while token in registered_tokens:
 		token = uuid.uuid4().hex
@@ -208,7 +245,7 @@ Thank you for using the facility of Oasis Store.
 Click on the link below to complete the payment and avail your cart items.
 <a href="%s">Pay with Instamojo.</a>
 </pre>
-    ''' %(name, name, str(request.build_absolute_uri(reverse("store:index"))) + 'payment_response/' + generate_cart_code(cart) + '/')
+    ''' %(name, str(request.build_absolute_uri(reverse("store:index"))) + 'payment_response/' + str(generate_cart_code(cart)) + '/')
     sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
     from_email = Email('store@bits-oasis.org')
     to_email = Email(send_to)
@@ -287,7 +324,7 @@ def api_request(request):
             'message': "The requested cart was not found.",
             'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))
             }
-        return render(request, 'registrations/message.html', context)
+            return render(request, 'registrations/message.html', context)
         context = {
         'error_heading' : "Payment successful",
         'message':'Thank you for paying.',

@@ -1,4 +1,4 @@
-{% extends 'messportal/base.html' %}
+{% extends 'store/base.html' %}
 
 {% block body %}
 <div class="row clearfix">
@@ -35,20 +35,7 @@
                     </tr>
                     <tr>
                         <td>Buyer ID</td>
-                        <td>{{bill.buyer_id}}</td>
-                    </tr>
-                    <tr>
-                        {% if mess %}
-                        <td>Item</td>
-                        <td>{{bill.item.name}}</td>
-                        {% elif profshow %}
-                        <td>ProfShow</td>
-                        <td>{{bill.prof_show.name}}</td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <td>Quantity</td>
-                        <td>{{bill.quantity}}</td>
+                        <td>{{bill.cart.participant.barcode}}</td>
                     </tr>
                     <tr>
                         <td>Amount</td>
@@ -56,39 +43,31 @@
                     </tr>
                     <tr>
                         <td>No of Two Thousands</td>
-                        <td>{{bill.n2000}}</td>
+                        <td>{{bill.two_thousands}}</td>
                     </tr>
                     <tr>
                         <td>No of Five Hundreds</td>
-                        <td>{{bill.n500}}</td>
+                        <td>{{bill.five_hundreds}}</td>
                     </tr>
                     <tr>
                         <td>No of Two Hundreds</td>
-                        <td>{{bill.n200}}</td>
+                        <td>{{bill.two_hundreds}}</td>
                     </tr>
                     <tr>
                         <td>No of Hundreds</td>
-                        <td>{{bill.n100}}</td>
+                        <td>{{bill.hundreds}}</td>
                     </tr>
                     <tr>
                         <td>No of Fifties</td>
-                        <td>{{bill.n50}}</td>
+                        <td>{{bill.fifties}}</td>
                     </tr>
                     <tr>
                         <td>No of Twenties</td>
-                        <td>{{bill.n20}}</td>
+                        <td>{{bill.twenties}}</td>
                     </tr>
                     <tr>
                         <td>No of Tens</td>
-                        <td>{{bill.n10}}</td>
-                    </tr>
-                    <tr>
-                        <td>Total intake</td>
-                        <td>{{bill.intake}}</td>
-                    </tr>
-                    <tr>
-                        <td>Total outtake</td>
-                        <td>{{bill.outtake}}</td>
+                        <td>{{bill.tens}}</td>
                     </tr>
                     {% if profshow %}
                     <tr>
@@ -106,13 +85,8 @@
             </table>
         </div>
     </div>
-    {% if mess %}
-    <a href="{% url 'messportal:mess_bill_receipt' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
-    <a href="{% url 'messportal:delete_mess_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
-    {% elif profshow %}
-    <a href="{% url 'messportal:profshow_bill' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
-    <a href="{% url 'messportal:delete_profshow_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
-    {% endif %}
+    <a href="{% url 'store:bill_receipt' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
+    <a href="{% url 'store:delete_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
 </div>
 </div>
 {% endblock %}

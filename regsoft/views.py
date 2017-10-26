@@ -167,6 +167,8 @@ def add_guest(request):
                 return redirect(request.META.get('HTTP_REFERER'))
             participant.firewallz_passed = True
             participant.save()
+            ems_code = str(participant.college.id).rjust(3,'0') + str(participant.id).rjust(4,'0')
+            participant.ems_code = ems_code
             encoded = gen_barcode(participant)
             participant.save()
             username = participant.name.split(' ')[0] + str(participant.id)

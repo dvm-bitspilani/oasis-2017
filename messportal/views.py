@@ -230,7 +230,15 @@ def view_all_profshow_bills(request):
         'headings':headings,
         'title':title,
     }
-    return render(request, 'messportal/tables.html', {'tables':[table,]})
+    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(ems_code=bill.buyer_id)[0].name], 'link':[]} for bill in BitsProfShowBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name',]
+    title = 'Prof Show Bill Details-Bitsians'
+    table2 = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'messportal/tables.html', {'tables':[table, table2]})
 
 def get_bits_id(bill):
     if bill.bits_id:
@@ -247,8 +255,15 @@ def mess_bill_details(request, mb_id):
 @staff_member_required
 def profshow_bill_details(request, ps_id):
     bill = get_object_or_404(ProfShowBill, id=ps_id)
-    participant = Participant.objects.get(barcode = bill.buyer_id)
-    return render(request, 'messportal/bill_details.html', {'bill':bill, 'profshow':True, 'participant':participant})
+    try:
+        participant = Participant.objects.get(barcode = bill.buyer_id)
+    except:
+        participant = None
+    try:
+        bitsian = Bitsian.objects.get(ems_code=bill.buyer_id)
+    except:
+        bitsian = None
+    return render(request, 'messportal/bill_details.html', {'bill':bill, 'profshow':True, 'participant':participant, 'bitsian':bitsian})
 
 @staff_member_required
 def mess_bill_receipt(request, mb_id):

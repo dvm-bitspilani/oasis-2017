@@ -16,7 +16,7 @@
 <div class="card">
     <div class="header">
         <h2>
-            Cart details
+            Cart details {% if cart.paid %}(Paid){% endif %}
         </h2>
     </div>
     <div class="body">
@@ -27,6 +27,7 @@
                         <th>Item Name</th>
                         <th>Price</th>
                         <th>Quantity</th>
+                        <th>Item Quantity Left</th>
                         <th>View details</th>
                         {% if not cart.paid %}
                         <th>Remove</th>
@@ -38,6 +39,7 @@
                         <th>Item Name</th>
                         <th>Price</th>
                         <th>Quantity</th>
+                        <th>Item Quantity Left</th>
                         <th>View details</th>
                         {% if not cart.paid %}
                         <th>Remove</th>
@@ -50,6 +52,7 @@
                         <td>{{i.item.name}}</td>
                         <td>{{i.item.price}}</td>
                         <td>{{i.quantity}}</td>
+                        <td>{{i.item.quantity_left}}</td>
                         <td>
                             <a href="{% url 'store:item_details' cart.id i.item.id %}">Details</a>
                         </td>
@@ -61,10 +64,25 @@
                         {% endif %}
                     </tr>
                     {% endfor %}
+                    <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        {% if not cart.paid %}
+                        <td></td>
+                        {% endif %}
+                        <td>
+                            {{cart.amount}}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             {% if not cart.paid %}
             <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Remove</button>
+            <br>
+            <br>
+            <a href="{% url 'store:make_cash_payment' cart.id %}" class="btn btn-primary btn-lg m-l-15 waves-effect">Cash Payment</a>
+            <a href="{% url 'store:make_online_payment' cart.id %}" class="btn btn-primary btn-lg m-l-15 waves-effect">Online Payment</a>
             {% endif %}
         </div>
     </div>
@@ -85,13 +103,19 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
-                        <th>View details</th>>
+                        <th>Size</th>
+                        <th>Colour</th>
+                        <th>Quantity Left</th>
+                        <th>View details</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
+                        <th>Size</th>
+                        <th>Colour</th>
+                        <th>Quantity Left</th>
                         <th>View details</th>
                     </tr>
                 </tfoot>
@@ -100,6 +124,9 @@
                     <tr>
                         <td>{{i.name}}</td>
                         <td>{{i.price}}</td>
+                        <td>{{i.size.name}}</td>
+                        <td>{{i.colour.name}}</td>
+                        <td>{{i.quantity_left}}</td>
                         <td>
                             <a href="{% url 'store:item_details' cart.id i.id %}">Details</a>
                         </td>
@@ -111,4 +138,5 @@
     </div>
 </div>
 {% endif %}
+
 {% endblock %}

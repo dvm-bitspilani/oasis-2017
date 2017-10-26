@@ -36,7 +36,7 @@ def home(request):
 		if user is not None:
 			if user.is_active:
 				if not user.participant.email_verified:
-					context = {'error_heading' : "Email not verified", 'message' :  'It seems you haven\'t verified your email yet. Please verify it as soon as possible to proceed. For any query, call the following members of the Department of Publications and Correspondence. Asim Shah: %s - pcr@bits-bosm.org .'%(get_pcr_number()), 'url':request.build_absolute_uri(reverse('registrations:home'))}
+					context = {'error_heading' : "Email not verified", 'message' :  'It seems you haven\'t verified your email yet. Please verify it as soon as possible to proceed. For any query, call the following members of the Department of Publications and Correspondence. Asim Shah: %s - pcr@bits-oasis.org .'%(get_pcr_number()), 'url':request.build_absolute_uri(reverse('registrations:home'))}
 					return render(request, 'registrations/message.html', context)
 				login(request, user)
 				return redirect('registrations:index')
