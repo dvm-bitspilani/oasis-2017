@@ -214,11 +214,11 @@ def delete_bill(request, cb_id):
     bill.delete()
     return redirect(reverse('store:show_all_bills'))
 
-def generate_email_token(cart):
+def generate_cart_code(cart):
 
 	import uuid
 	token = uuid.uuid4().hex
-	registered_tokens = [cart.email_token for cart in Cart.objects.all()]
+	registered_tokens = [cart.cart_token for cart in Cart.objects.all()]
 
 	while token in registered_tokens:
 		token = uuid.uuid4().hex
@@ -245,7 +245,7 @@ Thank you for using the facility of Oasis Store.
 Click on the link below to complete the payment and avail your cart items.
 <a href="%s">Pay with Instamojo.</a>
 </pre>
-    ''' %(name, name, str(request.build_absolute_uri(reverse("store:index"))) + 'payment_response/' + generate_cart_code(cart) + '/')
+    ''' %(name, str(request.build_absolute_uri(reverse("store:index"))) + 'payment_response/' + str(generate_cart_code(cart)) + '/')
     sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
     from_email = Email('store@bits-oasis.org')
     to_email = Email(send_to)
@@ -324,7 +324,7 @@ def api_request(request):
             'message': "The requested cart was not found.",
             'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))
             }
-        return render(request, 'registrations/message.html', context)
+            return render(request, 'registrations/message.html', context)
         context = {
         'error_heading' : "Payment successful",
         'message':'Thank you for paying.',
