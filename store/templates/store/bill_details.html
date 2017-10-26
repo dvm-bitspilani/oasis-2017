@@ -1,0 +1,92 @@
+{% extends 'store/base.html' %}
+
+{% block body %}
+<div class="row clearfix">
+<div class="card">
+    <div class="header">
+        <h2>
+            Bill details for {{participant.name}}
+        </h2>
+    </div>
+    <div class="body">
+        <div class="table-responsive">
+            
+            <table class="table table-bordered table-striped table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>Determinant</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Determinant</th>
+                        <th>Value</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        {% if participant %}
+                        <td>{{participant.name}}</td>
+                        {% elif bitsian %}
+                        <td>{{bitsian.name}}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Buyer ID</td>
+                        <td>{{bill.cart.participant.barcode}}</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>{{bill.amount}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Two Thousands</td>
+                        <td>{{bill.two_thousands}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Five Hundreds</td>
+                        <td>{{bill.five_hundreds}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Two Hundreds</td>
+                        <td>{{bill.two_hundreds}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Hundreds</td>
+                        <td>{{bill.hundreds}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Fifties</td>
+                        <td>{{bill.fifties}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Twenties</td>
+                        <td>{{bill.twenties}}</td>
+                    </tr>
+                    <tr>
+                        <td>No of Tens</td>
+                        <td>{{bill.tens}}</td>
+                    </tr>
+                    {% if profshow %}
+                    <tr>
+                        <td>Bits Id</td>
+                        <td>
+                            {% if bill.bits_id %}
+                            {{bill.bits_id}}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a href="{% url 'store:bill_receipt' bill.id %}" target="_blank" class="btn-success m-l-20 bg-cyan btn-lg waves-effect">Print Bill</a>
+    <a href="{% url 'store:delete_bill' bill.id %}" class="btn-danger  m-l-20 bg-pink btn-lg waves-effect">Delete Bill</a>
+</div>
+</div>
+{% endblock %}

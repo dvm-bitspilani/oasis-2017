@@ -3,11 +3,11 @@
 
 <head>
     {% load static %}
-    {% load regsoft_tags %}
+    {% load oasis_store_tags %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <title>RegSoft | Oasis'17</title>
+    <title>Oasis Store | Oasis'17</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 
@@ -31,7 +31,7 @@
     
 </head>
 
-<body class="theme-{% navbar_color request.user.username %}">
+<body class="theme-cyan">
     <div class="page-loader-wrapper">
         <div class="loader">
             <div class="preloader">
@@ -57,7 +57,7 @@
             <div class="navbar-header">
                 <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
                 <a href="javascript:void(0);" class="bars"></a>
-                <a class="navbar-brand" href="{% url 'regsoft:index' %}">Oasis Store | Oasis '17</a>
+                <a class="navbar-brand" href="{% url 'store:index' %}">Oasis Store | Oasis '17</a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
@@ -98,7 +98,6 @@
                             <i class="material-icons">home</i>
                             <span>Home</span>
                         </a>
-                        
                     </li>
                     <li>
                         <a href="javascript:void(0);" class="menu-toggle">
@@ -111,26 +110,9 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="javascript:void(0);" class="menu-toggle">
-                            <span>RecNAcc</span>
-                        </a>
-                        <ul class="ml-menu">
-                            <li>
-                                <a href="{% url 'regsoft:recnacc_home' %}"><span>View Groups</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'regsoft:recnacc_bhavans' %}"><span>Bhavan Details</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'regsoft:group_vs_bhavan' %}"><span>Group vs Bhavans</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'regsoft:recnacc_college_details' %}"><span>Collegewise Details</span></a>
-                            </li>
-                            <li>
-                                <a href="{% url 'regsoft:checkout_college' %}"><span>Checkout</span></a>
-                            </li>
-                        </ul>
+                        <li>
+                            <a href="{% url 'store:show_all_bills' %}"><span>Show All Bills</span></a>
+                        </li>
                     </li>
                     <li class="header">LABELS</li>
                     <li>

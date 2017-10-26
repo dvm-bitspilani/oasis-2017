@@ -2,11 +2,13 @@ from __future__ import unicode_literals
 
 from django.db import models
 from registrations.models import *
+from ems.models import Bitsian
 
 class Cart(models.Model):
     buyer_id = models.CharField(max_length=20)
     is_bitsian = models.BooleanField(default=False)
-    participant = models.ForeignKey('registrations.Participant', on_delete=models.CASCADE)
+    participant = models.ForeignKey('registrations.Participant', on_delete=models.CASCADE, null=True)
+    bitsian = models.ForeignKey('ems.Bitsian', on_delete=models.CASCADE, null=True)
     paid = models.BooleanField(default=False)
     created_time = models.DateTimeField(auto_now=True)
     amount = models.IntegerField(default=0)
@@ -32,7 +34,7 @@ class Item(models.Model):
     quantity_left = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return self.name
+        return self.name + '-' + str(self.colour.name) + '-' + str(self.size.name)
 
 class Colour(models.Model):
     name = models.CharField(max_length=20)
@@ -50,6 +52,7 @@ class CartBill(models.Model):
 
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
     amount = models.IntegerField()
+    created_time = models.DateTimeField(auto_now=True)
     time_paid = models.DateTimeField(auto_now=True)
     two_thousands = models.IntegerField(null=True, blank=True, default=0)
     five_hundreds = models.IntegerField(null=True, blank=True, default=0)
