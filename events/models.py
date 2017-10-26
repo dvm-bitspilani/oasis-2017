@@ -74,4 +74,4 @@ class Attendance(models.Model):
 	bitsian = models.ForeignKey('ems.Bitsian', on_delete=models.CASCADE, null=True)
 
 	def __unicode__(self):
-		return str(self.prof_show.name)+'-'+str(self.participant.name)
+		return str(self.prof_show.name)
