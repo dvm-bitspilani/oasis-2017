@@ -40,8 +40,9 @@
                                     <th>Name</th>
                                     <th>Leader</th>
                                     {% for param in parameters %}
-                                    <th>{{param.name}} | {{param.max_val}}</th>
+                                    <th>{{param.name}} | Max-Value({{param.max_val}})</th>
                                     {% endfor %}
+                                    <th>Is Frozen</th>
                                     <th>Select to Freeze</th>
                             </tr>
                             </thead>
@@ -50,8 +51,9 @@
                                     <th>Name</th>
                                     <th>Leader</th>
                                     {% for param in parameters %}
-                                    <th>{{param.name}} | {{param.max_val}}</th>
+                                    <th>{{param.name}} | Max-Value({{param.max_val}})</th>
                                     {% endfor %}
+                                    <th>Is Frozen</th>
                                     <th>Select to Freeze</th>
                                 </tr>
                             </tfoot>
@@ -65,9 +67,14 @@
                                     <td>{{team.team.leader_bitsian}}</td>
                                     {% endif %}
                                     {% for p in parameters %}
-                                    <td>{% get_it team.score p.id %}</td>
+                                    <td>{% get_it team.score_dict p.id %}</td>
                                     {% endfor %}
-                                    <td><input type="checkbox" name="team_id" value="{{team.team.id}}" id="{{team.team.id}}"><label for="{{team.team.id}}"></label></td>
+                                    <td>{{ team.score.is_frozen }}</td>
+                                    <td>
+                                    <!-- {% if not team.score.is_frozen %} -->
+                                    <input type="checkbox" name="team_id" value="{{team.team.id}}" id="{{team.team.id}}"><label for="{{team.team.id}}"></label>
+                                    <!-- {% endif %} -->
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

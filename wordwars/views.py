@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
 
 def home(request):
 	user = request.user
@@ -26,6 +27,8 @@ def home(request):
 def play(request, day=None):
 	user = request.user
 	player = Player.objects.get(user=user)
+	if not player.is_active:
+		return redirect('wordwars:home')
 	day1 = Question.objects.filter(day__day_no=1).count()
 	day2 = Question.objects.filter(day__day_no=2).count()
 	day3 = Question.objects.filter(day__day_no=3).count()
@@ -152,19 +155,20 @@ def user_logout(request):
 	return redirect('wordwars:home')
 
 def leaderboard(request):
-	players = Player.objects.all().order_by('-score')
+	players = Player.objects.filter(is_active=True).order_by('-score')
 	return render(request, 'wordwars/leaderboard.html', {'players':players})
 
 def rulespage(request):
 	return render(request, 'wordwars/rulespage.html')
 
-def instructions(request):
-	instructions_ = '/home/dvm/oasis/oasis2017/static/wordwars/docs/Instructions.pdf'
-	serve(request, os.path.basename(instructions_), os.path.dirname(instructions_))
 
 def rules(request):
-	rules_ = '/home/dvm/oasis/oasis2017/static/wordwars/docs/Rules.pdf'
-	serve(request, os.path.basename(rules_), os.path.dirname(rules_))
+	from oasis2017.settings import *
+	rules_ = os.path.join(BASE_DIR, 'media/wordwars/Instructions.docx')
+	doc = open(rules_, 'rb')
+	response = HttpResponse(content_type='application/doc', content=doc)
+	response['Content-Disposition'] = 'attachment; filename="Detailed Instructions.docx"'
+	return response
 
 def contact(request):
 	return render(request, 'wordwars/contact.html')
@@ -234,3 +238,20 @@ def view_question(request, q_id):
 			return redirect(request.META.get('HTTP_REFERER'))
 	return render(request, 'wordwars/view_question.html', {'question':question})
 
+@staff_member_required
+def player_status(request):
+	if request.method == 'POST':
+		data = request.POST
+		try:
+			player_ids = dict(data)['player_id']
+			players = Player.objects.filter(id__in=player_ids)
+		except:
+			messages.warning(request, 'no player selected')
+			return redirect(request.META.get('HTTP_REFERER'))
+		if data['submit'] == 'activate':
+			players.update(is_active=True)
+		elif data['submit'] == 'deactivate':
+			players.update(is_active=False)
+	active_players = Player.objects.filter(is_active=True)
+	inactive_players = Player.objects.filter(is_active=False)
+	return render(request, 'wordwars/player_status.html', {'active':active_players, 'inactive':inactive_players})

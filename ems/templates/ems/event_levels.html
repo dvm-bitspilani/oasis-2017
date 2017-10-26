@@ -89,7 +89,7 @@
                                     <td>{{forloop.counter}}</td>
                                     <td>{{level.name}}</td>
                                     <td>{{level.position}}</td>
-                                    <td><a href="#">Select</a></td>
+                                    <td><a href="{% url 'ems:show_level' level.id %}">Select</a></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

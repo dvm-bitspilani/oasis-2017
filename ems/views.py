@@ -238,6 +238,15 @@ def event_levels_add(request, e_id):
 
 @permission_for_judge_cd
 @login_required(login_url=login_url)
+def show_level(request, level_id):
+    level = get_object_or_404(Level, id=level_id)
+    event = level.event
+    params = level.parameter_set.all()
+    return render(request, 'ems/show_level.html', {'event':event, 'level':level, 'params':params})
+
+
+@permission_for_judge_cd
+@login_required(login_url=login_url)
 def add_delete_teams(request, e_id):
     event = get_object_or_404(Event, id=e_id)
     count = Team.objects.filter(event=event).count()
@@ -339,9 +348,9 @@ def team_details(request, e_id, team_id):
                 except:
                     messages.warning(request, 'unmacthed ems codes')
                     return redirect(request.META.get('HTTP_REFERER'))
-            elif re.match(r'[h,f]\d{6}', mem):
+            elif re.match(r'[h,f]\d{6}', t):
                 try:
-                    b = Bitsian.objects.get(ems_code=mem)
+                    b = Bitsian.objects.filter(ems_code=t)[0]
                     l2.append(b)
                 except:
                     messages.warning(request, 'unmacthed ems codes')
@@ -400,6 +409,7 @@ def team_details(request, e_id, team_id):
         #     team.save()
         # except:
         #     pass
+    team = get_object_or_404(Team, id=team_id)
     scores = [{'total':score.get_total_score(), 'level':score.level}for score in team.scores.all()]
     return render(request, 'ems/team_details.html', {'event':event, 'team':team, 'scores':scores, 'members':team.members.all(), 'bitsians':team.members_bitsian.all()})
 
@@ -420,7 +430,7 @@ def show_scores(request, e_id, level_id):
         try:
             team_ids = dict(request.POST)['team_id']
             teamss = Team.objects.filter(id__in=team_ids)
-            Score.object.filter(team__in=teamss,level=level).update(is_frozen=True)
+            Score.objects.filter(team__in=teamss,level=level).update(is_frozen=True)
         except:
             messages.success(request, 'No team chosen')
             pass
@@ -428,7 +438,7 @@ def show_scores(request, e_id, level_id):
     tables = []
     for team in teams:
         try:
-            tables.append({'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)})
+            tables.append({'team':team, 'score':team.scores.get(level=level), 'score_dict':team.scores.get(level=level).get_score_j(j_id)})
         except:
             continue
 
@@ -455,14 +465,16 @@ def update_scores(request, e_id, level_id):
                 score = team.scores.get(level=level)
             except:
                 continue
-            socre.save()
+            score.save()
+            if score.is_frozen:
+                continue
             score_dict_total = score.get_score()
             score_dict = score.get_score_j(j_id)
             for param in params:
                 key = str(team.id) + '-' + str(param.id)
                 try:
                     value = int(data[key])
-                    if not value or value>param.max_val:
+                    if (not value or value>param.max_val) and not value==0:
                         raise Exception
                     score_dict[param.id] = value
                 except:
@@ -474,7 +486,7 @@ def update_scores(request, e_id, level_id):
     tables = []
     for team in teams:
         try:
-            tables.append({'team':team, 'score':team.scores.get(level=level).get_score_j(j_id)})
+            tables.append({'team':team,'score':team.scores.get(level=level), 'score_dict':team.scores.get(level=level).get_score_j(j_id)})
         except:
             continue
 
@@ -539,6 +551,12 @@ def add_judge(request):
             for j in judges:
                 j.user.delete()
                 j.delete()
+            for j_id in judge_ids:
+                for score in Score.objects.all(team__event=event):
+                    score_dict = score.get_score()
+                    del(score_dict[j_id])
+                    score.score = str(score_dict)
+                    score.save()
         else:
             name = data['name']
             event = Event.objects.get(id=data['event_id'])

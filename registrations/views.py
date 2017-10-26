@@ -269,7 +269,7 @@ def gen_barcode(part):
 		image='/root/live/oasis/backend/resources/oasis2017/qrcodes/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	except:
-		image = '/home/auto-reload/Desktop/barcodes/participants/%04s.png' % int(part_id)
+		image = '/home/tushar/barcodes/participants/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	return encoded
 

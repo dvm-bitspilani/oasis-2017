@@ -23,6 +23,7 @@ urlpatterns = [
 	url(r'^recnacc/bhavan_details/(?P<b_id>\d+)/$', views.bhavan_details, name='bhavan_details'),
 	url(r'^recnacc/manage_vacancies/(?P<r_id>\d+)/$', views.manage_vacancies, name='manage_vacancies'),
     url(r'^recnacc/colleges/$', views.recnacc_college_details, name='recnacc_college_details'),
+    url(r'^recnacc/college_detail/(?P<c_id>\d+)/$', views.college_detail, name='college_detail'),
 	url(r'^recnacc/checkout/$', views.checkout_college, name="checkout_college"),
 	url(r'^recnacc/checkout/(?P<c_id>\d+)/$', views.checkout, name="checkout"),
 	url(r'^recnacc/checkout/groups/(?P<c_id>\d+)/$', views.checkout_groups, name="checkout_groups"),

@@ -9,7 +9,6 @@ urlpatterns = [
 	url(r'^login/$', views.user_login, name='login'),
 	url(r'^logout/$', views.user_logout, name='logout'),
 	url(r'^leaderboard$', views.leaderboard, name='leaderboard'),
-	url(r'^instructions/$', views.instructions, name='instructions'),
 	url(r'^rules/$', views.rules, name='rules'),
 	url(r'^rulespage/$', views.rulespage, name='rulespage'),
 	url(r'^contact/$', views.contact, name='contact'),
@@ -19,4 +18,6 @@ urlpatterns = [
 	url(r'^day_activate/$', views.day_activate, name='day_activate'),
 	url(r'^all_questions/$', views.all_questions, name='all_questions'),
 	url(r'^view_question/(?P<q_id>\d+)/$', views.view_question, name="view_question"),
+	url(r'^player_status/$', views.player_status, name="player_status"),
+
 	]

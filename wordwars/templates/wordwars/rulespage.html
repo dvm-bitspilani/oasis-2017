@@ -1,41 +1,38 @@
-{% extends 'wordwars/base.html' %}
+ {% extends 'wordwars/base.html' %}
 
 {% block body %}
-	
+{% load static %}	
 		<div class="row">
 			<div class="container">
 				<div class="card-panel">
 					<h1><center>Rules</center></h1>
 	<ul class="collection">
 		<li class="collection-item">Participants can register for this event individually only.</li>
- <li class="collection-item">You have to register at here in order to participate in this event.</li>
- <li class="collection-item">There are a total of 75 questions in this online event which are divided in three sets of 25 each. 
-    One set will be available at the launch of the event and two more would be available 24 and 48 hours after 
-    the launch of the event.</li>
- <li class="collection-item"> Game has a linear format, requiring players to *solve each question* in turn before progressing to the next question in 
-    the particular set. However, the series of questions in two different sets run independently.</li>
+ <li class="collection-item">You have to register at (Enter the link to the portal) in order to participate in this event.</li>
+ <li class="collection-item">There are a total of 60 questions in this online event which are divided in three sets of 20 each. One set will be available at the launch of the event and two more would be available 24 and 48 hours after the launch of the event.</li>
+ <li class="collection-item"> Game has a linear format, requiring players to *solve each question* in turn before progressing to the next question in the particular set. However, the series of questions in two different sets run independently.</li>
  <li class="collection-item">Each question has 10 points.</li>
  <li class="collection-item">Some of the questions require the answer to be provided in HINDI. For HINDI typing:
       <ul class="collection">
-       <li class="collection-item">   Google Translate</li>
-       <li class="collection-item">  Google Input Tools</li>
-       <li class="collection-item"> Google Transliteration Tool</li>
-       <li class="collection-item"> English To Hindi Convertor (recommended)</li>
+       <li class="collection-item"> <a href="http://translate.google.com/">Google Translate</a> </li>
+       <li class="collection-item"> <a href="http://www.google.co.in/inputtools/cloud/try/ ">Google Input Tools</a></li>
+       <li class="collection-item"><a href="http://www.google.com/inputtools/windows/index.html">Google Transliteration Tool</a></li>
+       <li class="collection-item"> <a href="http://hindi.changathi.com/">English To Hindi Convertor (recommended)</a></li>
    </ul>
  </li>
- <li class="collection-item">If you are having any problems regarding Hindi typing or understanding the instructions, 
-    then drop a mail to f2014006@pilani.bits-pilani.ac.in</li>
+ <li class="collection-item">If you are having any problems regarding Hindi typing or understanding the instructions, then drop a mail to f2015521@pilani.bits-pilani.ac.in</li>
  <li class="collection-item">A dynamic leader-board, modulated by the total score would be maintained keeping track of the rankings. 
     As evident, the person capturing the top slot when the event calls off, takes home the victory.</li>
- <li class="collection-item">Keep visiting the Facebook Page of Wordwars for further Hints and instructions.</li>
+ <li class="collection-item">Keep visiting the <a href="https://www.facebook.com/hpc.bitspilani">Facebook</a> Page of Wordwars for further Hints and instructions.</li>
 <li class="collection-item">Use all the letters in small case to answer the questions. Also no special characters are allowed.</li>
+
 <li class="collection-item">In case your answer contains multiple words, DO NOT USE SPACE BETWEEN THE WORDS while typing the answer. 
     E.g. If the answer is “Barack Obama”, type it as “barackobama”.</li>
 <li class="collection-item">In case you find a particular answer obvious and still the answer comes out to be wrong every time, 
     try to use other versions of the spelling.
     E.g. If the answer is “शण्कर” and your answer is declared wrong, try using “शंकर”. 
     Same logic applies to English Spellings.</li>
-<li class="collection-item">Please Read this Rule sheet before starting: Detailed Rule Sheet</li>
+<li class="collection-item">Please Read this Rule sheet before starting: <a href="{% url 'wordwars:rules' %}">Detailed Rule Sheet</a></li>
 	</ul>
 </div>
 </div>
