@@ -648,11 +648,11 @@ def upload_docs(request):
 @login_required
 def get_profile_card(request):
 	participant = Participant.objects.get(user=request.user)
-	if not participant.pcr_final:
+	if not participant.firewallz_passed:
 		if not participant.is_guest:
 			context = {
 					'error_heading': "Invalid Access",
-					'message': "Please complete your profile and make payments to access this page.",
+					'message': "Please pass firewallz booth at BITS to access this page.",
 					'url':request.build_absolute_uri(reverse('registrations:index'))
 					}
 			return render(request, 'registrations/message.html', context)
@@ -683,10 +683,10 @@ def get_profile_card_cr(request, p_id):
 		'url':request.build_absolute_uri(reverse('registrations:index'))
 		}
 		return render(request, 'registrations/message.html', context)
-	if not get_part.pcr_final:
+	if not get_part.firewallz_passed:
 		context = {
 				'error_heading': "Invalid Access",
-				'message': "Please complete the participant's profile and make payments to access this page.",
+				'message': "Please pass firewallz booth at BITS to access this page.",
 				'url':request.build_absolute_uri(reverse('registrations:index'))
 				}
 		return render(request, 'registrations/message.html', context)

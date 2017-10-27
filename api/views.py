@@ -283,6 +283,8 @@ def cr_disapprove(request):
 @permission_classes((IsAuthenticated,))
 def get_profile(request):
 	participant = Participant.objects.get(user=request.user)
+	if not participant.firewallz_passed:
+		return Response({'message':'Register at Firewallz first.'})
 	event_set = [participation.event for participation in Participation.objects.filter(participant=participant, pcr_approved=True)]
 	event_serializer = EventSerializer(event_set, many=True)
 	participant_serializer = ProfileSerializer(participant, context={'request':request})
@@ -293,6 +295,8 @@ def get_profile(request):
 @permission_classes((IsAuthenticated, ))
 def edit_profile(request):
 	participant = Participant.objects.get(user=request.user)
+	if not participant.firewallz_passed:
+		return Response({'message':'Register at Firewallz first.'})
 	data = request.data
 	participant.name = data['name']
 	participant.phone = data['phone']
@@ -300,7 +304,6 @@ def edit_profile(request):
 	participation_serializer = ParticipationSerializer(Participation.objects.filter(participant=participant, many=True))
 	participant_serializer = ParticipantSerializer(participant, context={'request':request})
 	return Response({'participant':participant_serializer.data, 'participations':participation_serializer.data})
-
 
 @api_view(['GET',])
 @permission_classes((AllowAny,))

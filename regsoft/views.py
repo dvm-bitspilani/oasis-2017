@@ -236,6 +236,30 @@ pcr@bits-oasis.org
         return render(request, 'regsoft/add_guest.html', {'colleges':colleges, 'guests':guests})
 
 @staff_member_required
+def show_uploads(request, p_id):
+    part = get_object_or_404(Participant, id=p_id)
+    try:
+		profile_url = part.profile_pic.url
+		docs_url = part.verify_docs.url
+    except:
+        message = part.name + '\'s Profile not complete yet.'
+        messages.warning(request, message)
+        return redirect(request.META.get('HTTP_REFERER'))
+    return render(request, 'regsoft/show_uploads.html', {'participant':part})
+
+@staff_member_required
+def remove_guests(request):
+    if request.method == 'POST':
+        data = request.POST
+        try:
+            list = data.getlist('guest_list')
+        except:
+            messages.warning(request, 'No guest selected.')
+            return redirect(request.META.get('HTTP_REFERER'))
+        Participant.objects.filter(id__in=data.getlist('guest_list'), is_guest=True).delete()
+        return redirect(reverse('regsoft:add_guest'))
+
+@staff_member_required
 def get_group_list(request, g_id):
     group = get_object_or_404(Group, id=g_id)
     if request.method == 'POST':
@@ -479,6 +503,19 @@ def checkout_college(request):
 	return render(request, 'regsoft/tables.html', {'tables':tables})
 
 @staff_member_required
+def master_checkout(request):
+    ck_group_list = CheckoutGroup.objects.all()
+    rows = [{'data':[ck_group.participant_set.all()[0].college.name,ck_group.participant_set.all().count(), ck_group.created_time, ck_group.amount_retained], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:ck_group_details', kwargs={'ck_id':ck_group.id})), 'title':'View Details'}]} for ck_group in ck_group_list]
+    headings = ['College', 'Participant Count', 'Time of Checkout', 'Amount Retained', 'View Details']
+    title = 'All Checkout groups'
+    table = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+
+@staff_member_required
 def checkout(request, c_id):
     college = get_object_or_404(College, id=c_id)
     if request.method == 'POST':
@@ -499,7 +536,6 @@ def checkout(request, c_id):
             room = participant.room
             room.vacancy += 1
             room.save()
-            participant.room = None
             participant.checkout_group = checkout_group
             participant.acco = False
             participant.save()
@@ -526,8 +562,8 @@ def checkout_groups(request, c_id):
 @staff_member_required
 def ck_group_details(request, ck_id):
     checkout_group = get_object_or_404(CheckoutGroup, id=ck_id)
-    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part)],} for part in checkout_group.participant_set.all()]
-    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events']
+    rows = [{'data':[part.name, part.phone, part.email, part.gender, get_event_string(part), part.room.room, part.room.bhavan.name], 'link':[]} for part in checkout_group.participant_set.all()]
+    headings = ['Name', 'Phone', 'Email', 'Gender', 'Events', 'Room', 'Bhavan']
     title = 'Checkout detail at ' + str(checkout_group.created_time) + ', Amount Retained:' + str(checkout_group.amount_retained)
     table = {
         'rows':rows,

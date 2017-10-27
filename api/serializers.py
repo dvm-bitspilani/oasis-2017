@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from ems.models import *
 
 class ParticipantSerializer(serializers.ModelSerializer):
-
-    class Meta:
+	college_name = serializers.ReadOnlyField(source='college.name', read_only=True)
+	class Meta:
 		model = Participant
-		fields = ('name', 'college', 'email', 'city', 'state', 'phone', 'gender', 'year_of_study', 'head_of_society', 'barcode', 'id')
+		fields = ('name', 'college_name', 'email', 'city', 'state', 'phone', 'gender', 'year_of_study', 'head_of_society', 'barcode', 'id')
 
 class EventSerializer(serializers.ModelSerializer):
 
@@ -24,9 +24,10 @@ class ProfShowSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
 	pic_url = serializers.SerializerMethodField()
+	college_name = serializers.ReadOnlyField(source='college.name', read_only=True)
 	class Meta:
 		model = Participant
-		fields = ('name', 'college', 'barcode', 'phone', 'city', 'pcr_approved', 'id', 'paid', 'pic_url')
+		fields = ('name', 'college_name', 'barcode', 'phone', 'city', 'pcr_approved', 'id', 'paid', 'pic_url')
 	
 	def get_pic_url(self, participant):
 		request = self.context.get('request')

@@ -1,0 +1,63 @@
+{% extends 'regsoft/base.html' %}
+{% load static %}
+{% block body %}
+
+
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+
+<h2>{{participant.name}}'s Documents</h2>
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Profile Pic</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            {% if participant.profile_pic %}
+                            <img src="{{participant.profile_pic.url}}" alt="Upload left"/>
+                            {% else %}
+                            <img alt="Upload left"/>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>Documents</h2>
+            </div>
+            <div class="body">
+                <div id="carousel-example-generic_2" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                            {% if participant.verify_docs %}
+                            <img src="{{participant.verify_docs.url}}" alt="Upload left"/>
+                            {% else %}
+                            <img alt="Upload left"/>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+{% endblock %}

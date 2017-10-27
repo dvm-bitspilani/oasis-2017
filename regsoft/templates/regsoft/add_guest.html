@@ -79,6 +79,8 @@
         </h2>
     </div>
     <div class="body">
+        <form action="{% url 'regsoft:remove_guests' %}" method="post">
+            {% csrf_token %}
         <div class="table-responsive">
             
             <table class="table table-bordered table-striped table-hover dataTable js-exportable">
@@ -89,6 +91,7 @@
                         <th>Bits Id</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Select</th>
                     </tr>
                 </thead>
                 <tfoot>
@@ -98,6 +101,7 @@
                         <th>Bits Id</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Select</th>
                     </tr>
                 </tfoot>
                 <tbody>
@@ -108,12 +112,18 @@
                         <td>{{part.bits_id}}</td>
                         <td>{{part.email}}</td>
                         <td>{{part.phone}}</td>
+                        <td>
+                            <input type="checkbox" name="guest_list" id="{{part.id}}" value="{{part.id}}">
+                            <label for="{{part.id}}"></label>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <br><br>
+            <button type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect">Remove</button>
         </div>
     </div>
 </div>
-
+</form>
 {% endblock %}

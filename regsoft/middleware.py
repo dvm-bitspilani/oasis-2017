@@ -26,7 +26,7 @@ class RegsoftMiddleware(object):
 
         message = 'You don\'t have access to this page.'
         error_heading = 'Access Denied'
-        url = request.build_absolute_uri('regsoft:index')
+        url = request.build_absolute_uri(reverse('regsoft:index'))
 
         if 'logout' not in request.path:
 
