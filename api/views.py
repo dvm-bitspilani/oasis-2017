@@ -315,7 +315,8 @@ def all_events(request):
 def all_prof_shows(request):
 	user = request.user
 	clubdept = ClubDepartment.objects.get(user=user)
-	prof_show_serializer = ProfShowSerializer(clubdept.profshow.all(), many=True)
+	# clubdept.profshows.all()
+	prof_show_serializer = ProfShowSerializer(clubdept.profshows.all(), many=True)
 	return Response(prof_show_serializer.data)
 
 
