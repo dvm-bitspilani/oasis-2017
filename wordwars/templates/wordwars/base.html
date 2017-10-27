@@ -15,9 +15,26 @@
     <div class="row">
     <nav class="blue lighten-2">
         <div class="nav-wrapper">
-            <a href="{% url 'wordwars:home' %}" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-            
+            <a href="#!" class="brand-logo">WordWars '17 | Presented by Oasis Hindi Press</a>
+            <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+
+            <ul class="right hide-on-med-and-down">
+            <li><a href="{% url 'wordwars:home' %}">Home</a></li>
+            <li><a href="{% url 'wordwars:leaderboard' %}">LEADERBOARD</a></li>
+            <li><a href="https://m.facebook.com/events/1865390100442839">OHP Facebook Page</a></li>
+            <li><a href="{% url 'wordwars:rulespage' %}">Rules</a></li>
+            <li><a href="{% url 'wordwars:contact' %}">Contact</a></li>
+            {% if request.user.is_authenticated %}
+            <li><a href="{% url 'wordwars:logout' %}">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'wordwars:register' %}">Register</a></li>
+            <li><a href="{% url 'wordwars:login' %}">Login</a></li>            
+            {% endif %}
+            </ul>
+
+
+            <ul class="side-nav" id="mobile-demo">
+            <li><a href="{% url 'wordwars:home' %}">Home</a></li>
             <li><a href="{% url 'wordwars:leaderboard' %}">LEADERBOARD</a></li>
             <li><a href="https://m.facebook.com/events/1865390100442839">OHP Facebook Page</a></li>
             <li><a href="{% url 'wordwars:rulespage' %}">Rules</a></li>
@@ -46,4 +63,7 @@
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="{% static 'pcradmin/js/materialize.min.js' %}"></script>
     <script src="{% static 'pcradmin/js/init.js' %}"></script>
+    <script type="text/javascript">
+    $(".button-collapse").sideNav();        
+    </script>
 </body>

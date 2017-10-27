@@ -95,7 +95,7 @@
                     <li class="header">MAIN NAVIGATION</li>
                     
                     <li class="active">
-                        <a href="{% url 'ems:event_home' event.id %}">
+                        <a href="{% url 'ems:team_home' event.id %}">
                             <i class="material-icons">home</i>
                             <span>{{event.name}} | Home</span>
                         </a>
@@ -105,11 +105,7 @@
                                     <span>Teams</span>
                                 </a>
                     </li>
-                    <li class="active">
-                                <a href="{% url 'ems:event_levels' event.id %}">
-                                    <span>Levels</span>
-                                </a>
-                    </li>
+                    
                     {% if request|ems_judge %}
                     <li class="active">
                         <a href="javascript:void(0);" class="menu-toggle">
