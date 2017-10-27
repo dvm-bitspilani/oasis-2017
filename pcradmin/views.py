@@ -524,7 +524,7 @@ We would be really happy to see your college represented at our fest.
 
 We look forward to seeing you at OASIS 2017.
 A new link would be active in your OASIS '17 account once you clear the Firewallz booth at BITS with the access to your exclusive profile card.
-
+<b>IT IS COMPULSORY FOR YOU TO BRING A VALID IDENTITY CARD, WITHOUT WHICH YOU WON'T BE ALLOWED TO ENTER THE PREMISES.</b>
 PFA A list of participants from your college.
 
 Regards,
