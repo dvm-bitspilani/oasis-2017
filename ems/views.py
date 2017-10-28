@@ -727,36 +727,37 @@ def add_bitsian(request):
 
     f=open(os.path.join(settings.BASE_DIR, 'media', 'hostel_list.csv'))
     data = csv.reader(f)
+    response = 'Good  '
     for row in data:
-        b, created = Bitsian.objects.get_or_create(long_id=row[0], name=row[1])
-        if not created:
+        try:
+            b = Bitsian.objects.get(long_id=row[0], name=row[1])
             continue
-        x=0
-        if row[2] == '' or len(row[2])>1:
-            x+=1
-        if len(row[2])>1:
-            b.name += ' ' + row[2]
-        gender = row[x+2]
-        email = row[x+5].strip()
-        bhawan = row[x+3]
-        room_no = int(row[x+4])
-        if '2017' in email:
-            match = re.match(r'2017[A-Z]\dPS(1\d+)',b.long_id)
-            if match:
-                email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
-            match = re.match(r'2017[A,B,D]\d[P,T]S(0\d+)',b.long_id)
-            if match:
-                email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
-        y = email.split('@')[0]
-        ems_code = y[0] + y[3:5] + y[5:].rjust(4,'0')
+        except:
+            b = Bitsian(long_id=row[0], name=row[1])
+        try:
+            x=0
+            if row[2] == '':
+                x+=1
+            email = row[x+5].strip()
+            if '2017' in email:
+                match = re.match(r'2017[A-Z]\dPS(1\d+)',b.long_id)
+                if match:
+                    email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
+                match = re.match(r'2017[A,B,D]\d[P,T]S(0\d+)',b.long_id)
+                if match:
+                    email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
+            y = email.split('@')[0]
+            ems_code = y[0] + y[3:5] + y[5:].rjust(4,'0')
+        except:
+            response += '  ' +b.long_id
+            continue
+
         b.ems_code=ems_code
-        b.gender = gender
+        # b.gender = gender
         b.barcode = ''.join(choice(chars) for _ in xrange(8))
         b.email = email
-        b.bhawan = bhawan
-        b.room_no = b.room_no
         b.save()
-    return HttpResponse('Good')
+    return HttpResponse(response)
 
 @staff_member_required
 def gen_emscode(request):
