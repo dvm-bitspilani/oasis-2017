@@ -27,5 +27,6 @@ urlpatterns = [
 	url(r'^add_cd/$', views.add_cd, name="add_cd"),
 	url(r'^events_controls/$', views.events_controls, name="events_controls"),
 	url(r'^show_score_controls/(?P<e_id>\d+)/$', views.show_score_controls, name="show_score_controls"),
+	url(r'^show_score_controls_judge/(?P<e_id>\d+)/(?P<judge_id>\d+)/$', views.show_score_controls_judge, name="show_score_controls_judge"),
 
 ]

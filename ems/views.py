@@ -24,11 +24,11 @@ def permission_for_cd(function):
         if request.user.is_superuser:
             return function(request, *args, **kwargs)
         event = get_object_or_404(Event, pk=kwargs['e_id'])
-        club_dept = ClubDepartment.objects.get(user=user)
-            # club_dept.events.remove(event)
-        if not event in list(club_dept.events.all()):
-        # except:
-
+        try:
+            club_dept = ClubDepartment.objects.get(user=user)
+            if not event in list(club_dept.events.all()):
+                pass
+        except:
             url = reverse_lazy('ems:events_select')
             return render(request, 'registrations/message.html',  {'error_heading':'Invalid access', 'message':'You do not have access to this page.', 'url':url})
         return function(request, *args, **kwargs)
@@ -41,19 +41,19 @@ def permission_for_judge(function):
     def wrap(request, *args, **kwargs):
         user = request.user
         level = get_object_or_404(Level, pk=kwargs['level_id'])
-        try:
-            judge = Judge.objects.get(user=user, level=level)
-            if judge.left_the_event:
-                context = {
-                'error_heading': "Invalid Access.",
-                'message': "You left this event, Now you are not allowed to judge it anymore.",
-                'url':'https://bits-oasis.org'
-                }
-                return render(request, 'regitrations/message.html', context)
-            return function(request, *args, **kwargs)
-        except:
-            logout(request)
-            return redirect('ems:index')
+    # try:
+        judge = Judge.objects.get(user=user, level=level)
+        if judge.left_the_event:
+            context = {
+            'error_heading': "Invalid Access.",
+            'message': "You left this event, Now you are not allowed to judge it anymore.",
+            'url':'https://bits-oasis.org'
+            }
+            return render(request, 'registrations/message.html', context)
+        return function(request, *args, **kwargs)
+    # except:
+        logout(request)
+        return redirect('ems:index')
 
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
@@ -202,14 +202,14 @@ def add_delete_teams(request, e_id):                ### done
 
 @login_required(login_url=login_url)
 @permission_for_cd
-def team_details_home(request, e_id):
+def team_details_home(request, e_id):                ### done
     event = Event.objects.get(id=e_id)
     teams = event.team_set.all()
     return render(request, 'ems/team_details_home.html', {'event':event, 'teams':teams})
 
 @login_required(login_url=login_url)
 @permission_for_cd
-def team_details(request, e_id, team_id):
+def team_details(request, e_id, team_id):           ### done
 
     event = Event.objects.get(id=e_id)
     team = get_object_or_404(Team, id=team_id)
@@ -304,22 +304,35 @@ def team_details(request, e_id, team_id):
 
 @permission_for_judge
 @login_required(login_url=login_url)
-def update_scores(request, e_id, level_id):
+def update_scores(request, level_id):               ### done
+    judge = request.user.judge
     j_id = judge.id
-    event = Event.objects.get(id=e_id)
-    level = get_object_or_404(Level, id=level_id, event=event)
+    level = Level.objects.get(id=level_id)
+    event = level.event
     teams = Team.objects.filter(event=event)
     params = level.parameter_set.all()
     if request.method == 'POST':
         data = request.POST
+        if data['submit'] == 'leave':
+            judge.left_the_event = True
+            judge.save()
+            return redirect(reverse('ems:update_scores', kwargs={'level_id':level_id}))
         for team in teams:
             try:
                 score = team.scores.get(level=level)
             except:
                 continue
             score.save()
-            if score.is_frozen:
+            if judge.frozen:
                 continue
+            try:
+                comment = data['comment-'+str(team.id)]
+                comment_dict = score.get_comments()
+                comment_dict[j_id] = comment
+                score.comments = str(comment_dict)
+
+            except:
+                pass
             score_dict_total = score.get_score()
             score_dict = score.get_score_j(j_id)
             for param in params:
@@ -332,17 +345,22 @@ def update_scores(request, e_id, level_id):
                 except:
                     pass
             score_dict_total[j_id] = score_dict
-            score.score = str(score_dict_total)
+            score.score_card = str(score_dict_total)
+
             score.save()
         messages.success(request, 'Score updated successfully')
+        if data['submit'] == 'lock':
+            judge.frozen=True
+            judge.save()
     tables = []
     for team in teams:
+        score = team.scores.get(level=level)
         try:
-            tables.append({'team':team,'score':team.scores.get(level=level), 'score_dict':team.scores.get(level=level).get_score_j(j_id)})
+            tables.append({'team':team,'score':score, 'score_dict':score.get_score_j(j_id), 'comment':score.get_comment_j(j_id)})
         except:
             continue
 
-    return render(request, 'ems/update_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level})
+    return render(request, 'ems/update_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level, 'judge':judge})
 
 
 # @login_required(login_url=login_url)
@@ -555,8 +573,9 @@ def show_score_controls(request, e_id):
                 score = team.scores.get(level=level)
             except:
                 continue
-            rows.append({'data':[team.name, leader]+[score.get_total_j(judge.id) for judge in judges] + [score.get_total_score()], 'link':[]})
+            rows.append({'data':[team.name, leader]+[score.get_total_j(judge.id) for judge in judges] + [score.get_total_score()]})
         table['rows'] = rows
+        table['judges'] = judges
         tables.append(table)
     return render(request, 'ems/show_score_controls.html', {'tables':tables, 'event':event})
 
@@ -569,16 +588,19 @@ def show_score_controls_judge(request, e_id, judge_id):
     level = judge.level
     params = level.parameter_set.all()
     teams = event.team_set.all()
+    headings = ['Name', 'Leader'] + [p for p in params] + ['Total']
     rows = []
     for team in teams:
         try:
             score = Score.objects.get(team=team, level=level)
-            score.get_score_j(judge.id)
         except:
             continue
-        
-        rows.append([team.name] + [score.get_score_j_p(judge.id, p.id) for p in params])
-    return render(request, 'ems/show_score_controls_judge.html', {'event':event, 'judge':judge, 'level':level, 'rows':rows})
+        try:
+            leader = team.leader
+        except:
+            leader = team.leader_bitsian
+        rows.append([team.name, team.leader] + [score.get_score_j_p(judge.id, p.id) for p in params] + score.get_total_j(judge.id))
+    return render(request, 'ems/show_score_controls_judge.html', {'event':event, 'judge':judge, 'level':level, 'rows':rows, 'headings':headings})
 
 
 @permission_for_controls
@@ -695,20 +717,30 @@ def add_cd(request):                #### done
 
 @staff_member_required
 def add_bitsian(request):
-    if request.user.is_superuser:
+    if not request.user.is_superuser:
         logout(request)
         return redirect('ems:index')
-    from django.conf import settings
     import os
     import csv
+    import re
+    from django.conf import settings
 
     f=open(os.path.join(settings.BASE_DIR, 'media', 'hostel_list.csv'))
     data = csv.reader(f)
     for row in data:
-        b=Bitsian.objects.create(long_id=row[0], name=row[1])
+        b, created = Bitsian.objects.get_or_create(long_id=row[0], name=row[1])
+        if not created:
+            continue
         x=1 if row[2]=='' else 0
         gender = row[x+2]
         email = row[x+5].strip()
+        if '2017' in email:
+            match = re.match(r'2017[A-Z]\dPS(1\d+)',b.long_id)
+            if match:
+                email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
+            match = re.match(r'2017[A,B,D]\d[P,T]S(0\d+)',b.long_id)
+            if match:
+                email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
         y = email.split('@')[0]
         ems_code = y[0] + y[3:5] + y[5:].rjust(4,'0')
         b.ems_code=ems_code

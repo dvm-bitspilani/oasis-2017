@@ -1,4 +1,4 @@
-{% extends 'ems/base.html' %}
+{% extends 'ems/base2.html' %}
 
 {% block body %}
 {% load ems_tags %}
@@ -18,9 +18,16 @@
 {% if teams %}
 
 <div class="row clearfix">
+<div class="col-xs-4">
+<form action="{% url 'ems:update_scores' level.id %}" method="post">
+                    {% csrf_token %}
+                            <button class="btn btn-block bg-red waves-effect" type="submit" name="submit" value="leave" title="Press this button to leave this event and all the changes that you made to the scores will be discarded.">Leave Event</button>
+</form>
+                    </div>
+<br><br>
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
-                <form action="{% url 'ems:update_scores' event.id level.id %}" method="post">
+                <form action="{% url 'ems:update_scores' level.id %}" method="post">
                     {% csrf_token %}
 
                 <div class="header">
@@ -38,6 +45,8 @@
                                     {% for param in parameters %}
                                     <th>{{param.name}} | Max-Value({{param.max_val}})</th>
                                     {% endfor %}
+                                    <th>Comment</th>
+
                             </tr>
                             </thead>
                             <tfoot>
@@ -47,6 +56,7 @@
                                     {% for param in parameters %}
                                     <th>{{param.name}} | Max-Value({{param.max_val}})</th>
                                     {% endfor %}
+                                    <th>Comment</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -59,12 +69,17 @@
                                     <td>{{team.team.leader_bitsian}}</td>
                                     {% endif %}
                                     {% for p in parameters %}
-                                    {% if not team.score.is_frozen %}
+                                    {% if not judge.frozen %}
                                     <td><input type="number" min="0" step="1" name="{{team.team.id}}-{{p.id}}" value="{% get_it team.score_dict p.id %}" required></td>
                                     {% else %}
                                     <td>{% get_it team.score_dict p.id %}</td>
                                     {% endif %}
                                     {% endfor %}
+                                    {% if not judge.frozen %}
+                                    <td><input type="text" name="comment-{{team.team.id}}" value="{{team.comment}}" placeholder="Went overtime"></td>
+                                    {% else %}
+                                    <td>{{team.comment}}</td>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -73,8 +88,12 @@
                     <br>
                     <div class="row">
                     <div class="col-xs-2">
-                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit">Update Score</button>
-                        </div>
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="save">Save</button>
+                    </div>
+                    <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="lock">Save and lock</button>
+                    </div>
+
                     </div>
                 </div>
                 </form>

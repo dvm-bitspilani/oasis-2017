@@ -40,7 +40,7 @@ class Judge(models.Model):
     frozen = models.BooleanField(default=False)
     
     def __unicode__(self):
-            return self.name + '-' 
+            return self.name
 
 class Level(models.Model):
     event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
@@ -58,7 +58,7 @@ class Parameter(models.Model):
     max_val = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return str(self.level.event.name) + '-' + str(self.name)
+        return str(self.name) + '(' + str(self.max_val) + ')'
 
 class Bitsian(models.Model):
 	
@@ -70,7 +70,7 @@ class Bitsian(models.Model):
     barcode = models.CharField(max_length=10, null=True, blank=True)
 
     def __unicode__(self):
-		return str(self.long_id) + str(self.name)
+		return str(self.long_id) + ' - '+ str(self.name)
 
 class Score(models.Model):
     level = models.ForeignKey('ems.Level', null=True)
@@ -126,19 +126,21 @@ class Score(models.Model):
             for p in parameters:
                 s.setdefault(p.id, 0)
             score[j.id] = s
-        self.score = str(score)
+        self.score_card = str(score)
         self.comments = str(comment_dict)
         super(Score, self).save(*args, **kwargs)
 
     def get_total_score(self):
         score_dict = eval(self.score_card)
         x=0
+
         for i in score_dict.keys():
-            x+=sum(score_dict[i].values())
+            if not self.level.judge_set.get(id=i).left_the_event:
+                x+=sum(score_dict[i].values())
         return x
 
     def get_comments(self):
         return eval(self.comments)
 
     def get_comment_j(self, j_id):
-        return eval(self.comments)[j.id]
+        return eval(self.comments)[j_id]
