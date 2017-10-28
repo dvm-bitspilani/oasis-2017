@@ -256,12 +256,12 @@ def gen_barcode(part):
 		raise ValueError
 	if encoded is not None:
 		return encoded
-	part_ida = "%04d" % int(part_id)
-	college_code = ''.join(part.college.name.split(' '))
-	if len(college_code)<4:
-		college_code += str(0)*(4-len(college_code))
-	encoded = ''.join(choice(chars) for _ in xrange(8))
-	part.barcode = 'oasis17' + encoded
+	while 1:
+		encoded = ''.join(choice(chars) for _ in xrange(8))
+		barcode = 'oasis17' + encoded
+		if not Participant.objects.filter(barcode=barcode):
+			break
+	part.barcode = barcode
 	part.save()
 	import qrcode
 	part_code = qrcode.make(part.barcode)
