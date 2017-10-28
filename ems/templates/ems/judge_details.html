@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>OASIS '17' | Realm Of Fiction</title>
+    <!-- Favicon-->
+
+    <link rel="shortcut icon" href="{% static 'registrations/assets/img/favicon.ico'%}" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+    <!-- Bootstrap Core Css -->
+    <link href="{% static 'pcradmin/plugins/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+    <!-- Waves Effect Css -->
+    <link href="{% static 'pcradmin/plugins/node-waves/waves.css' %}" rel="stylesheet" />
+
+    <!-- Custom Css -->
+    <link href="{% static 'pcradmin/css/style.css' %}" rel="stylesheet">
+</head>
+
+<body class="four-zero-four">
+    <div class="four-zero-four-container">
+        <div class="error-code">{{judge.name}}</div>
+        <br>
+        <div class="error-message">u - <u>{{judge.user.username}}</u> p - <u>{{password}}</u> for  {{level.name}}-{{level.position}}/{{event}}  </div>
+
+        <div class="button-place">
+            <a href="{{url}}" class="btn btn-default btn-lg waves-effect">RETURN</a>
+        </div>
+    </div>
+</body>
+
+    <!-- Jquery Core Js -->
+    <script src="{% static 'pcradmin/plugins/jquery/jquery.min.js' %}"></script>
+    
+    <!-- Bootstrap Core Js -->
+    <script src="{% static 'pcradmin/plugins/bootstrap/js/bootstrap.js' %}"></script>
+
+    <!-- Waves Effect Plugin Js -->
+    <script src="{% static 'pcradmin/plugins/node-waves/waves.js' %}"></script>
+
+</html>

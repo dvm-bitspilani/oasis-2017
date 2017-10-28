@@ -20,25 +20,32 @@
             <div class="card">
                 <div class="header">
                     <h2>
-                        {{table.title}}
+                        <b>{{event}}  </b>{{table.title}}
                     </h2>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
-                        
+                        {% if table.judges %}
+                        {% if table.rows %}
                         <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
                                 <tr>
-                                    {% for heading in table.headings %}
-                                    <th>{{heading}}</th>
+                                    <th>Name</th>
+                                    <th>Leader</th>
+                                    {% for judge in table.judges %}
+                                    <th><a href="{% url 'ems:show_score_controls_judge' event.id judge.id %}">{{judge.name}}</a>{% if judge.left_the_event %}(Discarded){% elif judge.frozen%}(Frozen){% endif %}</th>
                                     {% endfor %}
+                                    <th>Total</th>
                             </tr>
                             </thead>
                             <tfoot>
                                 <tr>
-                                    {% for heading in table.headings %}
-                                    <th>{{heading}}</th>
-                                    {% endfor %}    
+                                    <th>Name</th>
+                                    <th>Leader</th>
+                                    {% for judge in table.judges %}
+                                    <th><a href="{% url 'ems:show_score_controls_judge' event.id judge.id %}">{{judge.name}}</a>{% if judge.left_the_event %}(Discarded){% elif judge.frozen%}(Frozen){% endif %}</th>
+                                    {% endfor %}
+                                    <th>Total</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -47,13 +54,16 @@
                                     {% for data in row.data %}
                                     <td>{{data}}</td>
                                     {% endfor %}
-                                    {% for link in row.link %}
-                                    <td><a href="{{link.url}}">{{link.title}}</a></td>
-                                    {% endfor %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
+                        {% else %}
+                        NO TEAMS IN THIS LEVEL
+                        {% endif %}
+                        {% else %}
+                        NO JUDGES NO SCORES
+                        {% endif %}
                     </div>
                 </div>
             </div>

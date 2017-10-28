@@ -48,7 +48,7 @@
                         <div class="body">
                             <ul class="list-group">
                                 {% for event in event_list %}
-                                <li class="list-group-item"><a href="{% url 'ems:event_home' event.id %}">{{event.name}}</a></li>
+                                <li class="list-group-item"><a href="{% url 'ems:team_home' event.id %}">{{event.name}}</a></li>
                                 {% endfor %}
                             </ul>
                         </div>

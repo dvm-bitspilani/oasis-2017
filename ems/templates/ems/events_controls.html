@@ -27,19 +27,28 @@
                         <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                             <thead>
                                 <tr>
-                                    <th>Events</th>
-                                    <th>View</th>
+                                    <th>Event</th>
+                                    <th>Add Levels</th>
+                                    <th>Add Judges</th>
+                                    <th>Teams Status</th>
+                                    <th>View Score</th>
                             </thead>
                             <tfoot>
                                 <tr>
-                                    <th>View</th>
-                                    <th>Events</th>   
+                                    <th>Event</th>
+                                    <th>Add Levels</th>
+                                    <th>Add Judges</th>
+                                    <th>Team Status</th>
+                                    <th>View Score</th>
                                 </tr>
                             </tfoot>
                             <tbody>
                                 {% for event in events %}
                                 <tr>
                                     <td>{{event.name}}</td>
+                                    <td><a href="{% url 'ems:event_levels' event.id %}">Levels</a></td>
+                                    <td><a href="{% url 'ems:add_judge' event.id %}">Judges</a></td>
+                                    <td><a href="{% url 'ems:event_home' event.id %}">Teams</a></td>
                                     <td><a href="{% url 'ems:show_score_controls' event.id %}">View</a></td>
                                 </tr>
                                 {% endfor %}

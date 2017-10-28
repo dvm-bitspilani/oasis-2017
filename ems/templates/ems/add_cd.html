@@ -77,9 +77,8 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Events</th>
-                                    <th>Co-Oridnator</th>
+                                    <th>Co-Ordinator</th>
                                     <th>Username</th>
-                                    <th>Pasword</th>
                                     <th>Select</th>
                             </tr>
                             </thead>
@@ -87,9 +86,8 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Events</th>
-                                    <th>Co-Oridnator</th>
+                                    <th>Co-Ordinator</th>
                                     <th>Username</th>
-                                    <th>Pasword</th> 
                                     <th>Select</th>
                                 </tr>
                             </tfoot>
@@ -100,7 +98,6 @@
                                     <td>{% get_events cd %}</td>
                                     <td>{{cd.co_ordinator}}</td>
                                     <td>{{cd.user.username}}</td>
-                                    <td>{{cd.password}}</td>
                                     <td><input type="checkbox" name="cd_id" id="{{cd.id}}" value="{{cd.id}}"><label for="{{cd.id}}"></label></td>
                                 </tr>
                                 {% endfor %}

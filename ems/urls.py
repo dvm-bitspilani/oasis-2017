@@ -14,8 +14,8 @@ urlpatterns = [
 	url(r'^add_team/(?P<e_id>\d+)/$', views.add_delete_teams, name="add_team"),
     url(r'^teamdetails/(?P<e_id>\d+)/(?P<team_id>\d+)/$', views.team_details, name="team_details"),
     url(r'^teamdetails/(?P<e_id>\d+)/$', views.team_details_home, name="team_home"),
-    url(r'^show_scores/(?P<e_id>\d+)/level-(?P<level_id>\d+)/$', views.show_scores, name='show_scores'),
-    url(r'^update_scores/(?P<e_id>\d+)/level-(?P<level_id>\d+)/$', views.update_scores, name='update_scores'),
+    # url(r'^show_scores/(?P<e_id>\d+)/level-(?P<level_id>\d+)/$', views.show_scores, name='show_scores'),
+    url(r'^update_scores/level-(?P<level_id>\d+)/$', views.update_scores, name='update_scores'),
     # url(r'^select_winner/(?P<e_id>\d+)/$', views.select_winner, name='select_winner'),
 
 
@@ -23,9 +23,10 @@ urlpatterns = [
     url(r'^gen_emscode/$', views.gen_emscode, name='gen_emscode'),
 
 
-	url(r'^add_judge/$', views.add_judge, name="add_judge"),
+	url(r'^add_judge/(?P<e_id>\d+)/$', views.add_judge, name="add_judge"),
 	url(r'^add_cd/$', views.add_cd, name="add_cd"),
 	url(r'^events_controls/$', views.events_controls, name="events_controls"),
 	url(r'^show_score_controls/(?P<e_id>\d+)/$', views.show_score_controls, name="show_score_controls"),
+	url(r'^show_score_controls_judge/(?P<e_id>\d+)/(?P<judge_id>\d+)/$', views.show_score_controls_judge, name="show_score_controls_judge"),
 
 ]

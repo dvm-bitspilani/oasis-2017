@@ -16,10 +16,10 @@
 
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="card">
-        <form action="{% url 'ems:add_judge' %}" method="post">
+        <form action="{% url 'ems:add_judge' event.id %}" method="post">
         {% csrf_token %}
             <div class="header">
-            <h2>Add Judge</h2>
+            <h2>Add Judge for {{event}}</h2>
             </div>
             <div class="body">
                 <div class="input-group">
@@ -27,9 +27,9 @@
                         <input type="text" name="name" id="name" placeholder="Name" class="form-control" required><label for="name">Judge's Name</label>
                     </div>
                 </div>
-                <select class="form-control show-tick" name="event_id" data-live-search="true">
-                    {% for event in events %}
-                        <option value="{{event.id}}">{{event.name}}</option>        
+                <select class="form-control show-tick" name="level_id" data-live-search="true">
+                    {% for level in levels %}
+                        <option value="{{level.id}}">{{level.name}} -- {{level.position}}</option>
                     {% endfor %}
                         <option value="">None</option>
                 </select>
@@ -51,28 +51,28 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
-                    <h2>Judges</h2>
+                    <h2>Judges for {{event}}</h2>
                 </div>
                 <div class="body">
                     <div class="table-responsive">
-                        <form action="{% url 'ems:add_judge' %}" method="post">
+                        <form action="{% url 'ems:add_judge' event.id %}" method="post">
                         {% csrf_token %}
-                        <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                        <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Event</th>
+                                    <th>Level</th>
                                     <th>Username</th>
-                                    <th>Pasword</th>
+                                    <th>Status</th>
                                     <th>Select</th>
                             </tr>
                             </thead>
                             <tfoot>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Event</th>
+                                    <th>Level</th>
                                     <th>Username</th>
-                                    <th>Pasword</th> 
+                                    <th>Status</th>
                                     <th>Select</th>
                                 </tr>
                             </tfoot>
@@ -80,9 +80,23 @@
                                 {% for judge in judges %}
                                 <tr>
                                     <td>{{judge.name}}</td>
-                                    <td>{{judge.event.name}}</td>
+                                    <td>{{judge.level.name}} -- {{judge.level.position}}</td>
                                     <td>{{judge.user.username}}</td>
-                                    <td>{{judge.password}}</td>
+                                    <td>
+                                        {% if judge.frozen %}
+                                        Frozen
+                                        {% if judge.left_the_event %}
+                                        | Discarded
+                                        {% endif %}
+                                        {% else %}
+                                        {% if judge.left_the_event %}
+                                        Discarded
+                                        {% else %}
+                                        Normal
+                                        {% endif %}
+                                        {% endif %}
+
+                                    </td>
                                     <td><input type="checkbox" name="judge_id" id="{{judge.id}}" value="{{judge.id}}"><label for="{{judge.id}}"></label></td>
                                 </tr>
                                 {% endfor %}
@@ -91,6 +105,12 @@
                         <div class="row">
                         <div class="col-xs-2">
                             <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="delete">Delete</button>
+                        </div>
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-blue waves-effect" type="submit" name="submit" value="freeze">Freeze</button>
+                        </div>
+                        <div class="col-xs-2">
+                            <button class="btn btn-block bg-red waves-effect" type="submit" name="submit" value="discard">Discard</button>
                         </div>
                 </div>
                 </form>

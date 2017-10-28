@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load ems_tags %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -94,14 +95,10 @@
                     <li class="header">MAIN NAVIGATION</li>
                     
                     <li class="active">
-                                <a href="{% url 'ems:add_cd' %}">
-                                    <span>Clubs 'n' Departments</span>
-                                </a>
-                    </li>
-                    <li class="active">
-                                <a href="{% url 'ems:events_controls' %}">
-                                    <span>Events</span>
-                                </a>
+                        <a href="{% url 'ems:team_home' event.id %}">
+                            <i class="material-icons">home</i>
+                            <span>Level-{{level.position}}({{level.name}}) for {{level.event.name}} </span>
+                        </a>
                     </li>
                     </li>
                     <li class="header">LABELS</li>
@@ -155,7 +152,7 @@
                             <li>
                                 <span>Logout</span>
                                 <div class="switch">
-<label><input type="checkbox" onclick='window.location.assign("{% url 'ems:logout' %}")' checked><span class="lever"></span></label>
+                                    <label><input type="checkbox" onclick='window.location.assign("{% url 'pcradmin:user-logout' %}")' checked><span class="lever"></span></label>
                                 </div>
                             </li>
                         </ul>

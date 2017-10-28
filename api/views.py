@@ -346,7 +346,8 @@ def all_prof_shows(request):
 		prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
 		return Response(prof_show_serializer.data)
 	clubdept = ClubDepartment.objects.get(user=user)
-	prof_show_serializer = ProfShowSerializer(clubdept.profshow.all(), many=True)
+	# clubdept.profshows.all()
+	prof_show_serializer = ProfShowSerializer(clubdept.profshows.all(), many=True)
 	return Response(prof_show_serializer.data)
 
 @api_view(['GET', ])
