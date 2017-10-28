@@ -565,9 +565,9 @@ def show_score_controls(request, e_id):
         table = {'title':level.name+' ' + str(level.position), 'headings':headings}
         rows = []
         for team in teams:
-            try:
+            if team.leader:
                 leader = team.leader
-            except:
+            else:
                 leader = team.leader_bitsian
             try:
                 score = team.scores.get(level=level)
@@ -588,18 +588,18 @@ def show_score_controls_judge(request, e_id, judge_id):
     level = judge.level
     params = level.parameter_set.all()
     teams = event.team_set.all()
-    headings = ['Name', 'Leader'] + [p for p in params] + ['Total']
+    headings = ['Name', 'Leader'] + [p for p in params] + ['Total', 'Comments']
     rows = []
     for team in teams:
         try:
             score = Score.objects.get(team=team, level=level)
         except:
             continue
-        try:
+        if team.leader:
             leader = team.leader
-        except:
+        else:
             leader = team.leader_bitsian
-        rows.append([team.name, team.leader] + [score.get_score_j_p(judge.id, p.id) for p in params] + score.get_total_j(judge.id))
+        rows.append([team.name, leader] + [score.get_score_j_p(judge.id, p.id) for p in params] + [score.get_total_j(judge.id), score.get_comment_j(judge.id)])
     return render(request, 'ems/show_score_controls_judge.html', {'event':event, 'judge':judge, 'level':level, 'rows':rows, 'headings':headings})
 
 
@@ -734,23 +734,18 @@ def add_bitsian(request):
             continue
         except:
             b = Bitsian(long_id=row[0], name=row[1])
-        try:
-            x=0
-            if row[2] == '':
-                x+=1
-            email = row[x+5].strip()
-            if '2017' in email:
-                match = re.match(r'2017[A-Z]\dPS(1\d+)',b.long_id)
-                if match:
-                    email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
-                match = re.match(r'2017[A,B,D]\d[P,T]S(0\d+)',b.long_id)
-                if match:
-                    email = 'f2017'+ match.groups()[0] + '@pilani.bits-pilani.ac.in'
-            y = email.split('@')[0]
-            ems_code = y[0] + y[3:5] + y[5:].rjust(4,'0')
-        except:
-            response += '  ' +b.long_id
-            continue
+        ld = row[0]
+        email = 'f'
+        if 'H' in row[0]:
+            email = 'h'
+        ems_code = email
+        ems_code += ld[2:4] + ld[-4:]
+        match1 = re.search(r'(\d{4})\w{4}0(\d{3})', ld)
+        match2 = re.search(r'(\d{4})\w{4}1(\d{3})', ld)
+        if match1:
+            email += match1.group() + match1.group(1) + '@pilani.bits-pilani.ac.in'
+        elif match2:
+            email += match2.group() + '1' + match2.group(1) + '@pilani.bits-pilani.ac.in'
 
         b.ems_code=ems_code
         # b.gender = gender

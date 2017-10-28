@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     {% load static %}
-    
+    {% load ems_tags %}
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -28,7 +28,7 @@
     <div class="four-zero-four-container">
         <div class="error-code">{{cd.name}}</div>
         <br>
-        <div class="error-message">Co-ord - {{cd.co_ordinator}} | u - <u>{{cd.user.username}}</u> | p - <u>{{password}}</u> for  {{event}}  </div>
+        <div class="error-message">Co-ord - {{cd.co_ordinator}} | u - <u>{{cd.user.username}}</u> | p - <u>{{password}}</u> for  {% get_events cd %}  </div>
 
         <div class="button-place">
             <a href="{{url}}" class="btn btn-default btn-lg waves-effect">RETURN</a>

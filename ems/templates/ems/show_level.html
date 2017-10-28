@@ -18,15 +18,16 @@
 <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
         <div class="card">
             <div class="header">
-                <h2>
+                <h1>
                     Level - {{level.position}} ({{level.name}})
 
-                </h2>
+                </h1>
             </div>
             <div class="body">
-                <ul class="list-group">
+            <big><big>Parameters</big></big>
+                <ul >
                     {% for p in params %}
-                    <li>{{p.name}}  |  Max Value{{p.max_value}}</li>
+                    <big><big><li>{{p.name}}  [  Max Value - {{p.max_val}}  ]</li></big></big>
                     {% endfor %}
                     
                 </ul>           

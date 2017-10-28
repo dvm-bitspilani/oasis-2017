@@ -70,7 +70,7 @@
                                     {% endif %}
                                     {% for p in parameters %}
                                     {% if not judge.frozen %}
-                                    <td><input type="number" min="0" step="1" name="{{team.team.id}}-{{p.id}}" value="{% get_it team.score_dict p.id %}" required></td>
+                                    <td><input type="number" min="0" step="1" max="{{p.max_val}}" name="{{team.team.id}}-{{p.id}}" value="{% get_it team.score_dict p.id %}" required></td>
                                     {% else %}
                                     <td>{% get_it team.score_dict p.id %}</td>
                                     {% endif %}
