@@ -734,7 +734,7 @@ def add_bitsian(request):
         x=0
         if row[2] == '' or len(row[2])>1:
             x+=1
-        if len(row[2]>1):
+        if len(row[2])>1:
             b.name += ' ' + row[2]
         gender = row[x+2]
         email = row[x+5].strip()
