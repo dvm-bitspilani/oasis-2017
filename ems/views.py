@@ -738,6 +738,8 @@ def add_bitsian(request):
             b.name += ' ' + row[2]
         gender = row[x+2]
         email = row[x+5].strip()
+        bhawan = row[x+3]
+        room_no = int(row[x+4])
         if '2017' in email:
             match = re.match(r'2017[A-Z]\dPS(1\d+)',b.long_id)
             if match:
@@ -751,6 +753,8 @@ def add_bitsian(request):
         b.gender = gender
         b.barcode = ''.join(choice(chars) for _ in xrange(8))
         b.email = email
+        b.bhawan = bhawan
+        b.room_no = b.room_no
         b.save()
     return HttpResponse('Good')
 
