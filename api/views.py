@@ -371,9 +371,9 @@ def add_profshow(request):
 	except:
 		return Response({'message':'Invalid Prof Show'})
 	barcode = data['barcode']
-	if re.match(r'[h,f]\d{6}', barcode):
+	if re.match(r'\w{8}', barcode):
 		try:
-			bitsian = Bitsian.objects.filter(ems_code=barcode)[0]
+			bitsian = Bitsian.objects.filter(barcode=barcode)[0]
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
@@ -389,6 +389,7 @@ def add_profshow(request):
 			attendance.count = data['count']
 			attendance.save()
 		profshow_bill = BitsProfShowBill()
+		profshow_bill.bitsian = bitsian
 		profshow_bill.prof_show = prof_show
 		profshow_bill.buyer_id = data['barcode']
 		profshow_bill.quantity = data['count']
@@ -424,6 +425,7 @@ def add_profshow(request):
 			attendance.count = data['count']
 			attendance.save()
 		profshow_bill.prof_show = prof_show
+		profshow_bill.participant = participant
 		profshow_bill.buyer_id = data['barcode']
 		profshow_bill.quantity = data['count']
 		profshow_bill.n2000 = int(data['n_2000'])
@@ -487,9 +489,9 @@ def validate_profshow(request):
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
-	if re.match(r'[h,f]\d{6}', barcode):
+	if re.match(r'\w{8}', barcode):
 		try:
-			bitsian = Bitsian.objects.filter(ems_code=barcode)[0]
+			bitsian = Bitsian.objects.filter(barcode=barcode)[0]
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
@@ -540,7 +542,7 @@ def get_events_cd(request):
 @api_view(['POST'])
 def register_team(request):
 	data = request.data
-	event = Event.objects.get(id=data['event_id'])
+	event = Event.objects.get(id=int(data['event_id']))
 	user = request.user
 	try:
 		cd = ClubDepartment.objects.get(user=user)
@@ -568,9 +570,9 @@ def register_team(request):
 			team.members.add(p)
 			if x==0:
 				team.leader = p
-		elif re.match(r'[h,f]\d{6}', mem):
+		elif re.match(r'\w{8}', mem):
 			try:
-				b = Bitsian.objects.filter(ems_code=mem)[0]
+				b = Bitsian.objects.filter(barcode=mem)[0]
 			except:
 				team.delete()
 				return Response({'status':0, 'message':'Invalid Codes'})

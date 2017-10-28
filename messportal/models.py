@@ -34,6 +34,7 @@ class MessBill(models.Model):
         return 'mess-'+ self.buyer_id + '-' + str(self.amount)
 
 class ProfShowBill(models.Model):
+    participant = models.ForeignKey('registrations.Participant', on_delete=models.CASCADE, null=True)
     prof_show = models.ForeignKey('events.ProfShow', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now=True)
     buyer_id = models.CharField(max_length=20)
@@ -61,6 +62,7 @@ class BitsProfShowBill(models.Model):
     quantity = models.IntegerField(default=0)
     created_by = models.CharField(max_length=50)
     amount = models.IntegerField(default=0)
+    bitsian = models.ForeignKey('ems.Bitsian', on_delete=models.CASCADE, null=True)
 
     def __unicode__(self):
         return 'bitsprofshow-' + self.buyer_id + '-' + str(self.amount)

@@ -54,6 +54,7 @@
         </div>
 </div>
 {% endfor %}
+<br><br><br>
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="card">
@@ -82,11 +83,11 @@
                             <tbody>
                                 {% for item in combo.items.all %}
                                 <tr>
-                                    <td>{{item.name}}</td>
+                                    <td>{{item.name}}-{{item.colour.name}}</td>
                                     <td>
-                                        <select class="form-control show-tick" name="{{item.id}}" data-live-search="true" multiple>
-                                            {% for size in item.size_set.all %}
-                                                <option value="{{size.name}}">{{size.name}}</option>        
+                                        <select class="form-control show-tick" name="{{item.id}}" data-live-search="true">
+                                            {% for mainitem in item.mainitem_set.all %}
+                                                <option value="{{mainitem.size}}">{{mainitem.size}}</option>        
                                             {% endfor %}
                                         </select>
                                     </td>

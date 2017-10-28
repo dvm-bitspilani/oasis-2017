@@ -260,7 +260,7 @@ def gen_barcode(part):
 	college_code = ''.join(part.college.name.split(' '))
 	if len(college_code)<4:
 		college_code += str(0)*(4-len(college_code))
-	encoded = ''.join([part_ida[i]+college_code[i] for i in range(0,4)])
+	encoded = ''.join(choice(chars) for _ in xrange(8))
 	part.barcode = 'oasis17' + encoded
 	part.save()
 	import qrcode

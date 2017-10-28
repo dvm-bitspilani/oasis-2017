@@ -68,6 +68,7 @@
                     </tr>
                     {% endfor %}
                     {% for maincombo in maincombos %}
+                    <tr>
                         <td>
                             {% for mainitem in maincombo.mainitems.all %}
                             {{mainitem.item.name}} - {{mainitem.size.name}} - {{mainitem.item.colour}} | 
@@ -77,12 +78,14 @@
                         <td></td>
                         <td>1</td>
                         <td></td>
+                        <td></td>
                         {% if not cart.paid %}
                         <td>
                             <input type="checkbox" name="combo_list" id="{{maincombo.combo.price}} {{maincombo.id}}" value="{{i.id}}">
                             <label for="{{maincombo.combo.price}} {{maincombo.id}}"></label>
                         </td>
-                    {% endif %}
+                        {% endif %}
+                    </tr>
                     {% endfor %}
                     <tr>
                         <td>Total</td>
@@ -150,8 +153,9 @@
                     <tr>
                         <td>
                             {% for item in combo.items.all %}
-                                {{item.name}}-{{item.colour}}
+                                {{item.name}}-{{item.colour}} | 
                             {% endfor %}
+                             (Combo)
                         </td>
                         <td>{{combo.price}}</td>
                         <td></td>
