@@ -8,7 +8,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 	college_name = serializers.ReadOnlyField(source='college.name', read_only=True)
 	class Meta:
 		model = Participant
-		fields = ('name', 'college_name', 'email', 'city', 'state', 'phone', 'gender', 'year_of_study', 'head_of_society', 'barcode', 'id')
+		fields = ('name', 'college_name', 'email', 'city', 'state', 'phone', 'gender', 'year_of_study', 'head_of_society', 'barcode', 'id', 'ems_code')
 
 class EventSerializer(serializers.ModelSerializer):
 
@@ -27,7 +27,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 	college_name = serializers.ReadOnlyField(source='college.name', read_only=True)
 	class Meta:
 		model = Participant
-		fields = ('name', 'college_name', 'barcode', 'phone', 'city', 'pcr_approved', 'id', 'paid', 'pic_url')
+		fields = ('name', 'college_name', 'barcode', 'phone', 'city', 'pcr_approved', 'id', 'paid', 'pic_url', 'ems_code')
 	
 	def get_pic_url(self, participant):
 		request = self.context.get('request')

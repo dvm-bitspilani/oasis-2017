@@ -14,27 +14,34 @@ class Cart(models.Model):
     amount = models.IntegerField(default=0)
     email = models.EmailField()
     cart_token = models.CharField(max_length=32, null=True, blank=True)
+    maincombos = models.ManyToManyField('MainCombo')
 
     def __unicode__(self):
         return str(self.buyer_id) + '-' + str(self.amount)
 
 class Sale(models.Model):
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    item = models.ForeignKey('MainItem', on_delete=models.CASCADE)
+    cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
 
 class Item(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     price = models.IntegerField(default=0)
-    cart = models.ManyToManyField(Cart, through=Sale)
     front_pic = models.ImageField(upload_to="store/front_pics/", null=True)
     back_pic = models.ImageField(upload_to="store/back_pics/", null=True)
     colour = models.ForeignKey('Colour', null=True, blank=True)
-    size = models.ForeignKey('Size', null=True, blank=True)
-    quantity_left = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return self.name + '-' + str(self.colour.name) + '-' + str(self.size.name)
+        return self.name + '-' + str(self.colour.name)
+
+class MainItem(models.Model):
+    size = models.ForeignKey('Size', null=True, blank=True)
+    quantity_left = models.IntegerField(default=0)
+    cart = models.ManyToManyField(Cart, through=Sale)
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        return str(self.item.name) + '-' + str(self.size.name) + '-' + str(self.item.colour.name)
 
 class Colour(models.Model):
     name = models.CharField(max_length=20)
@@ -70,3 +77,11 @@ class CartBill(models.Model):
     fifties_returned = models.IntegerField(null=True, blank=True, default=0)
     twenties_returned = models.IntegerField(null=True, blank=True, default=0)
     tens_returned = models.IntegerField(null=True, blank=True, default=0)
+
+class Combo(models.Model):
+    items = models.ManyToManyField('Item')
+    price = models.IntegerField(default=0)
+
+class MainCombo(models.Model):
+    combo = models.ForeignKey(Combo, on_delete=models.CASCADE)
+    mainitems = models.ManyToManyField('MainItem')

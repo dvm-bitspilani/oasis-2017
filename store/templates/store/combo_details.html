@@ -10,7 +10,8 @@
 {% endfor %}
 </div>
 {% endif %}
-<h2>{{item.name}}-{{item.colour}}'s details for the cart</h2>
+{% for item in combo.items.all %}
+<h2>{{item.name}}-{{item.colour}}'s details</h2>
 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
         <div class="card">
             <div class="header">
@@ -21,7 +22,7 @@
                     <div class="carousel-inner" role="listbox">
                         <div class="item active">
                             {% if item.front_pic %}
-                            <img src="{{item.front_pic.url}}" alt="No image" height="400" width="400"/>
+                            <img src="{{item.front_pic.url}}" alt="No image" height="300" width="300"/>
                             {% else %}
                             <img alt="No image"/>
                             {% endif %}
@@ -42,7 +43,7 @@
                     <div class="carousel-inner" role="listbox">
                         <div class="item active">
                             {% if item.back_pic %}
-                            <img src="{{item.back_pic.url}}" alt="No image" height="400" width="400"/>
+                            <img src="{{item.back_pic.url}}" alt="No image" height="300" width="300"/>
                             {% else %}
                             <img alt="No image"/>
                             {% endif %}
@@ -52,68 +53,48 @@
             </div>
         </div>
 </div>
+{% endfor %}
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="card">
-
                         <div class="header">
                             <h2>
-                                Item Details
+                                Items' Details
                             </h2>
                         </div>
                     <div class="body">
                         <div class="table-responsive">
-                                <form action="{% url 'store:add_item' cart.id item.id %}" method="post">
+                                <form action="{% url 'store:add_combo' cart.id combo.id %}" method="post">
                                 {% csrf_token %}
                             <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr>
+                                    <th>Item</th>
                                     <th>Size</th>
-                                    <th>Quantity Left</th>
-                                    <th>Select Quantity</th>
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr>
+                                    <th>Item</th>
                                     <th>Size</th>
-                                    <th>Quantity Left</th>
-                                    <th>Select Quantity</th>
                                 </tr>
                             </tfoot>
                             <tbody>
-                                {% for item in main_list %}
+                                {% for item in combo.items.all %}
                                 <tr>
-                                    <td>{{item.size.name}}</td>
-                                    <td>{{item.quantity_left}}</td>
+                                    <td>{{item.name}}</td>
                                     <td>
-                                        <label for="{{item.id}}">Quantity</label>
-                                            <div class="form-group">
-                                                <div class="form-line">
-                                                    <input id="{{item.id}}" type="number" class="form-control" placeholder="Quanity" name="{{item.id}}" value=0>
-                                                </div>
-                                            </div>
-                                    </td>
-                                </tr>    
-                                {% endfor %}
-                                {% for sale in sale_list %}
-                                <tr>
-                                    <td>{{sale.item.size.name}}</td>
-                                    <td>{{sale.item.quantity_left}}</td>
-                                    <td>
-                                        <label for="sale.id">Quantity</label>
-                                        <div class="form-group">
-                                            <div class="form-line">
-                                                <input id="{{sale.id}}" type="number" class="form-control" placeholder="Quanity" name="{{sale.id}}" value="{{sale.quantity}}">
-                                            </div>
-                                        </div>
+                                        <select class="form-control show-tick" name="{{item.id}}" data-live-search="true" multiple>
+                                            {% for size in item.size_set.all %}
+                                                <option value="{{size.name}}">{{size.name}}</option>        
+                                            {% endfor %}
+                                        </select>
                                     </td>
                                 </tr>    
                                 {% endfor %}
                             </tbody>
                             </table>
-                            {% if not cart.paid %}
-                            <button type="submit" class="btn btn-primary m-t-15 waves-effect"name="submit">Update</button>
-                            {% endif %}
+                            <button type="submit" class="btn btn-primary m-t-15 waves-effect"name="submit">Confirm</button>
                             </form>
                         </div>
                     </div>

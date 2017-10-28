@@ -81,25 +81,48 @@ def cart_details(request, c_id):
             return render(request, 'registrations/message.html', context)
         data = request.POST
         sale_list = Sale.objects.filter(id__in=data.getlist('sale_list'))
+        combo_list = MainCombo.objects.filter(id__in=data.getlist('combo_list'))
         for sale in sale_list:
-            cart.amount -= ((sale.quantity)*(sale.item.price))
+            cart.amount -= ((sale.quantity)*(sale.item.item.price))
+            mainitem = sale.item
+            mainitem.quantity_left += sale.quantity
+            mainitem.save()
             cart.save()
             sale.delete()
-    items = Item.objects.all()
+        for combo in combo_list:
+            cart.amount -= (combo.combo.price)
+            cart.save()
+            for mainitem in combo.mainitems.all():
+                mainitem.quantity_left += 1
+                mainitem.save()
+            combo.delete()
     sales = Sale.objects.filter(cart=cart)
-    present_items = [sale.item for sale in sales]
-    unadded_items = [item for item in items if not item in present_items]
-    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items, 'unadded_items':unadded_items})
+    maincombos = cart.maincombos.all()
+    present_items = []
+    for sale in sales:
+        if sale.item.item not in present_items:
+            present_items.append(sale.item.item)
+    unadded_items = [item for item in Item.objects.all() if item not in present_items]
+    added_items = sales
+    combos = Combo.objects.all()
+    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items, 'unadded_items':unadded_items, 'maincombos':maincombos, 'combos':combos})
 
 @staff_member_required
 def item_details(request, c_id, i_id):
     cart = get_object_or_404(Cart, id=c_id)
-    item = get_object_or_404(Item, id=i_id)
-    try:
-        sale = Sale.objects.get(cart=cart, item=item)
-        return render(request, 'store/item_details.html', {'cart':cart, 'item':item, 'sale':sale})
-    except:    
-        return render(request, 'store/item_details.html', {'cart':cart, 'item':item})
+    base_item = get_object_or_404(Item, id=i_id)
+    main_items = base_item.mainitem_set.all()
+    sale_list = []
+    main_list = []
+    for item in main_items:
+        try:
+            sale = Sale.objects.get(cart=cart, item=item)
+            sale_list.append(sale)
+        except:
+            main_list.append(item)
+    print sale_list
+    print main_list
+    return render(request, 'store/item_details.html', {'cart':cart, 'item':base_item, 'sale_list':sale_list, 'main_list':main_list})
 
 @staff_member_required
 def add_item(request, c_id, i_id):
@@ -114,24 +137,84 @@ def add_item(request, c_id, i_id):
             }
             return render(request, 'registrations/message.html', context)
         item = get_object_or_404(Item, id=i_id)
-        try:
-            quantity = int(data['quantity'])
-        except:
-            messages.warning(request, 'Invalid Quantity.')
-            return redirect(request.META.get('HTTP_REFERER'))
-        if item.quantity_left < quantity:
-            messages.warning(request, 'Not enough items left.')
-            return redirect(request.META.get('HTTP_REFERER'))
-        try:
-            sale = Sale.objects.get(item=item, cart=cart)
-            cart.amount += ((quantity-sale.quantity)*(sale.item.price))
-            sale.quantity = quantity
-            sale.save()
-        except:
-            sale = Sale.objects.create(item=item, cart=cart, quantity=quantity)
-            cart.amount += ((sale.quantity)*(sale.item.price))
-        item.quantity_left -= quantity
-        item.save()
+        main_items = item.mainitem_set.all()
+        sale_list = []
+        main_list = []
+        for item in main_items:
+            try:
+                sale = Sale.objects.get(cart=cart, item=item)
+                sale_list.append(sale)
+            except:
+                main_list.append(item)
+        for sale in sale_list:
+            try:
+                quantity = data[str(sale.id)]
+                quantity = int(quantity)
+                if sale.item.quantity_left < quantity:
+                    messages.warning(request, 'Not enough items left.')
+                    return redirect(request.META.get('HTTP_REFERER'))
+                sale.item.quantity_left -= (quantity - sale.quantity)
+                sale.item.save()
+                cart.amount += ((quantity-sale.quantity)*(sale.item.item.price))
+                sale.quantity = quantity
+                sale.save()
+            except:
+                pass
+        for item in main_list:
+            try:
+                print item
+                quantity = data[str(item.id)]
+                quantity = int(quantity)
+                try:
+                    sale = Sale.objects.get(cart=cart, item=item)
+                    if sale.item.quantity_left < quantity:
+                        messages.warning(request, 'Not enough items left.')
+                        return redirect(request.META.get('HTTP_REFERER'))
+                    sale.item.quantity -= (quantity - sale.quantity)
+                    sale.item.save()
+                    sale.quantity = quantity
+                    cart.amount += ((quantity-sale.quantity)*(sale.item.item.price))
+                    sale.save()
+                except:
+                    if int(item.quantity_left) < int(quantity):
+                        print item.quantity_left, quantity
+                        messages.warning(request, 'Not enough items left.')
+                        return redirect(request.META.get('HTTP_REFERER'))
+                    if quantity>0:
+                        sale = Sale.objects.create(item=item, cart=cart, quantity=quantity)
+                        cart.amount += ((sale.quantity)*(sale.item.item.price))
+                        sale.item.quantity_left -= quantity
+                        sale.item.save()
+            except:
+                pass
+        cart.save()
+        return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
+
+@staff_member_required
+def combo_details(request, c_id, co_id):
+    cart = get_object_or_404(Cart, id=c_id)
+    combo = get_object_or_404(Combo, id=co_id)
+    return render(request, 'store/combo_details.html', {'cart':cart, 'combo':combo})
+
+@staff_member_required
+def add_combo(request, c_id, co_id):
+    if request.method == 'POST':
+        data = request.POST
+        cart = get_object_or_404(Cart, id=c_id)
+        combo = get_object_or_404(Combo, id=co_id)
+        maincombo = MainCombo.objects.create(combo=combo)
+        for item in combo.items.all():
+            size = Size.objects.get(name=data[str(item.id)])
+            mainitem = MainItem.objects.get(item=item, size=size)
+            maincombo.mainitems.add(mainitem)
+            if mainitem.quantity_left < 1:
+                messages.warning(request, 'Not enough items left.')
+                maincombo.delete()
+                return redirect(request.META.get('HTTP_REFERER')) 
+            mainitem.quantity_left -= 1
+            mainitem.save()
+        cart.maincombos.add(maincombo)
+        cart.amount += combo.price
         cart.save()
         return redirect(reverse('store:cart_details', kwargs={'c_id':cart.id}))
 
@@ -215,17 +298,16 @@ def delete_bill(request, cb_id):
     return redirect(reverse('store:show_all_bills'))
 
 def generate_cart_code(cart):
+    import uuid
+    token = uuid.uuid4().hex
+    registered_tokens = [cart.cart_token for cart in Cart.objects.all()]
 
-	import uuid
-	token = uuid.uuid4().hex
-	registered_tokens = [cart.cart_token for cart in Cart.objects.all()]
+    while token in registered_tokens:
+        token = uuid.uuid4().hex
 
-	while token in registered_tokens:
-		token = uuid.uuid4().hex
-
-	cart.cart_token = token
-	cart.save()
-	return token
+    cart.cart_token = token
+    cart.save()
+    return token
 
 @staff_member_required
 def make_online_payment(request, c_id):

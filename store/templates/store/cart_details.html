@@ -26,6 +26,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
+                        <th>Size</th>
                         <th>Quantity</th>
                         <th>Item Quantity Left</th>
                         <th>View details</th>
@@ -38,6 +39,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
+                        <th>Size</th>
                         <th>Quantity</th>
                         <th>Item Quantity Left</th>
                         <th>View details</th>
@@ -49,12 +51,13 @@
                 <tbody>
                     {% for i in added_items %}
                     <tr>
-                        <td>{{i.item.name}}</td>
-                        <td>{{i.item.price}}</td>
+                        <td>{{i.item.item.name}} - {{i.item.item.colour}}</td>
+                        <td>{{i.item.item.price}}</td>
+                        <td>{{i.item.size.name}}</td>
                         <td>{{i.quantity}}</td>
                         <td>{{i.item.quantity_left}}</td>
                         <td>
-                            <a href="{% url 'store:item_details' cart.id i.item.id %}">Details</a>
+                            <a href="{% url 'store:item_details' cart.id i.item.item.id %}">Details</a>
                         </td>
                         {% if not cart.paid %}
                         <td>
@@ -64,8 +67,26 @@
                         {% endif %}
                     </tr>
                     {% endfor %}
+                    {% for maincombo in maincombos %}
+                        <td>
+                            {% for mainitem in maincombo.mainitems.all %}
+                            {{mainitem.item.name}} - {{mainitem.size.name}} - {{mainitem.item.colour}} | 
+                            {% endfor %}
+                        </td>
+                        <td>{{maincombo.combo.price}}</td>
+                        <td></td>
+                        <td>1</td>
+                        <td></td>
+                        {% if not cart.paid %}
+                        <td>
+                            <input type="checkbox" name="combo_list" id="{{maincombo.combo.price}} {{maincombo.id}}" value="{{i.id}}">
+                            <label for="{{maincombo.combo.price}} {{maincombo.id}}"></label>
+                        </td>
+                    {% endif %}
+                    {% endfor %}
                     <tr>
                         <td>Total</td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         {% if not cart.paid %}
@@ -89,7 +110,6 @@
 </div>
 </form>
 {% endif %}
-{% if unadded_items %}
 <div class="card">
     <div class="header">
         <h2>
@@ -98,14 +118,12 @@
     </div>
     <div class="body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover dataTable">
+            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
                 <thead>
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
-                        <th>Size</th>
                         <th>Colour</th>
-                        <th>Quantity Left</th>
                         <th>View details</th>
                     </tr>
                 </thead>
@@ -113,9 +131,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Price</th>
-                        <th>Size</th>
                         <th>Colour</th>
-                        <th>Quantity Left</th>
                         <th>View details</th>
                     </tr>
                 </tfoot>
@@ -124,11 +140,23 @@
                     <tr>
                         <td>{{i.name}}</td>
                         <td>{{i.price}}</td>
-                        <td>{{i.size.name}}</td>
                         <td>{{i.colour.name}}</td>
-                        <td>{{i.quantity_left}}</td>
                         <td>
                             <a href="{% url 'store:item_details' cart.id i.id %}">Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for combo in combos %}
+                    <tr>
+                        <td>
+                            {% for item in combo.items.all %}
+                                {{item.name}}-{{item.colour}}
+                            {% endfor %}
+                        </td>
+                        <td>{{combo.price}}</td>
+                        <td></td>
+                        <td>
+                                <a href="{% url 'store:combo_details' cart.id combo.id %}">Details</a> 
                         </td>
                     </tr>
                     {% endfor %}
@@ -137,6 +165,5 @@
         </div>
     </div>
 </div>
-{% endif %}
 
 {% endblock %}

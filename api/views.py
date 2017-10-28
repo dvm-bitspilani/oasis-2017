@@ -279,7 +279,28 @@ def cr_disapprove(request):
 		participation.save()
 	return Response({'message':'Successfully disapproved.'})
 
-@api_view(['GET', ])
+@api_view(['POST',])
+@permission_classes((AllowAny,))
+def get_profile_bitsian(request):
+	from oasis2017.keyconfig import bits_uuid
+	if request.method == 'POST':
+		data = request.data
+		try:
+			key = data['unique_key']
+		except:
+			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
+		if not key == bits_uuid:
+			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
+		email = data['email']
+		try:
+			bitsian = Bitsian.objects.filter(email=email)[0]
+			bitsian_serializer = BitsianSerializer(bitsian)
+		except:
+			return Response({'message':'Bitsian not found.'})
+		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(bitsian=bitsian), many=True)
+		return Response({'bitsian':bitsian_serializer.data, 'prof_shows':profshow_serializer.data})
+
+@api_view(['GET',])
 @permission_classes((IsAuthenticated,))
 def get_profile(request):
 	participant = Participant.objects.get(user=request.user)
@@ -290,6 +311,13 @@ def get_profile(request):
 	participant_serializer = ProfileSerializer(participant, context={'request':request})
 	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
 	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
+
+@api_view(['GET',])
+@permission_classes((AllowAny, ))
+def prof_show_part(request, part_barcode):
+	participant = get_object_or_404(Participant, barcode=part_barcode)
+	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+	return Response({'prof_shows':profshow_serializer.data})
 
 @api_view(['POST', ])
 @permission_classes((IsAuthenticated, ))
@@ -314,10 +342,12 @@ def all_events(request):
 @api_view(['GET',])
 def all_prof_shows(request):
 	user = request.user
+	if user.is_superuser:
+		prof_show_serializer = ProfShowSerializer(ProfShow.objects.all(), many=True)
+		return Response(prof_show_serializer.data)
 	clubdept = ClubDepartment.objects.get(user=user)
 	prof_show_serializer = ProfShowSerializer(clubdept.profshow.all(), many=True)
 	return Response(prof_show_serializer.data)
-
 
 @api_view(['GET', ])
 @permission_classes((AllowAny,))
@@ -498,10 +528,12 @@ def get_events_cd(request):
 	user = request.user
 	try:
 		cd = ClubDepartment.objects.get(user=user)
+		events = cd.events.all()
 	except:
 		if not user.is_superuser:
 			return Response({'status':2, 'message':'You don\'t have access to this.' })
-	event_serializer = BaseEventSerializer(cd.events.all(), many=True)
+		events = Event.objects.all()
+	event_serializer = BaseEventSerializer(events, many=True)
 	return Response({'events':event_serializer.data})
 
 @api_view(['POST'])
