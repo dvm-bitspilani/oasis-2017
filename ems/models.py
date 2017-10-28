@@ -68,7 +68,9 @@ class Bitsian(models.Model):
     gender = models.CharField(max_length=1, null=True, blank=True)
     email = models.EmailField(null=True)
     barcode = models.CharField(max_length=10, null=True, blank=True)
-
+    bhawan = models.CharField(max_length=20, null=True, blank=True)
+    room_no = models.IntegerField(default=0)
+    
     def __unicode__(self):
 		return str(self.long_id) + ' - '+ str(self.name)
 
