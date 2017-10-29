@@ -20,4 +20,11 @@ def show_tags():
     return {'email_verified':email_verified, 'cr_approved':cr_approved, 'pcr_approved':pcr_approved, 'paid':paid, 'full_paid':full_paid, 'pcr_final':pcr_final}
 
 
-    
+@register.simple_tag
+def is_profile_complete(part):
+    try:
+        profile_url = part.profile_pic.url
+        docs_url = part.verify_docs.url
+        return True
+    except:
+        return False

@@ -1,6 +1,7 @@
 {% extends 'pcradmin/base.html' %}
 
 {% block body %}
+{% load pcradmin_tags %}
 <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 {% if messages %}
@@ -33,6 +34,7 @@
                                         <th>Phone</th>
                                         <th>Email</th>
                                         <th>Payment Status</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </thead>
@@ -43,6 +45,7 @@
                                         <th>Phone</th>
                                         <th>Email</th>
                                         <th>Payment Status</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </tfoot>
@@ -62,6 +65,7 @@
                                             Not paid
                                             {% endif %}
                                         </td>
+                                        <td>{% is_profile_complete i %}</td>
                                         <td>
 	                                        <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
 	                                		<label for="{{i.id}}"></label>
@@ -100,6 +104,7 @@
                                         <th>Phone</th>
                                         <th>Email</th>
                                         <th>Payment Status</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </thead>
@@ -110,6 +115,7 @@
                                         <th>Phone</th>
                                         <th>Email</th>
                                         <th>Payment Status</th>
+                                        <th>Profile Complete</th>
                                         <th>Select</th>
                                     </tr>
                                 </tfoot>
@@ -129,6 +135,7 @@
                                             Not paid
                                             {% endif %}
                                         </td>
+                                        <td>{% is_profile_complete i %}</td>
                                         <td>
                                             <input type="checkbox" name="data" id="{{i.id}}" value="{{i.id}}">
                                             <label for="{{i.id}}"></label>
