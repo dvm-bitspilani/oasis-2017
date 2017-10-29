@@ -354,12 +354,14 @@ def update_scores(request, level_id):               ### done
             judge.save()
     tables = []
     for team in teams:
-        score = team.scores.get(level=level)
         try:
+            score = team.scores.get(level=level)
             tables.append({'team':team,'score':score, 'score_dict':score.get_score_j(j_id), 'comment':score.get_comment_j(j_id)})
         except:
             continue
-
+    if not tables:
+        context = {'error_heading':'No Teams in this level', 'message':'No teams is promoted to this level.', 'url':'#'}
+        return render(request, 'registrations/message.html')
     return render(request, 'ems/update_scores.html', {'teams':tables, 'parameters':params, 'event':event, 'level':level, 'judge':judge})
 
 
@@ -638,6 +640,10 @@ def add_judge(request, e_id):                ### done
             name = data['name']
             level = Level.objects.get(id=data['level_id'])
             judge = Judge.objects.create(name=name, level=level)
+            a = list(chars)
+            a.pop(11)
+            a.pop(33)
+            chars = ''.join(a)
             password = ''.join(choice(chars) for _ in xrange(8))
             user = User.objects.create_user(username='judge'+str(judge.id), password=password)
             judge.user = user
@@ -700,6 +706,10 @@ def add_cd(request):                #### done
                 return redirect(request.META.get('HTTP_REFERER'))
             events = Event.objects.filter(id__in=event_ids)
             cd = ClubDepartment.objects.create(name=name, co_ordinator=co_ordinator, phone=phone, email_id=email)
+            a = list(chars)
+            a.pop(11)
+            a.pop(33)
+            chars = ''.join(a)
             password = ''.join(choice(chars) for _ in xrange(8))
             user = User.objects.create_user(username=cd.name.split()[0]+str(cd.id), password=password)
             cd.user = user
