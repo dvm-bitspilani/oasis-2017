@@ -640,6 +640,7 @@ def add_judge(request, e_id):                ### done
             name = data['name']
             level = Level.objects.get(id=data['level_id'])
             judge = Judge.objects.create(name=name, level=level)
+            chars = string.letters + string.digits
             a = list(chars)
             a.pop(11)
             a.pop(33)
@@ -706,6 +707,7 @@ def add_cd(request):                #### done
                 return redirect(request.META.get('HTTP_REFERER'))
             events = Event.objects.filter(id__in=event_ids)
             cd = ClubDepartment.objects.create(name=name, co_ordinator=co_ordinator, phone=phone, email_id=email)
+            chars = string.letters + string.digits
             a = list(chars)
             a.pop(11)
             a.pop(33)
