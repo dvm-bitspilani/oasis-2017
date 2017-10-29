@@ -89,8 +89,8 @@ def index(request):
 def firewallz_home(request):
     college_list = [college for college in College.objects.all() if college.participant_set.filter(is_cr=True)]
     print college_list
-    rows = [{'data':[college.name, college.participant_set.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'}]} for college in college_list]
-    headings = ['College', 'CR', 'PCr Finalised Participants', 'Approve Participants']
+    rows = [{'data':[college.name, college.participant_set.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count(), college.participant_set.filter(pcr_final=True, firewallz_passed=True).count()],'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'},]} for college in college_list]
+    headings = ['College', 'CR', 'PCr Finalised Participants', 'Fireeallz Passed','Approve Participants']
     title = 'Select college to approve Participants'
     table = {
         'rows':rows,
@@ -129,7 +129,10 @@ def firewallz_approval(request, c_id):
             part.save() 
         encoded = generate_group_code(group)
         group.save()
-        return redirect(reverse('regsoft:firewallz_approval', kwargs={'c_id':get_group_leader(group).college.id}))
+        part_list = Participant.objects.filter(id__in=id_list)
+        return redirect(reverse('regsoft:get_group_list', kwargs={'g_id':group.id}))
+        # url = request.build_absolute_uri(reverse('registrations:generate_qr'))
+        # return render(request, 'regsoft/card.html', {'part_list':part_list,'url':url})
     
     groups_passed = [group for group in Group.objects.all() if get_group_leader(group).college == college]
     unapproved_list = college.participant_set.filter(pcr_final=True, firewallz_passed=False, is_guest=False)
@@ -374,19 +377,19 @@ def recnacc_group_list(request, c_id):
     incomplete_table = {
         'rows':incomplete_rows,
         'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
-        'title':'Incompletely Alloted Groups'
+        'title':'Incompletely Alloted Groups from ' + college.name 
     }
     complete_table = {
         'rows':complete_rows,
         'headings':['Creaetd Time', 'GroupLeader Name', 'Total', 'Alloted', 'Manage'],
-        'title':'Completely Alloted Groups'
+        'title':'Completely Alloted Groups from ' + college.name 
     }
-    return render(request, 'regsoft/tables.html', {'tables':[incomplete_table, complete_table]})
+    return render(request, 'regsoft/tables.html', {'tables':[incomplete_table, complete_table], 'college':college})
 
 @staff_member_required
 def room_details(request):
     room_list = Room.objects.all()
-    rows = [{'data':[room.name, room.bhavan.name, room.vacancy, room.capacity,], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:manage_vacancies', kwargs={'r_id':room.id})), 'title':'Manage'},]} for room in room_list]
+    rows = [{'data':[room.room, room.bhavan.name, room.vacancy, room.capacity,], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:manage_vacancies', kwargs={'r_id':room.id})), 'title':'Manage'},]} for room in room_list]
     headings = ['Room', 'Bhavan', 'Vacancy', 'Capacity', 'Manage Room Details']
     title = 'Manage Room Details'
     table = {
@@ -411,6 +414,9 @@ def manage_vacancies(request, r_id):
         except:
             pass
         try:
+            capacity = room.capacity
+            vacancy = int(data['capacity']) - capacity
+            room.vacancy = int(room.vacancy) + vacancy
             room.capacity = data['capacity']
             room.save()
         except:
@@ -419,7 +425,7 @@ def manage_vacancies(request, r_id):
         re_note.note = note
         re_note.room = room
         re_note.save()
-        return redirect(reverse('regsoft:recnacc_bhavans'))
+        return redirect(reverse('regsoft:room_details'))
     else:
         notes = room.note_set.all()
         return render(request, 'regsoft/manage_vacancies.html', {'room':room, 'notes':notes})
@@ -466,7 +472,7 @@ def recnacc_college_details(request):
             college_list.append(c)
         except:
             pass
-    rows = [{'data':[college.name, college.participant_set.get(is_cr=True).name,college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:college_detail', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
+    rows = [{'data':[college.name, college.participant_set.get(is_cr=True).name,college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:recnacc_group_list', kwargs={'c_id':college.id})), 'title':'View Details'}]} for college in college_list]
     headings = ['College', 'Cr Name','Alloted Participants', 'View Details']
     title = 'Select college to approve Participants'
     table = {
@@ -513,7 +519,10 @@ def master_checkout(request):
         'headings':headings,
         'title':title,
     }
-    return render(request, 'regsoft/tables.html', {'tables':[table,]})
+    amount = 0
+    for ck_group in CheckoutGroup.objects.all():
+        amount += ck_group.amount_retained
+    return render(request, 'regsoft/master_checkout.html', {'tables':[table,], 'amount':amount})
 
 @staff_member_required
 def checkout(request, c_id):
@@ -771,10 +780,11 @@ def get_profile_card(request):
     return render(request, 'regsoft/tables.html', {'tables':[table,],})
 
 @staff_member_required
-def get_profile_card_participant(request, p_id):
-    participant = get_object_or_404(Participant, id=p_id)
-    events = get_event_string(participant)
-    return render(request, 'registrations/profile_card.html', {'participant':participant, 'events':events,})
+def get_profile_card_group(request, g_id):
+    group = get_object_or_404(Group, id=g_id)
+    part_list = group.participant_set.all()
+    url = request.build_absolute_uri(reverse('registrations:generate_qr'))
+    return render(request, 'regsoft/card.html', {'part_list':part_list, 'url':url})
 
 @staff_member_required
 def contacts(request):
