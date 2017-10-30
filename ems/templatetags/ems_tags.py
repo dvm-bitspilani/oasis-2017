@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.simple_tag
 def get_events(a):
-	return reduce((lambda x,y: str(x)+', '+y.name), a.events.all())
+	return reduce((lambda x,y: str(x)+', '+y.name), a.events.all(), '')
 
 @register.filter
 def ems_judge(request):

@@ -12,6 +12,7 @@ import string
 from random import choice
 from django.contrib.auth.decorators import login_required
 chars = string.letters + string.digits
+# from django.contrib.gis.utils import GeoIP
 
 login_url = reverse_lazy('ems:login')
 
@@ -77,6 +78,9 @@ def permission_for_controls(function):
 
 
 def index(request):
+    # g = GeoIP()
+    client_ip = request.META['REMOTE_ADDR']
+    print client_ip
     if request.user.is_authenticated():
         if request.user.is_superuser or request.user.username=='controls':
             return redirect(reverse_lazy('ems:events_controls'))
@@ -727,11 +731,8 @@ def add_cd(request):                #### done
 ############ END CONTROLS #########
 
 
-@staff_member_required
-def add_bitsian(request):
-    if not request.user.is_superuser:
-        logout(request)
-        return redirect('ems:index')
+def add_bitsian():
+    
     import os
     import csv
     import re
@@ -760,12 +761,14 @@ def add_bitsian(request):
             email += match2.group(1) + '1' + match2.group(2) + '@pilani.bits-pilani.ac.in'
         print email
         b.ems_code=ems_code
-        # b.gender = gender
-        b.barcode = ''.join(choice(chars) for _ in xrange(8))
         b.email = email
+        while 1:
+            barcode = ''.join(choice(chars) for _ in xrange(8))
+            if not Bitsian.objects.filter(barcode = barcode):
+                break
+        b.barcode = barcode
         b.save()
-        # break
-    return HttpResponse(response)
+    return 1
 
 @staff_member_required
 def gen_emscode(request):

@@ -67,7 +67,7 @@ class Bitsian(models.Model):
     ems_code = models.CharField(max_length=10, null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
     email = models.EmailField(null=True)
-    barcode = models.CharField(max_length=10, null=True, blank=True)
+    barcode = models.CharField(max_length=10, null=True, blank=True, unique=True)
     bhawan = models.CharField(max_length=20, null=True, blank=True)
     room_no = models.IntegerField(default=0)
     
