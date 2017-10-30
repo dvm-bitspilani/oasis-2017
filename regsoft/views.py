@@ -54,7 +54,7 @@ def generate_group_code(group):
 	college_code = ''.join(get_group_leader(group).college.name.split(' '))
 	if len(college_code)<4:
 		college_code += str(0)*(4-len(college_code))
-	group.group_code = 'oasis_group' + college_code + group_ida
+	group.group_code = college_code + group_ida
 	group.save()
 	return encoded
 
