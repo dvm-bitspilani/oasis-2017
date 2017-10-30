@@ -83,6 +83,10 @@
             text-align:center;
         }
     }
+    .flex {
+        display: flex;
+        flex-direction: column;
+    }
     </style>
     <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
 </head>
@@ -94,8 +98,9 @@
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td class="title">
+                            <td class="title flex">
                                 <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
+                                <img src="{% static 'regsoft/images/yesbank.jpg' %}" style="width:100%; max-width:80px;">
                             </td>
                             
                             <td>
@@ -154,8 +159,9 @@
                     <td colspan="2">
                         <table>
                             <tr>
-                                <td class="title">
+                                <td class="title flex">
                                     <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
+                                    <img src="{% static 'regsoft/images/yesbank.jpg' %}" style="width:100%; max-width:80px;">
                                 </td>
                                 
                                 <td>

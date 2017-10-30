@@ -90,7 +90,7 @@ def firewallz_home(request):
     college_list = [college for college in College.objects.all() if college.participant_set.filter(is_cr=True)]
     print college_list
     rows = [{'data':[college.name, college.participant_set.get(college=college, is_cr=True).name,college.participant_set.filter(pcr_final=True).count(), college.participant_set.filter(pcr_final=True, firewallz_passed=True).count()],'link':[{'url':request.build_absolute_uri(reverse('regsoft:firewallz_approval', kwargs={'c_id':college.id})), 'title':'Approve Participants'},]} for college in college_list]
-    headings = ['College', 'CR', 'PCr Finalised Participants', 'Fireeallz Passed','Approve Participants']
+    headings = ['College', 'CR', 'PCr Finalised Participants', 'Firewallz Passed','Approve Participants']
     title = 'Select college to approve Participants'
     table = {
         'rows':rows,
@@ -124,6 +124,16 @@ def firewallz_approval(request, c_id):
         group = Group.objects.create()
         for part_id in id_list:
             part = Participant.objects.get(id=part_id)
+            if part.group is not None:
+                g_leader.is_g_leader = False
+                g_leader.save()
+                group.delete()
+                context = {
+                    'error_heading': "Error",
+                    'message': "Participant(s) already in a group",
+                    'url':request.build_absolute_uri(reverse('regsoft:firewallz_home'))
+                    }
+                return render(request, 'registrations/message.html', context)
             part.firewallz_passed=True
             part.group = group
             part.save() 
