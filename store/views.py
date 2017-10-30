@@ -255,6 +255,33 @@ def make_cash_payment(request, c_id):
             bill.save()
             cart.paid = True
             cart.save()
+            participant = cart.participant
+            send_to = participant.email
+            name = participant.name
+            body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+            <center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+            <pre style="font-family:Roboto,sans-serif">
+Hello %s!
+Thank you for using the facility of Oasis Store.
+Your payment for %s was successful. 
+        </pre>
+            ''' %(name, str(cart.amount))
+            sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+            from_email = Email('store@bits-oasis.org')
+            to_email = Email(send_to)
+            subject = "Payment for Oasis Store"
+            content = Content('text/html', body)
+
+            try:
+                mail = Mail(from_email, subject, to_email, content)
+                response = sg.client.mail.send.post(request_body=mail.get())
+            except :
+                context = {
+                    'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id})),
+                    'error_heading': "Error sending mail",
+                    'message': "Sorry! Error in sending email. Please try again.",
+                }
+                return render(request, 'registrations/message.html', context)
             return redirect(reverse('store:show_all_bills'))
         else:
             messages.warning(request, 'Please enter a bill amount.')
