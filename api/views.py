@@ -496,9 +496,6 @@ def add_profshow(request):
 @permission_classes((IsAuthenticated, ))
 def validate_profshow(request):
 	user = request.user
-	if not user.is_superuser:
-		if not user.username == 'deptlive':
-			return Response({'message':'Invalid Access'})
 	data = request.data
 	barcode = data['barcode']
 	try:
