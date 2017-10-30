@@ -389,17 +389,33 @@ def add_profshow(request):
 				profshow_bill.bits_id = bits_id
 		except:
 			pass
-		try:
-			attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-			attendance.count += int(data['count'])
-			attendance.save()
-		except:
-			attendance = Attendance()
-			attendance.participant = participant
-			attendance.prof_show = prof_show
-			attendance.paid = True
-			attendance.count = data['count']
-			attendance.save()
+		if prof_show.price == 850:
+			id_list = [6, 7]
+			prof_shows = ProfShow.objects.filter(id__in=id_list)
+			for prof_show in prof_shows:
+				try:
+					attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+					attendance.count += int(data['count'])
+					attendance.save()
+				except:
+					attendance = Attendance()
+					attendance.participant = participant
+					attendance.prof_show = prof_show
+					attendance.paid = True
+					attendance.count = data['count']
+					attendance.save()
+		else:
+			try:
+				attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+				attendance.count += int(data['count'])
+				attendance.save()
+			except:
+				attendance = Attendance()
+				attendance.participant = participant
+				attendance.prof_show = prof_show
+				attendance.paid = True
+				attendance.count = data['count']
+				attendance.save()
 		profshow_bill.prof_show = prof_show
 		profshow_bill.participant = participant
 		profshow_bill.buyer_id = data['barcode']
