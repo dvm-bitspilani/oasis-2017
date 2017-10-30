@@ -363,13 +363,16 @@ def add_profshow(request):
 	if not user.is_staff:
 		return Response({'message':'Invalid access'})
 	if not user.is_superuser:
-		if not (user.username == 'deptlive' or user.username == 'controls'):
+		if user.username == 'Audiforce':
 			return Response({'message':'Invalid Access'})
 	data = request.data
 	try:
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
+	clubdepartment = ClubDepartment.objects.get(user=user)
+	if not prof_show in clubdepartment.profshows.all():
+		return Response({'message':'Invalid Access'}) 
 	barcode = data['barcode']
 	if re.match(r'oasis17\w{8}', barcode):
 		try:
@@ -490,6 +493,9 @@ def validate_profshow(request):
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
+	clubdepartment = ClubDepartment.objects.get(user=user)
+	if not prof_show in clubdepartment.profshows.all():
+		return Response({'message':'Invalid Access'})
 	if re.match(r'oasis17\w{8}', barcode):
 		try:
 			participant = Participant.objects.get(barcode=data['barcode'])
