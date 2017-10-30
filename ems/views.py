@@ -198,6 +198,11 @@ def add_delete_teams(request, e_id):                ### done
                     return redirect(request.META.get('HTTP_REFERER'))
                 x+=1
             team.save()
+            for mem in  team.members.all():
+                p,c = Participation.objects.get_or_create(participant=mem, event=event)
+                p.cr_approved = True
+                p.pcr_approved = True
+                p.save()
             level.teams.add(team)
             s = Score(team=team, level=level)
             s.save()
