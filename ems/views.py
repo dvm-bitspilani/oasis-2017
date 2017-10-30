@@ -755,15 +755,16 @@ def add_bitsian(request):
         match1 = re.search(r'(\d{4})\w{4}0(\d{3})', ld)
         match2 = re.search(r'(\d{4})\w{4}1(\d{3})', ld)
         if match1:
-            email += match1.group() + match1.group(1) + '@pilani.bits-pilani.ac.in'
+            email += match1.group(1) + match1.group(2) + '@pilani.bits-pilani.ac.in'
         elif match2:
-            email += match2.group() + '1' + match2.group(1) + '@pilani.bits-pilani.ac.in'
-
+            email += match2.group(1) + '1' + match2.group(2) + '@pilani.bits-pilani.ac.in'
+        print email
         b.ems_code=ems_code
         # b.gender = gender
         b.barcode = ''.join(choice(chars) for _ in xrange(8))
         b.email = email
         b.save()
+        break
     return HttpResponse(response)
 
 @staff_member_required
