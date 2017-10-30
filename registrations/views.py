@@ -19,7 +19,6 @@ import string
 from random import sample, choice
 from django.contrib import messages
 chars = string.letters + string.digits
-
 import requests
 
 try:

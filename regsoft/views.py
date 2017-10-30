@@ -732,21 +732,21 @@ def delete_bill(request, b_id):
 
 @staff_member_required
 def recnacc_list(request):
-    rows = [{'data':[college.name, college.participant_set.filter(acco=True).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:recnacc_list_college', kwargs={'c_id':college.id})), 'title':'Select Participants'}]} for college in College.objects.all()]
-    headings = ['College', 'Number of participants', 'Select']
-    title = 'Select college to generate list.'
+    rows = [{'data':[group.group_code, get_group_leader(group).name, get_group_leader(group).college.name, get_group_leader(group).phone,group.created_time, group.participant_set.filter(controlz=True).count(), group.participant_set.filter(controlz=True, acco=True, checkout_group=None).count(), group.participant_set.filter(checkout_group__isnull=False).count()], 'link':[{'url':request.build_absolute_uri(reverse('regsoft:recnacc_list_group', kwargs={'g_id':group.id})), 'title':'Select Participants'}]} for group in Group.objects.all().order_by('-created_time')]
+    headings = ['Group Code', 'Group Leader', 'College', 'Gleader phone', 'Firewallz passed time', 'Total controls passed','Total alloted', 'Checkout','View Participants']
+    title = 'Groups that have been alloted'
     table = {
         'rows':rows,
         'headings':headings,
-        'title':title,
+        'title':title
     }
     return render(request, 'regsoft/tables.html', {'tables':[table,]})
 
 @staff_member_required
-def recnacc_list_college(request, c_id):
-    college = get_object_or_404(College, id=c_id)
-    participant_list = college.participant_set.filter(acco=True).order_by('-recnacc_time')
-    return render(request, 'regsoft/recnacc_list.html', {'participant_list':participant_list, 'college':college})
+def recnacc_list_group(request, g_id):
+    group = get_object_or_404(Group, id=g_id)
+    participant_list = group.participant_set.filter(acco=True).order_by('-recnacc_time')
+    return render(request, 'regsoft/recnacc_list.html', {'participant_list':participant_list, 'college':get_group_leader(group).college})
 
 @staff_member_required
 def generate_recnacc_list(request):
