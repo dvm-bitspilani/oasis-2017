@@ -731,8 +731,8 @@ def add_cd(request):                #### done
 ############ END CONTROLS #########
 
 
-@staff_member_required
-def add_bitsian(request):
+# @staff_member_required
+def add_bitsian():
     if not request.user.is_superuser:
         logout(request)
         return redirect('ems:index')
@@ -764,17 +764,14 @@ def add_bitsian(request):
             email += match2.group(1) + '1' + match2.group(2) + '@pilani.bits-pilani.ac.in'
         print email
         b.ems_code=ems_code
-        # b.gender = gender
         b.email = email
-        b.save()
         while 1:
             barcode = ''.join(choice(chars) for _ in xrange(8))
             if not Bitsian.objects.filter(barcode = barcode):
                 break
         b.barcode = barcode
         b.save()
-        # break
-    return HttpResponse(response)
+    return 1
 
 @staff_member_required
 def gen_emscode(request):
