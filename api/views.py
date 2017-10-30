@@ -360,8 +360,6 @@ def get_event(request, e_id):
 @permission_classes((IsAuthenticated, ))
 def add_profshow(request):
 	user = request.user
-	if not user.is_staff:
-		return Response({'message':'Invalid access'})
 	if not user.is_superuser:
 		if user.username == 'Audiforce':
 			return Response({'message':'Invalid Access'})
@@ -498,8 +496,6 @@ def add_profshow(request):
 @permission_classes((IsAuthenticated, ))
 def validate_profshow(request):
 	user = request.user
-	if not user.is_staff:
-		return Response({'message':'Invalid access'})
 	if not user.is_superuser:
 		if not user.username == 'deptlive':
 			return Response({'message':'Invalid Access'})
