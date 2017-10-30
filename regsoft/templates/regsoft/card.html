@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load static %}
+    {% load regsoft_tags %}
+    <meta charset="utf-8">
+    <title>ID Card</title>
+    <style>
+      @font-face {
+        font-family: "Azo Sans Regular";
+        src: url({% static 'regsoft/fonts/Regular.otf' %});
+      }
+      @font-face {
+        font-family: "Azo Sans Medium";
+        src: url({% static 'regsoft/fonts/Medium.otf' %});
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Azo Sans Regular";
+        font-size: 4mm;
+      }
+      html {
+        min-width: 100vw;
+        min-height: 100vh;
+      }
+      div#main {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      div.id {
+        width: 90mm;
+        height: 52mm;
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        border: 1px solid black;
+      }
+      div.id > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      div.id > div > span {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+      }
+      div.id > img {
+        position: absolute;
+        top: 3mm;
+        left: 3.3cm;
+        width: 4.5cm;
+        height: 4.5cm;
+        opacity: 0.3;
+      }
+      .img {
+        margin: 0.25cm 0.25cm;
+        background-position: center;
+        background-repeat: no-repeat;
+        flex: 1;
+      }
+      b {
+        font-size: 0.55cm;
+        font-family: "Azo Sans Medium"
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      {% for part in part_list %}
+      <div class="id">
+        <img src="{% static 'regsoft/images/user.png' %}" alt="">
+        <div style="flex: 1">
+          {% if part.profile_pic %}
+          <span class="img" style="background-image: url({{part.profile_pic.url}}); background-size: cover; margin-bottom: 0.125cm"></span>
+          {% endif %}
+          <span class="img" style="background-image: url({{url}}?text={{part.barcode}}); background-size: contain; margin-top: 0.125cm"></span>
+        </div>
+        <div style="flex: 2; padding: 2mm; padding-right: 1mm">
+          <span><b>{{part.name}}</b><label>{{part.college.name}}</label></span>
+          <span style="font-size: 3mm">Events: {{part|get_events_list}}</span>
+          <span><label>Barcode: {{part.barcode}}</label><label>EMS Code: {{part.ems_code}}</label></span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
