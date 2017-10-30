@@ -158,8 +158,6 @@ def index(request):
 				event = Event.objects.get(id=int(key))
 				Participation.objects.create(event=event, participant=participant)
 			participant.save()
-
-
 			send_to = str(request.POST["email"])
 			name = str(request.POST["name"])
 			body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
@@ -268,7 +266,7 @@ def gen_barcode(part):
 		image='/root/live/oasis/backend/resources/oasis2017/qrcodes/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	except:
-		image = '/home/tushar/barcodes/participants/%04s.png' % int(part_id)
+		image = '/home/auto-reload/Desktop/%04s.png' % int(part_id)
 		part_code.save(image, 'PNG')
 	return encoded
 

@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^firewallz/groups/(?P<g_id>\d+)/$', views.get_group_list, name='get_group_list'),
 	url(r'^firewallz/delete_group/(?P<g_id>\d+)/$', views.delete_group, name='delete_group'),
 	url(r'^firewallz/add_guest/$', views.add_guest, name='add_guest'),
+	url(r'^firewallz/add_participant/$', views.add_participant, name='add_participant'),
 	url(r'^firewallz/remove_guests/$', views.remove_guests, name='remove_guests'),
 	url(r'^firewallz/show_uploads/(?P<p_id>\d+)/$', views.show_uploads, name='show_uploads'),
 	url(r'^controls/firewallz/profile_cards/(?P<g_id>\d+)/$', views.get_profile_card_group, name='get_profile_card_group'),
