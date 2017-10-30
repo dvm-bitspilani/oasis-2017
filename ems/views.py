@@ -764,7 +764,7 @@ def add_bitsian(request):
         b.barcode = ''.join(choice(chars) for _ in xrange(8))
         b.email = email
         b.save()
-        break
+        # break
     return HttpResponse(response)
 
 @staff_member_required
