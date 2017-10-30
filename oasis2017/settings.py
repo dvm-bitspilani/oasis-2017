@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'wordwars',
     'api',
     'store',
+    'bitsiancode',
 ]
 
 MIDDLEWARE = [
