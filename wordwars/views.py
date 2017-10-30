@@ -54,7 +54,7 @@ def play(request, day=None):
 				try:
 					question = Question.objects.get(day__day_no=1, question_no=player.day1+1)
 				except:
-					return redirect(reverse('wordwars:play', kwargs={'day':1}))
+					return redirect(reverse_lazy('wordwars:play', kwargs={'day':1}))
 			else:
 				messages.warning(request, 'WRONG ANSWER!!!!!')
 	if day=='2':
@@ -77,7 +77,7 @@ def play(request, day=None):
 				try:
 					question = Question.objects.get(day__day_no=2, question_no=player.day2+1)
 				except:
-					return redirect(reverse('wordwars:play', kwargs={'day':2}))
+					return redirect(reverse_lazy('wordwars:play', kwargs={'day':2}))
 
 			else:
 				messages.warning(request, 'WRONG ANSWER!!!!!')
@@ -101,7 +101,7 @@ def play(request, day=None):
 				try:
 					question = Question.objects.get(day__day_no=3, question_no=player.day3+1)
 				except:
-					return redirect(reverse('wordwars:play', kwargs={'day':2}))
+					return redirect(reverse_lazy('wordwars:play', kwargs={'day':2}))
 
 			else:
 				messages.warning(request, 'WORNG ANSWER!!!!!')
