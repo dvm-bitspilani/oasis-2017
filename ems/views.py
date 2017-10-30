@@ -731,8 +731,8 @@ def add_cd(request):                #### done
 ############ END CONTROLS #########
 
 
-# @staff_member_required
-def add_bitsian():
+@staff_member_required
+def add_bitsian(request):
     if not request.user.is_superuser:
         logout(request)
         return redirect('ems:index')
