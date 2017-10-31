@@ -288,6 +288,7 @@ def add_participant(request):
             user = User.objects.create_user(username=username, password=password)
             participant.user = user
             participant.save()
+            college = participant.college
             if not college.participant_set.filter(is_cr=True):
                 participant.is_cr = True
                 participant.save()
