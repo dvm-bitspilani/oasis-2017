@@ -266,8 +266,7 @@ def add_participant(request):
             try:
                 events = data.getlist('events')
             except:
-                messages.warning(request,'Please select event(s).')
-                return redirect(request.META.get('HTTP_REFERER'))
+                pass
             participant = Participant()
             participant.name = str(data['name'])
             participant.gender = str(data['gender'])
@@ -292,9 +291,13 @@ def add_participant(request):
             if not college.participant_set.filter(is_cr=True):
                 participant.is_cr = True
                 participant.save()
-            for key in data.getlist('events'):
-                event = Event.objects.get(id=int(key))
-                Participation.objects.create(event=event, participant=participant, pcr_approved=True)
+            try:
+                events = data.getlist('events')
+                for key in data.getlist('events'):
+                    event = Event.objects.get(id=int(key))
+                    Participation.objects.create(event=event, participant=participant, pcr_approved=True)
+            except:
+                pass
             participant.save()
 
             send_to = participant.email
