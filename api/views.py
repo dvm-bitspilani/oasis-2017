@@ -567,10 +567,13 @@ def register_team(request):
 	except:
 		if not user.is_superuser:
 			return Response({'status':2, 'message':'You don\'t have access to this.'})
-	try:
-		level = Level.objects.get(position=1, event=event)
-	except:
-		return Response({'status':3, 'message':'Levels not added'}) 
+	level = Level.objects.get_or_create(position=1, event=event)
+	if created:
+		param = Parameter.objects.create(name='p1', max_val=10)
+		level.name = 'Primary Level'
+		level.save()
+		param.level = level
+		param.save()
 	team_str = data['team']
 	team_ids = team_str.split(',')
 	count=Team.objects.all().count()

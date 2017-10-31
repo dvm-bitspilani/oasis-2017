@@ -78,9 +78,6 @@ def permission_for_controls(function):
 
 
 def index(request):
-    # g = GeoIP()
-    client_ip = request.META['REMOTE_ADDR']
-    print client_ip
     if request.user.is_authenticated():
         if request.user.is_superuser or request.user.username=='controls':
             return redirect(reverse_lazy('ems:events_controls'))
@@ -136,11 +133,13 @@ def events_select(request):                     ### done
 def add_delete_teams(request, e_id):                ### done
     event = get_object_or_404(Event, id=e_id)
     count = Team.objects.filter(event=event).count()
-    try:
-        level = Level.objects.get(position=1, event=event)
-    except:
-        messages.warning(request, 'First add atleast one level for this event')
-        return redirect(request.META.get('HTTP_REFERER'))
+    level, created = Level.objects.get_or_create(position=1, event=event)
+    if created:
+        param = Parameter.objects.create(name='p1', max_val=10)
+        level.name = 'Primary Level'
+        level.save()
+        param.level = level
+        param.save()
 
     if request.method == 'POST':
         data = dict(request.POST)
@@ -531,9 +530,19 @@ def event_levels_add(request, e_id):                 ### done
         except:
             messages.warning(request, 'Please Fill the details of the level properly')
             return redirect(request.META.get('HTTP_REFERER'))
-        level = Level.objects.create(name=name, position=position+1, event=event)
+        if data['action'] == 'update':
+            level = Level.objects.get(id=data['level_id_update'])
+            level.name = name
+            level.save()
+            params = level.parameter_set.all()
+            params.delete()
+        elif data['action'] == 'add':
+            level = Level.objects.create(name=name, position=position+1, event=event)
         for i, n in enumerate(names):
             p=Parameter.objects.create(name=n, max_val=int(maxes[i]), level=level)
+        for team in Team.objects.filter(event=event):
+            for s in team.scores.all():
+                s.save()
         return redirect(reverse_lazy('ems:event_levels', kwargs={'e_id':event.id}))
     context = {'event':event, 'levels':levels, 'position':position}
     return render(request, 'ems/event_levels_add.html', context)
@@ -546,8 +555,9 @@ def show_level(request, level_id):                  ### done
     event = level.event
     params = level.parameter_set.all()
     return_url = request.META.get('HTTP_REFERER')
-    print return_url
-    return render(request, 'ems/show_level.html', {'event':event, 'level':level, 'params':params, 'return':return_url})
+    param_str = '?'.join([param.name for param in params])
+    max_str = '?'.join([str(param.max_val) for param in params])
+    return render(request, 'ems/show_level.html', {'event':event, 'level':level, 'params':params, 'return':return_url, 'param_str':param_str, 'max_str':max_str})
 
 
 
@@ -634,16 +644,10 @@ def add_judge(request, e_id):                ### done
             judges = Judge.objects.filter(id__in=judge_ids)
             for j in judges:
                 l = j.level
-                for score in Score.objects.filter(level=l):
-                    score_dict = score.get_score()
-                    try:
-                        del(score_dict[j_id])
-                        score.score_card = str(score_dict)
-                        score.save()
-                    except:
-                        pass
                 j.user.delete()
                 j.delete()
+                for score in Score.objects.filter(level=l):
+                    score.save()
         
         elif data['submit'] == 'add':
             name = data['name']
