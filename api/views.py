@@ -360,16 +360,17 @@ def get_event(request, e_id):
 @permission_classes((IsAuthenticated, ))
 def add_profshow(request):
 	user = request.user
-	if not user.is_staff:
-		return Response({'message':'Invalid access'})
 	if not user.is_superuser:
-		if not (user.username == 'deptlive' or user.username == 'controls'):
+		if user.username == 'Audiforce':
 			return Response({'message':'Invalid Access'})
 	data = request.data
 	try:
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
+	clubdepartment = ClubDepartment.objects.get(user=user)
+	if not prof_show in clubdepartment.profshows.all():
+		return Response({'message':'Invalid Access'}) 
 	barcode = data['barcode']
 	if re.match(r'oasis17\w{8}', barcode):
 		try:
@@ -386,17 +387,33 @@ def add_profshow(request):
 				profshow_bill.bits_id = bits_id
 		except:
 			pass
-		try:
-			attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-			attendance.count += int(data['count'])
-			attendance.save()
-		except:
-			attendance = Attendance()
-			attendance.participant = participant
-			attendance.prof_show = prof_show
-			attendance.paid = True
-			attendance.count = data['count']
-			attendance.save()
+		if prof_show.price == 850:
+			id_list = [6, 7]
+			prof_shows = ProfShow.objects.filter(id__in=id_list)
+			for prof_show in prof_shows:
+				try:
+					attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+					attendance.count += int(data['count'])
+					attendance.save()
+				except:
+					attendance = Attendance()
+					attendance.participant = participant
+					attendance.prof_show = prof_show
+					attendance.paid = True
+					attendance.count = data['count']
+					attendance.save()
+		else:
+			try:
+				attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+				attendance.count += int(data['count'])
+				attendance.save()
+			except:
+				attendance = Attendance()
+				attendance.participant = participant
+				attendance.prof_show = prof_show
+				attendance.paid = True
+				attendance.count = data['count']
+				attendance.save()
 		profshow_bill.prof_show = prof_show
 		profshow_bill.participant = participant
 		profshow_bill.buyer_id = data['barcode']
@@ -479,17 +496,15 @@ def add_profshow(request):
 @permission_classes((IsAuthenticated, ))
 def validate_profshow(request):
 	user = request.user
-	if not user.is_staff:
-		return Response({'message':'Invalid access'})
-	if not user.is_superuser:
-		if not user.username == 'deptlive':
-			return Response({'message':'Invalid Access'})
 	data = request.data
 	barcode = data['barcode']
 	try:
 		prof_show = ProfShow.objects.get(id=data['prof_show'])
 	except:
 		return Response({'message':'Invalid Prof Show'})
+	clubdepartment = ClubDepartment.objects.get(user=user)
+	if not prof_show in clubdepartment.profshows.all():
+		return Response({'message':'Invalid Access'})
 	if re.match(r'oasis17\w{8}', barcode):
 		try:
 			participant = Participant.objects.get(barcode=data['barcode'])

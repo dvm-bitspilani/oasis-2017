@@ -192,18 +192,36 @@ def create_profshow_bill(request):
             }
             profshow_bill.delete()
             return render(request, 'registrations/message.html', context)
-        try:
-            attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-            attendance.count += int(data['count'])
-            attendance.save()
-        except:
-            attendance = Attendance()
-            attendance.participant = participant
-            attendance.prof_show = prof_show
-            attendance.paid = True
-            attendance.count = int(data['count'])
-            attendance.save()
         
+        if prof_show.price == 850:
+            id_list = [6, 7]
+            prof_shows = ProfShow.objects.filter(id__in=id_list)
+            for prof_show in prof_shows:
+                try:
+                    attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+                    attendance.count += int(data['count'])
+                    attendance.save()
+                except:
+                    attendance = Attendance()
+                    attendance.participant = participant
+                    attendance.prof_show = prof_show
+                    attendance.paid = True
+                    attendance.count = data['count']
+                    attendance.save()
+        
+        else:
+            try:
+                attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+                attendance.count += int(data['count'])
+                attendance.save()
+            except:
+                attendance = Attendance()
+                attendance.participant = participant
+                attendance.prof_show = prof_show
+                attendance.paid = True
+                attendance.count = int(data['count'])
+                attendance.save()
+            
         return redirect(reverse('messportal:view_all_profshow_bills'))
     prof_shows = ProfShow.objects.all()
     return render(request, 'messportal/create_profshow_bill.html', {'prof_shows':prof_shows})
