@@ -285,16 +285,20 @@ def get_profile_bitsian(request):
 	from oasis2017.keyconfig import bits_uuid
 	if request.method == 'POST':
 		data = request.data
+		print data
 		try:
 			key = data['unique_key']
+			print key
 		except:
 			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
 		if not key == bits_uuid:
 			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
 		email = data['email']
+		print email
 		try:
 			bitsian = Bitsian.objects.filter(email=email)[0]
 			bitsian_serializer = BitsianSerializer(bitsian)
+			print bitsian_serializer.data
 		except:
 			return Response({'message':'Bitsian not found.'})
 		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(bitsian=bitsian), many=True)
