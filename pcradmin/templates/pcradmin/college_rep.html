@@ -36,6 +36,7 @@
                                         <th>Year of Study</th>
                                         <th>Payment</th>
                                         <th>Verify Profile</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </thead>
                                 
@@ -51,6 +52,7 @@
                                         <td>{{cr.year_of_study}}</td>
                                         <td>{% if cr.controlz_paid %}950{% else %}{% if cr.paid %}300{% else %}0{% endif %}{% endif %}</td>
                                         <td><a href="{% url 'pcradmin:verify_profile' cr.id %}">Verify Profile</a></td>
+                                        <td><a href="{% url 'pcradmin:edit_part' cr.id %}">Edit</a></td>
                                 </tbody>
                             </table>
                                         <form action="" method="post">
@@ -85,6 +87,7 @@
                                         <th>Profile Complete</th>
                                         <th>Payment</th>
                                         <th>Verify Profile</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -100,6 +103,7 @@
                                         <th>Profile Complete</th>
                                         <th>Payment</th>
                                         <th>Verify Profile</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </tfoot>
                                 <tbody>
@@ -109,6 +113,7 @@
                                         <td>{{i}}</td>
                                         {% endfor %}
                                         <td><a href="{% url 'pcradmin:verify_profile' part.id %}">Verify Profile</a></td>
+                                        <td><a href="{% url 'pcradmin:edit_part' part.id %}">Edit</a></td>
                                     </tr>
                                 {% endfor %}
                                             
@@ -147,6 +152,7 @@
                                         <th>Profile Complete</th>
                                         <th>Payment</th>
                                         <th>Select</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -162,6 +168,7 @@
                                         <th>Profile Complete</th>
                                         <th>Payment</th>
                                         <th>Select</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </tfoot>
                                 <tbody>
@@ -174,6 +181,7 @@
                                             <input name="data" type="radio" id="{{part.id}}" value="{{part.id}}"/>
                                             <label for="{{part.id}}"></label>
                                         </td>
+                                        <td><a href="{% url 'pcradmin:edit_part' part.id %}">Edit</a></td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>

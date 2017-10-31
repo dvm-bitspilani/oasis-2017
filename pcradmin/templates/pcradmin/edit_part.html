@@ -1,0 +1,66 @@
+{% extends 'pcradmin/base.html' %}
+
+{% block body %}
+{% if messages %}
+<div class="body">
+{% for message in messages %}
+<div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+    {{message}}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+<form method="POST" action="{% url 'pcradmin:edit_part' part.id %}">
+    {% csrf_token %}
+<div class="row clearfix">
+<div class="card">
+    <div class="header">
+        <h2>
+            Edit Participant
+        </h2>
+    </div>
+
+    <div class="body">
+            <label for="name">Name</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="text" id="name" class="form-control" placeholder="Name" name="name" value="{{part.name}}">
+                </div>
+            </div>
+
+            <label for="gender">Gender</label>
+            <div class="form-group">
+                <select class="form-control show-tick" name="gender" data-live-search="true">
+                    {% if part.gender == 'M' %}
+                    <option value="M" selected="true">Male</option>
+                    <option value="F">Female</option>
+                    {% else %}
+                    <option value="M">Male</option>
+                    <option value="F" selected="true">Female</option>
+                    {% endif %}
+                </select>
+            </div>
+            
+            <label for="email">Email</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="email" id="email" class="form-control" placeholder="Email" name="email" value="{{part.email}}">
+                </div>
+            </div>
+
+            <label for="phone">Phone number</label>
+            <div class="form-group">
+                <div class="form-line">
+                    <input type="number" min="1000000000" max="9999999999" id="phone" class="form-control" placeholder="Phone number" name="phone" value="{{part.phone}}">
+                </div>
+            </div>
+
+            <br>
+            <button type="submit" class="btn btn-primary m-t-15 waves-effect">Edit</button>
+        </div>
+    </div>
+</div>
+</div>
+</form>
+{% endblock %}
