@@ -285,6 +285,7 @@ def get_profile_bitsian(request):
 	from oasis2017.keyconfig import bits_uuid
 	if request.method == 'POST':
 		data = request.data
+		print 1
 		print data
 		try:
 			key = data['unique_key']
