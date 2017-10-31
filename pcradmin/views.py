@@ -626,7 +626,8 @@ def participants_count(parts):
 	x2 = parts.filter(cr_approved=True, email_verified=True).count()
 	x3=parts.filter(pcr_approved=True).count()
 	x4=parts.filter(Q(paid=True)|Q(curr_paid=True)).count()
-	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
+	x5 = parts.filter(pcr_final=True).count()
+	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4) + ' | ' + str(x5)
 
 def is_profile_complete(part):
 	try:
