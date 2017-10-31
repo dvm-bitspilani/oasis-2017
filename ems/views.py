@@ -765,7 +765,10 @@ def add_bitsian():
         match1 = re.search(r'(\d{4})\w{4}0(\d{3})', ld)
         match2 = re.search(r'(\d{4})\w{4}1(\d{3})', ld)
         if match1:
-            email += match1.group(1) + match1.group(2) + '@pilani.bits-pilani.ac.in'
+            email += match1.group(1)
+            if '2017' in match1.group(1):
+                email += '0'
+            email += match1.group(2) + '@pilani.bits-pilani.ac.in'
         elif match2:
             email += match2.group(1) + '1' + match2.group(2) + '@pilani.bits-pilani.ac.in'
         print email
