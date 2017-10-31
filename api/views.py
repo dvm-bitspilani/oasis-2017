@@ -282,15 +282,9 @@ def cr_disapprove(request):
 @api_view(['POST',])
 @permission_classes((AllowAny,))
 def get_profile_bitsian(request):
-	from oasis2017.keyconfig import bits_uuid
 	if request.method == 'POST':
 		data = request.data
-		try:
-			key = data['unique_key']
-		except:
-			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
-		if not key == bits_uuid:
-			return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
+
 		email = data['email']
 		try:
 			bitsian = Bitsian.objects.filter(email=email)[0]
