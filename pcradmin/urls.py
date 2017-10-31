@@ -21,5 +21,6 @@ urlpatterns = [
 	url(r'^logout/$', views.user_logout, name='user-logout'),
 	url(r'^contacts/$', views.contacts, name='contacts'),
 	url(r'^stats_event/(?P<e_id>\d+)/(?P<c_id>\d+)/$', views.stats_event_college, name='stats_event_college'),
+	url(r'^edit_part/(?P<part_id>\d+)/$', views.edit_part, name="edit_part"),
 ]
 

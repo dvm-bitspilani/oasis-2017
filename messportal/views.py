@@ -70,7 +70,8 @@ def create_mess_bill(request):
         data = request.POST
         mess_bill = MessBill()
         mess_bill.item = Item.objects.get(id=data['item_id'])
-        mess_bill.buyer_id = 'oasis17' + data['barcode']
+        barcode = 'oasis17' + data['barcode']
+        mess_bill.buyer_id = barcode
         mess_bill.quantity = data['count']
         mess_bill.mess = data['mess']
         mess_bill.n2000 = int(data['n_2000'])
@@ -112,6 +113,16 @@ def create_mess_bill(request):
             mess_bill.outtake -= int(data['n_10'])*10
         mess_bill.amount = mess_bill.intake - mess_bill.outtake
         mess_bill.created_by = data['created_by']
+        try:
+            participant = Participant.objects.get(barcode=barcode)
+        except:
+            context = {
+                'error_heading':'No match found',
+                'message':'Participant does not exist.',
+                'url':request.build_absolute_uri(reverse('messportal:index'))
+            }
+            profshow_bill.delete()
+            return render(request, 'registrations/message.html', context)
         mess_bill.save()
         return redirect(reverse('messportal:view_all_mess_bills'))
     items = Item.objects.all()
@@ -260,7 +271,7 @@ def view_all_profshow_bills(request):
 
 def get_bits_id(bill):
     if bill.bits_id:
-        return bits_id
+        return bill.bits_id
     else:
         return ''
 

@@ -19,6 +19,7 @@
         <div class="card">
         <form action="{% url 'ems:add_level' event.id %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="action" value="add">
             <div class="header">
             <h2>Add Level</h2>
             </div>

@@ -282,17 +282,25 @@ def cr_disapprove(request):
 @api_view(['POST',])
 @permission_classes((AllowAny,))
 def get_profile_bitsian(request):
-	if request.method == 'POST':
-		data = request.data
-
-		email = data['email']
-		try:
-			bitsian = Bitsian.objects.filter(email=email)[0]
-			bitsian_serializer = BitsianSerializer(bitsian)
-		except:
-			return Response({'message':'Bitsian not found.'})
-		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(bitsian=bitsian), many=True)
-		return Response({'bitsian':bitsian_serializer.data, 'prof_shows':profshow_serializer.data})
+	from oasis2017.keyconfig import bits_uuid
+	data = request.data
+	try:
+		key = data['unique_key']
+		print key
+	except:
+		return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
+	if not key == bits_uuid:
+		return Response({'message':'It\'s not so easy, my friend. Nice thought though.'})
+	email = data['email']
+	print email
+	try:
+		bitsian = Bitsian.objects.filter(email=email)[0]
+		bitsian_serializer = BitsianSerializer(bitsian)
+		print bitsian_serializer.data
+	except:
+		return Response({'message':'Bitsian not found.'})
+	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(bitsian=bitsian), many=True)
+	return Response({'bitsian':bitsian_serializer.data, 'prof_shows':profshow_serializer.data})
 
 @api_view(['GET',])
 @permission_classes((IsAuthenticated,))
@@ -561,10 +569,13 @@ def register_team(request):
 	except:
 		if not user.is_superuser:
 			return Response({'status':2, 'message':'You don\'t have access to this.'})
-	try:
-		level = Level.objects.get(position=1, event=event)
-	except:
-		return Response({'status':3, 'message':'Levels not added'}) 
+	level = Level.objects.get_or_create(position=1, event=event)
+	if created:
+		param = Parameter.objects.create(name='p1', max_val=10)
+		level.name = 'Primary Level'
+		level.save()
+		param.level = level
+		param.save()
 	team_str = data['team']
 	team_ids = team_str.split(',')
 	count=Team.objects.all().count()

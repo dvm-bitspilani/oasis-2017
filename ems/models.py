@@ -127,7 +127,13 @@ class Score(models.Model):
             s = score[j.id]
             for p in parameters:
                 s.setdefault(p.id, 0)
+            for i in s.keys():
+                if not i in [x.id for x in parameters]:
+                    del(s[i])
             score[j.id] = s
+        for i in score.keys():
+            if not i in [x.id for x in judges]:
+                del(score[j.id])
         self.score_card = str(score)
         self.comments = str(comment_dict)
         super(Score, self).save(*args, **kwargs)

@@ -88,6 +88,7 @@
     }
     </style>
     <link rel="shortcut icon" href="{% static 'pcradmin/images/Oasis-Logo.png' %}">
+
 </head>
 
 <body>
@@ -98,7 +99,9 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
+                                <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
+                                <br>
+                                <img src="{% static 'regsoft/images/yesbank.jpg' %}" style="width:100%; max-width:80px;">
                             </td>
                             
                             <td>
@@ -156,23 +159,7 @@
                         {{bill.quantity}}
                     </td>
             </tr>
-            <tr class="heading">
-                <td>
-                    Service Type
-                </td>
-                <td>
-                    Name
-                </td>
-            </tr>
-            <tr class="item">
-                {% if mess %}
-                <td>Mess Bill</td>
-                <td>{{bill.item.name}}</td>
-                {% elif profshow %}
-                <td>ProfShow</td>
-                <td>{{bill.prof_show.name}}</td>
-                {% endif %}
-            </tr>
+            
         </table>
     </div>
     <div class="invoice-box">
@@ -182,7 +169,9 @@
                         <table>
                             <tr>
                                 <td class="title">
-                                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:100px;">
+                                    <img src="{% static 'pcradmin/images/Oasis-Logo.png' %}" style="width:100%; max-width:80px;">
+                                <br>
+                                <img src="{% static 'regsoft/images/yesbank.jpg' %}" style="width:100%; max-width:80px;">
                                 </td>
                                 
                                 <td>
@@ -240,23 +229,7 @@
                             {{bill.quantity}}
                         </td>
                 </tr>
-                <tr class="heading">
-                    <td>
-                        Service Type
-                    </td>
-                    <td>
-                        Name
-                    </td>
-                </tr>
-                <tr class="item">
-                    {% if mess %}
-                    <td>Mess Bill</td>
-                    <td>{{bill.item.name}}</td>
-                    {% elif profshow %}
-                    <td>ProfShow</td>
-                    <td>{{bill.prof_show.name}}</td>
-                    {% endif %}
-                </tr>
+                
             </table>
         </div>
 </body>

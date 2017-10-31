@@ -200,6 +200,37 @@ def approve_participations(request, id):
 	return render(request, 'pcradmin/approve_participations.html', {'approved':approved, 'disapproved':disapproved, 'cr':cr})
 
 @staff_member_required
+def edit_part(request, part_id):
+	part = get_object_or_404(Participant, id=part_id)
+	if request.method == 'POST':
+		data = request.POST
+		print data
+		try:
+			name = data['name']
+			phone = data['phone']
+			email = data['email']
+			gender = data['gender']
+			if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email) or not gender in ['M', 'F']:
+				raise Exception
+		except:
+			messages.warning(request, 'Fill all the details properly.')
+			return request.META.get('HTTP_REFERER')
+
+		part.name = name
+		part.email = email
+		part.gender = gender
+		try:
+			part.phone = int(phone)
+		except:
+			messages.warning(request, 'Fill all the details properly.')
+			return request.META.get('HTTP_REFERER')
+		part.save()
+		return redirect(reverse('pcradmin:select_college_rep', kwargs={'id':part.college.id}))
+
+	return render(request, 'pcradmin/edit_part.html', {'part':part})
+
+
+@staff_member_required
 def verify_profile(request, part_id):
 	part = Participant.objects.get(id=part_id)
 
@@ -595,7 +626,8 @@ def participants_count(parts):
 	x2 = parts.filter(cr_approved=True, email_verified=True).count()
 	x3=parts.filter(pcr_approved=True).count()
 	x4=parts.filter(Q(paid=True)|Q(curr_paid=True)).count()
-	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4)
+	x5 = parts.filter(pcr_final=True).count()
+	return str(x1) + ' | ' + str(x2) + ' | ' + str(x3) + ' | ' + str(x4) + ' | ' + str(x5)
 
 def is_profile_complete(part):
 	try:
