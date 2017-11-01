@@ -16,7 +16,11 @@
 <div class="card">
     <div class="header">
         <h2>
-            Cart details {% if cart.paid %}(Paid){% endif %}
+            {% if cart.is_bitsian %}
+            Cart details {% if cart.paid %}(Paid){% endif %} for {{bitsian.name}}
+            {% elif cart.participant %}
+            Cart details {% if cart.paid %}(Paid){% endif %} for {{participant.name}}
+            {% endif %}
         </h2>
     </div>
     <div class="body">
@@ -115,6 +119,13 @@
 {% endif %}
 <div class="card">
     <div class="header">
+        <h2>
+            {% if cart.is_bitsian %}
+            Cart details {% if cart.paid %}(Paid){% endif %} for {{cart.buyer_id}}
+            {% elif cart.participant %}
+            Cart details {% if cart.paid %}(Paid){% endif %} for {{participant.name}} - {{cart.buyer_id}}
+            {% endif %}
+        </h2>
         <h2>
             Unadded Items
         </h2>

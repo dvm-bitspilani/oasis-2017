@@ -180,7 +180,7 @@ def create_profshow_bill(request):
         try:
             bits_id = data['bits_id']
             if not bits_id == '':
-                if not re.match(r'[h,f]\d{6}', bits_id):
+                if not re.match(r'[h,f,p]\d{6}', bits_id):
                     context = {
                         'error_heading':'No match found',
                         'message':'Bitsian does not exist.',
@@ -259,7 +259,7 @@ def view_all_profshow_bills(request):
         'headings':headings,
         'title':title,
     }
-    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(ems_code=bill.buyer_id)[0].name], 'link':[]} for bill in BitsProfShowBill.objects.all()]
+    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(barcode=bill.buyer_id)[0].name], 'link':[]} for bill in BitsProfShowBill.objects.all()]
     headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name',]
     title = 'Prof Show Bill Details-Bitsians'
     table2 = {

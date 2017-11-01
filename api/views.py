@@ -310,9 +310,16 @@ def get_profile(request):
 		return Response({'message':'Register at Firewallz first.'})
 	event_set = [participation.event for participation in Participation.objects.filter(participant=participant, pcr_approved=True)]
 	event_serializer = EventSerializer(event_set, many=True)
-	participant_serializer = ProfileSerializer(participant, context={'request':request})
-	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
-	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
+	if not participant.profile_pic:
+		base_participant_serializer = ParticipantSerializer(participant, context={'request':request})
+		participant_serializer = base_participant_serializer.data
+		participant_serializer['pic_url'] = 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwirvfCx7pzXAhVDvY8KHWAqBvUQjRwIBw&url=https%3A%2F%2Fpixabay.com%2Fen%2Fblank-profile-picture-mystery-man-973460%2F&psig=AOvVaw3RClI2jgK0LsqiqZC4LRVm&ust=1509608052631481'
+		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+		return Response({'participant':participant_serializer, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
+	else:
+		participant_serializer = ProfileSerializer(participant, context={'request':request})
+		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+		return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
 
 @api_view(['GET',])
 @permission_classes((AllowAny, ))
@@ -384,15 +391,21 @@ def add_profshow(request):
 		try:
 			bits_id = data['bits_id']
 			if not bits_id == '':
-				if not re.match(r'[h,f]\d{6}', bits_id):
+				if not re.match(r'[h,f,p]\d{6}', bits_id):
 					return Response({'message':'Invalid BITS Id'})
 				profshow_bill.bits_id = bits_id
 		except:
 			pass
+		print prof_show.price
 		if prof_show.price == 850:
-			id_list = [6, 7]
+			try:
+				from oasis2017 import config
+				id_list = [6,7]
+			except:
+				id_list = [1,2]
 			prof_shows = ProfShow.objects.filter(id__in=id_list)
 			for prof_show in prof_shows:
+				print prof_show
 				try:
 					attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
 					attendance.count += int(data['count'])
@@ -416,6 +429,7 @@ def add_profshow(request):
 				attendance.paid = True
 				attendance.count = data['count']
 				attendance.save()
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
 		profshow_bill.prof_show = prof_show
 		profshow_bill.participant = participant
 		profshow_bill.buyer_id = data['barcode']
@@ -468,17 +482,39 @@ def add_profshow(request):
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
-		try:
-			attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
-			attendance.count += int(data['count'])
-			attendance.save()
-		except:
-			attendance = Attendance()
-			attendance.bitsian = bitsian
-			attendance.prof_show = prof_show
-			attendance.paid = True
-			attendance.count = data['count']
-			attendance.save()
+		if prof_show.price == 850:
+			try:
+				from oasis2017 import config
+				id_list = [6,7]
+			except:
+				id_list = [1,2]
+			prof_shows = ProfShow.objects.filter(id__in=id_list)
+			for prof_show in prof_shows:
+				print prof_show
+				try:
+					attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+					attendance.count += int(data['count'])
+					attendance.save()
+				except:
+					attendance = Attendance()
+					attendance.bitsian = bitsian
+					attendance.prof_show = prof_show
+					attendance.paid = True
+					attendance.count = data['count']
+					attendance.save()
+		else:
+			try:
+				attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+				attendance.count += int(data['count'])
+				attendance.save()
+			except:
+				attendance = Attendance()
+				attendance.bitsian = bitsian
+				attendance.prof_show = prof_show
+				attendance.paid = True
+				attendance.count = data['count']
+				attendance.save()
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
 		profshow_bill = BitsProfShowBill()
 		profshow_bill.bitsian = bitsian
 		profshow_bill.prof_show = prof_show
