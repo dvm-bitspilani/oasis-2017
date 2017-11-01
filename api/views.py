@@ -396,10 +396,16 @@ def add_profshow(request):
 				profshow_bill.bits_id = bits_id
 		except:
 			pass
+		print prof_show.price
 		if prof_show.price == 850:
-			id_list = [6, 7]
+			try:
+				from oasis2017 import config
+				id_list = [6,7]
+			except:
+				id_list = [1,2]
 			prof_shows = ProfShow.objects.filter(id__in=id_list)
 			for prof_show in prof_shows:
+				print prof_show
 				try:
 					attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
 					attendance.count += int(data['count'])
@@ -475,17 +481,38 @@ def add_profshow(request):
 			bitsian_serializer = BitsianSerializer(bitsian)
 		except:
 			return Response({'message':'Please check barcode of Bitsian'})
-		try:
-			attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
-			attendance.count += int(data['count'])
-			attendance.save()
-		except:
-			attendance = Attendance()
-			attendance.bitsian = bitsian
-			attendance.prof_show = prof_show
-			attendance.paid = True
-			attendance.count = data['count']
-			attendance.save()
+		if prof_show.price == 850:
+			try:
+				from oasis2017 import config
+				id_list = [6,7]
+			except:
+				id_list = [1,2]
+			prof_shows = ProfShow.objects.filter(id__in=id_list)
+			for prof_show in prof_shows:
+				print prof_show
+				try:
+					attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+					attendance.count += int(data['count'])
+					attendance.save()
+				except:
+					attendance = Attendance()
+					attendance.bitsian = bitsian
+					attendance.prof_show = prof_show
+					attendance.paid = True
+					attendance.count = data['count']
+					attendance.save()
+		else:
+			try:
+				attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+				attendance.count += int(data['count'])
+				attendance.save()
+			except:
+				attendance = Attendance()
+				attendance.bitsian = bitsian
+				attendance.prof_show = prof_show
+				attendance.paid = True
+				attendance.count = data['count']
+				attendance.save()
 		profshow_bill = BitsProfShowBill()
 		profshow_bill.bitsian = bitsian
 		profshow_bill.prof_show = prof_show
