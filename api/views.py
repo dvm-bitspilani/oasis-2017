@@ -569,7 +569,7 @@ def register_team(request):
 	except:
 		if not user.is_superuser:
 			return Response({'status':2, 'message':'You don\'t have access to this.'})
-	level = Level.objects.get_or_create(position=1, event=event)
+	level, created = Level.objects.get_or_create(position=1, event=event)
 	if created:
 		param = Parameter.objects.create(name='p1', max_val=10)
 		level.name = 'Primary Level'
