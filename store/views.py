@@ -50,7 +50,7 @@ def create_cart(request):
             except:
                 messages.warning(request, 'Invalid participant barcode')
                 return redirect(reverse('store:create_cart'))
-        elif re.match(r'[h,f]\d{6}', buyer_id):
+        elif re.match(r'[h,f,p]\d{6}', buyer_id):
             cart.is_bitsian = True
             try:
                 bitsian = Bitsian.objects.filter(ems_code=buyer_id)[0]
@@ -105,7 +105,7 @@ def cart_details(request, c_id):
     unadded_items = [item for item in Item.objects.all() if item not in present_items]
     added_items = sales
     combos = Combo.objects.all()
-    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items, 'unadded_items':unadded_items, 'maincombos':maincombos, 'combos':combos})
+    return render(request, 'store/cart_details.html', {'cart':cart, 'added_items':added_items, 'unadded_items':unadded_items, 'maincombos':maincombos, 'combos':combos,})
 
 @staff_member_required
 def item_details(request, c_id, i_id):
