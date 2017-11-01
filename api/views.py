@@ -384,7 +384,7 @@ def add_profshow(request):
 		try:
 			bits_id = data['bits_id']
 			if not bits_id == '':
-				if not re.match(r'[h,f]\d{6}', bits_id):
+				if not re.match(r'[h,f,p]\d{6}', bits_id):
 					return Response({'message':'Invalid BITS Id'})
 				profshow_bill.bits_id = bits_id
 		except:
