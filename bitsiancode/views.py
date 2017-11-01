@@ -7,6 +7,8 @@ from google.auth.transport import requests
 from oasis2017.keyconfig import OAUTH_CLIENT_ID
 from django.views.decorators.csrf import csrf_exempt
 import json
+from api.serializers import BitsianSerializer, AttendanceSerializer
+from events.models import *
 
 @csrf_exempt
 def index(request):
@@ -39,7 +41,9 @@ def get_barcode(request):
         email = idinfo['email']
         try:
             bitsian = Bitsian.objects.filter(email=email)[0]
-            return JsonResponse({'barcode':bitsian.barcode})
+            bitsian_serializer = BitsianSerializer(bitsian)
+            profshow_serializer = AttendanceSerializer(Attendance.objects.filter(bitsian=bitsian), many=True)
+            return JsonResponse({'bitsian':bitsian_serializer.data, 'prof_shows':profshow_serializer.data})
         except:
             return JsonResponse({'message':'Bitsian does not exist.'})
     except:
