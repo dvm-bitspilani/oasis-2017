@@ -429,6 +429,7 @@ def add_profshow(request):
 				attendance.paid = True
 				attendance.count = data['count']
 				attendance.save()
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
 		profshow_bill.prof_show = prof_show
 		profshow_bill.participant = participant
 		profshow_bill.buyer_id = data['barcode']
@@ -513,6 +514,7 @@ def add_profshow(request):
 				attendance.paid = True
 				attendance.count = data['count']
 				attendance.save()
+		prof_show = ProfShow.objects.get(id=data['prof_show'])
 		profshow_bill = BitsProfShowBill()
 		profshow_bill.bitsian = bitsian
 		profshow_bill.prof_show = prof_show
