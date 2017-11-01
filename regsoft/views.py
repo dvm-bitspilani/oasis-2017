@@ -266,8 +266,7 @@ def add_participant(request):
             try:
                 events = data.getlist('events')
             except:
-                messages.warning(request,'Please select event(s).')
-                return redirect(request.META.get('HTTP_REFERER'))
+                pass
             participant = Participant()
             participant.name = str(data['name'])
             participant.gender = str(data['gender'])
@@ -288,9 +287,17 @@ def add_participant(request):
             user = User.objects.create_user(username=username, password=password)
             participant.user = user
             participant.save()
-            for key in data.getlist('events'):
-                event = Event.objects.get(id=int(key))
-                Participation.objects.create(event=event, participant=participant, pcr_approved=True)
+            college = participant.college
+            if not college.participant_set.filter(is_cr=True):
+                participant.is_cr = True
+                participant.save()
+            try:
+                events = data.getlist('events')
+                for key in data.getlist('events'):
+                    event = Event.objects.get(id=int(key))
+                    Participation.objects.create(event=event, participant=participant, pcr_approved=True)
+            except:
+                pass
             participant.save()
 
             send_to = participant.email
@@ -808,13 +815,21 @@ def bill_details(request, b_id):
     participants = bill.participant_set.all()
     college = participants[0].college
     bill = get_object_or_404(Bill, id=b_id)
-    c_rows = [{'data':[part.name, get_event_string(part), bill.time_paid,], 'link':[]} for part in bill.participant_set.all()]
+    c_rows = [{'data':[part.name, get_event_string(part), bill.time_paid, get_amount(part)], 'link':[]} for part in bill.participant_set.all()]
     table = {
 		'title' : 'Participant details for the bill from ' + college.name +'. Cash amount = Rs ' + str(bill.amount-bill.draft_amount) + '. Draft Amount = Rs ' + str(bill.draft_amount),
-		'headings' : ['Name', 'Event(s)', 'Time created',],
+		'headings' : ['Name', 'Event(s)', 'Time created','Had to pay'],
 		'rows':c_rows,
 	}
     return render(request, 'regsoft/bill_details.html', {'tables':[table,],'bill':bill, 'participant_list':participants, 'college':college, 'curr_time':time_stamp})
+
+def get_amount(part):
+    if part.controlz_paid and part.paid:
+        return 0
+    elif part.paid:
+        return 700
+    else:
+        return 1000
 
 @staff_member_required
 def print_bill(request, b_id):
