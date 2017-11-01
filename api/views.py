@@ -311,7 +311,11 @@ def get_profile(request):
 	event_set = [participation.event for participation in Participation.objects.filter(participant=participant, pcr_approved=True)]
 	event_serializer = EventSerializer(event_set, many=True)
 	if not participant.profile_pic:
-		participant_serializer = ParticipantSerializer(participant, context={'request':request})	
+		base_participant_serializer = ParticipantSerializer(participant, context={'request':request})
+		participant_serializer = base_participant_serializer.data
+		participant_serializer['pic_url'] = 'https://www.google.co.in/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwirvfCx7pzXAhVDvY8KHWAqBvUQjRwIBw&url=https%3A%2F%2Fpixabay.com%2Fen%2Fblank-profile-picture-mystery-man-973460%2F&psig=AOvVaw3RClI2jgK0LsqiqZC4LRVm&ust=1509608052631481'
+		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+		return Response({'participant':participant_serializer, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
 	else:
 		participant_serializer = ProfileSerializer(participant, context={'request':request})
 	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
