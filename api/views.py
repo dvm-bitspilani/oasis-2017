@@ -318,8 +318,8 @@ def get_profile(request):
 		return Response({'participant':participant_serializer, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
 	else:
 		participant_serializer = ProfileSerializer(participant, context={'request':request})
-	profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
-	return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
+		profshow_serializer = AttendanceSerializer(Attendance.objects.filter(participant=participant), many=True)
+		return Response({'participant':participant_serializer.data, 'participations':event_serializer.data, 'prof_shows':profshow_serializer.data})
 
 @api_view(['GET',])
 @permission_classes((AllowAny, ))
