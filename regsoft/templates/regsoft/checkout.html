@@ -19,7 +19,7 @@
                         <th></th>
                         <th></th>
                         <th>
-                            <input type="checkbox" id="selectAll">
+                            <input type="checkbox" id="selectAll" onclick="addChecks(1)">
                             <label for="selectAll"></label>
                         </th>
                     </tr>
@@ -48,7 +48,7 @@
                         <td>{{part.room.room}}</td>
                         <td>{{part.room.bhavan}}</td>
                         <td>
-                            <input name="part_list" type="checkbox" id="{{part.id}}" value="{{part.id}}"/>
+                            <input name="part_list" type="checkbox" class="checkbox-number" onchange="addChecks(01)" id="{{part.id}}" value="{{part.id}}"/>
                             <label for="{{part.id}}"></label>
                         </td>
                     </tr>
@@ -56,6 +56,7 @@
                 </tbody>
         </table>
         </div>
+        <span id="chknumber">Checked: 0</span>
         </div>
     </div>
     <div class="row clearfix">
@@ -78,4 +79,16 @@
                 <button type="submit" class="btn btn-primary m-t-15 waves-effect">Checkout</button>
 </form>
 <a href="{% url 'regsoft:checkout_groups' college.id %}" class="btn btn-primary m-t-15 waves-effect">View checked out groups</a> 
+<script>
+function addChecks(number) {
+    var checked = document.querySelectorAll('.checkbox-number:checked').length;
+    var total = document.querySelectorAll('.checkbox-number').length;
+    document.getElementById("chknumber").innerHTML = "Checked : "+checked+"/"+total;
+    if(number == 1) {
+        setTimeout(function(){
+            addChecks(0);
+        },200);
+    }
+}
+</script>
 {% endblock %}

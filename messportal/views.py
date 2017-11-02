@@ -193,6 +193,7 @@ def create_profshow_bill(request):
         except:
             pass 
         barcode = 'oasis17' + data['barcode']
+        print barcode
         try:
             participant = Participant.objects.get(barcode=barcode)
         except:
@@ -204,8 +205,12 @@ def create_profshow_bill(request):
             profshow_bill.delete()
             return render(request, 'registrations/message.html', context)
         
-        if prof_show.price == 850:
-            id_list = [6, 7]
+        if int(prof_show.price) == 850:
+            try:
+                from oasis2017 import config
+                id_list = [6, 7]
+            except:
+                id_list = [1,2]
             prof_shows = ProfShow.objects.filter(id__in=id_list)
             for prof_show in prof_shows:
                 try:
