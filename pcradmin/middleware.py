@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from . import views
+from django.contrib.auth import login, logout
 
 class PCrAdminMiddleware(object):
 
@@ -11,7 +12,7 @@ class PCrAdminMiddleware(object):
 		return self.get_response(request)
 
 	def process_view(self, request,  view_func, view_args, view_kwargs):
-		if 'admin' in request.path:
+		if '/admin' in request.path:
 			return None
 		if request.user.is_superuser:
 			return None
@@ -20,6 +21,9 @@ class PCrAdminMiddleware(object):
 		if request.user.is_authenticated():
 			if 'logout' not in request.path:
 				if not request.user.username == 'pcradmin' and 'pcradmin' in request.path:
+					logout(request)
+					return render(request, 'pcradmin/message.html',{'message':'Access Denied'})
+				if request.user.username == 'pcradmin' and not 'pcradmin' in request.path:
 					return render(request, 'pcradmin/message.html',{'message':'Access Denied'})
 				else:
 					return None
