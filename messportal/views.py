@@ -264,8 +264,8 @@ def view_all_profshow_bills(request):
         'headings':headings,
         'title':title,
     }
-    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(barcode=bill.buyer_id)[0].name], 'link':[]} for bill in BitsProfShowBill.objects.all()]
-    headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name',]
+    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(barcode=bill.buyer_id)[0].name, Bitsian.objects.filter(barcode=bill.buyer_id)[0].long_id], 'link':[]} for bill in BitsProfShowBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name', 'Bits ID']
     title = 'Prof Show Bill Details-Bitsians'
     table2 = {
         'rows':rows,
