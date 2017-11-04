@@ -919,7 +919,7 @@ def deepgetattr(obj, attr, default = None):
 ##########################################################
 
 def send_mail():
-	from registrations.models import *
+	from registrations.models import Participant
 	for part in Participant.objects.filter(firewallz_passed=True):
 		send_to = part.email
 		name = part.name
@@ -971,3 +971,70 @@ webmaster@bits-oasis.org
 		print 'Emails sent'
 
 ##########################################################
+
+@staff_member_required
+def get_list(request):
+	from django.http import HttpResponse, HttpResponseRedirect
+	import xlsxwriter
+	from .models import Participant
+	try:
+		import cStringIO as StringIO
+	except ImportError:
+		import StringIO
+	a_list = []
+
+
+	entries = [part for part in Participant.objects.filter(firewallz_passed=True) if part.participation_set.filter(event__name='FashP')]
+
+	for p in entries:
+		a_list.append({'obj': p})
+	data = sorted(a_list, key=lambda k: k['obj'].id)
+	output = StringIO.StringIO()
+	workbook = xlsxwriter.Workbook(output)
+	worksheet = workbook.add_worksheet('new-spreadsheet')
+	date_format = workbook.add_format({'num_format': 'mmmm d yyyy'})
+	worksheet.write(0, 0, "Generated:")
+	from time import gmtime, strftime
+	generated = strftime("%d-%m-%Y %H:%M:%S UTC", gmtime())
+	worksheet.write(0, 1, generated)
+
+	worksheet.write(1, 0, "ID")
+	worksheet.write(1, 1, "Name")
+	worksheet.write(1, 2, "Email ID")
+	worksheet.write(1, 3, "Mobile No.")
+	worksheet.write(1, 4, "College")
+
+	for i, row in enumerate(data):
+		"""for each object in the date list, attribute1 & attribute2
+		are written to the first & second column respectively,
+		for the relevant row. The 3rd arg is a failure message if
+		there is no data available"""
+
+		worksheet.write(i+2, 0, deepgetattr(row['obj'], 'id', 'NA'))
+		worksheet.write(i+2, 1, deepgetattr(row['obj'], 'name', 'NA'))
+		worksheet.write(i+2, 2, deepgetattr(row['obj'], 'email', 'NA'))
+		worksheet.write(i+2, 3, deepgetattr(row['obj'], 'phone', 'NA'))
+		worksheet.write(i+2, 4, get_college_name(row['obj']))		
+
+	workbook.close()
+	filename = 'ExcelReport.xlsx'
+	output.seek(0)
+	response = HttpResponse(output.read(), content_type="application/ms-excel")
+	response['Content-Disposition'] = 'attachment; filename=%s' % filename
+	return response
+
+def get_college_name(part):
+	return part__college__name
+
+def deepgetattr(obj, attr, default = None):
+    
+    attributes = attr.split(".")
+    for i in attributes:
+        try:
+            obj = getattr(obj, i)
+        except AttributeError:
+            if default:
+                return default
+            else:
+                raise
+    return obj
