@@ -1024,7 +1024,7 @@ def get_list(request):
 	return response
 
 def get_college_name(part):
-	return part__college__name
+	return part.college.name
 
 def deepgetattr(obj, attr, default = None):
     
