@@ -272,7 +272,15 @@ def view_all_profshow_bills(request):
         'headings':headings,
         'title':title,
     }
-    return render(request, 'messportal/tables.html', {'tables':[table, table2]})
+    rows = [{'data':[attendance.bitsian.name, attendance.bitsian.long_id, attendance.prof_show.name,attendance.count,attendance.passed_count, ], 'link':[]} for attendance in Attendance.objects.filter(bitsian__isnull=False)]
+    headings = ['Name', 'Id', 'Prof Show', 'Passed Left','Passes Used']
+    title = 'Bitsian QR Signings'
+    table3 = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'messportal/tables.html', {'tables':[table, table2, table3]})
 
 def get_bits_id(bill):
     if bill.bits_id:
