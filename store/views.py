@@ -300,7 +300,7 @@ def show_all_bills(request):
         'title':title,
     }
 
-    rows = [{'data':[bill.created_time, bill.amount, get_bitsian(bill.cart).name, get_bitsian(bill.cart).long_id], 'link':[]} for bill in CartBill.objects.filter(cart__is_bitsian=True)]
+    rows = [{'data':[cart.created_time, cart.amount, get_bitsian(cart).name, get_bitsian(cart).long_id], 'link':[]} for cart in Cart.objects.filter(is_bitsian=True)]
     headings = ['Created Time', 'Amount', 'Bitsian Name', 'Bitsian ID',]
     title = 'Bitsian Details'
     table2 = {
