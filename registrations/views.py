@@ -915,3 +915,59 @@ def deepgetattr(obj, attr, default = None):
             else:
                 raise
     return obj
+
+##########################################################
+
+def send_mail():
+	from registrations.models import Participant
+	for part in Participant.objects.filter(firewallz_passed=True):
+		send_to = part.email
+		name = part.name
+		body = '''<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+<center><img src="http://bits-oasis.org/2017/static/registrations/img/logo.png" height="150px" width="150px"></center>
+<pre style="font-family:Roboto,sans-serif">
+Hello %s!
+A warm welcome to everyone attending OASIS '17!
+Greetings from BITS Pilani and the Students' Union!
+
+This is to inform you about the official OASIS '17 Android Application developed by the Department of Visual Media.
+You can download the app using <a href="https://bits-oasis.org/app/">this</a> link.
+The new features this time are:
+1.<b>Selfie Contest</b>: A contest where the participants and the bitsians alike can <b>ANONYMOUSLY UPLOAD</b> their everyday experiences with exclusive goodies planned for the pictures with the maximum likes.
+2.<b>QR Code Based Signings</b>: Every app user can buy Prof Show tickets through their QR code. The verification will also be done using the same.They can also register in various events during Oasis using the same code.
+For participants not having android phones, they can login at https://bits-oasis.org/2017/register/login/ and access their QR codes from the 'Get Profile Card' tab using the credentials received during the registrations process.
+3.<b>Voting for StandUp Soapbox</b>:The participants in this open mic contest will be judged on the basis of audience vote via the app. Please ensure that you have the app to vote for your favorite candidate.
+4.<b>Filter and Search<b>: You can filter events according to categories, dates, places, and can even search for specific events.
+5.<b>Notifications</b>: Stay notified and don't miss the buzz with the latest happenings delivered to your phone via push notifications. These notifications will also be available on the 'Notify Tab' of the app for the entire duration of the fest.
+6.<b>Ongoing Events</b>: For ongoing events, one can instantly find details about the events happening in the next 3 hours.
+7.<b>Maps</b>: Don't get lost on the campus and find your way to your favorite event with the Maps feature.
+8.<b>Reminder</b>: Set reminders for the events that you don't want to miss.
+Please make sure to upload your <b>Picture</b> as well as <b>verification documents(Eg Bonafide)</b> once you login to complete your registration.
+
+<b>NOTE</b>: Always keep a screenshot of your QR code saved on your phone as it will be required for On-spot signings of the Prof shows and for participating in events.
+
+Hope you have an amazing time at OASIS '17.
+
+Regards,
+Arjun Tyagi
+StuCCAn (Head)
+Dept. of Visual Media, OASIS '17
+BITS Pilani
++91-8875052545
+webmaster@bits-oasis.org
+</pre>
+''' %(name)
+		sg = sendgrid.SendGridAPIClient(apikey=API_KEY)
+		from_email = Email('no-reply@bits-oasis.org')
+		to_email = Email(send_to)
+		subject = "Announcement of the official OASIS'17 APP"
+		content = Content('text/html', body)
+
+		try:
+			mail = Mail(from_email, subject, to_email, content)
+			response = sg.client.mail.send.post(request_body=mail.get())
+		except :
+			print 'Error sending mail'
+		print 'Emails sent'
+
+##########################################################

@@ -107,4 +107,4 @@ class CheckoutGroup(models.Model):
 
 	amount_retained = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
-	group_code = models.CharField(max_length=20, null=True, blank=True)
+	group_code = models.CharField(max_length=100, null=True, blank=True)

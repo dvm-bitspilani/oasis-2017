@@ -193,6 +193,7 @@ def create_profshow_bill(request):
         except:
             pass 
         barcode = 'oasis17' + data['barcode']
+        print barcode
         try:
             participant = Participant.objects.get(barcode=barcode)
         except:
@@ -204,8 +205,12 @@ def create_profshow_bill(request):
             profshow_bill.delete()
             return render(request, 'registrations/message.html', context)
         
-        if prof_show.price == 850:
-            id_list = [6, 7]
+        if int(prof_show.price) == 850:
+            try:
+                from oasis2017 import config
+                id_list = [6, 7]
+            except:
+                id_list = [1,2]
             prof_shows = ProfShow.objects.filter(id__in=id_list)
             for prof_show in prof_shows:
                 try:
@@ -259,15 +264,23 @@ def view_all_profshow_bills(request):
         'headings':headings,
         'title':title,
     }
-    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(barcode=bill.buyer_id)[0].name], 'link':[]} for bill in BitsProfShowBill.objects.all()]
-    headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name',]
+    rows = [{'data':[bill.created_time, bill.created_by, bill.quantity, bill.prof_show.name, bill.prof_show.price,Bitsian.objects.filter(barcode=bill.buyer_id)[0].name, Bitsian.objects.filter(barcode=bill.buyer_id)[0].long_id], 'link':[]} for bill in BitsProfShowBill.objects.all()]
+    headings = ['Created Time', 'Created By', 'Quantity', 'Prof Show', 'Price/profshow','Bitsian Name', 'Bits ID']
     title = 'Prof Show Bill Details-Bitsians'
     table2 = {
         'rows':rows,
         'headings':headings,
         'title':title,
     }
-    return render(request, 'messportal/tables.html', {'tables':[table, table2]})
+    rows = [{'data':[attendance.bitsian.name, attendance.bitsian.long_id, attendance.prof_show.name,attendance.count,attendance.passed_count, ], 'link':[]} for attendance in Attendance.objects.filter(bitsian__isnull=False)]
+    headings = ['Name', 'Id', 'Prof Show', 'Passed Left','Passes Used']
+    title = 'Bitsian QR Signings'
+    table3 = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'messportal/tables.html', {'tables':[table, table2, table3]})
 
 def get_bits_id(bill):
     if bill.bits_id:
