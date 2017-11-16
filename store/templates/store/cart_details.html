@@ -10,7 +10,7 @@
 {% endfor %}
 </div>
 {% endif %}
-{% if added_items %}
+{% if added_items or maincombos%}
 <form action="{% url 'store:cart_details' cart.id %}" method="post">
 {% csrf_token %}
 <div class="card">
