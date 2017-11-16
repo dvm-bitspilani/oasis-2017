@@ -299,7 +299,19 @@ def show_all_bills(request):
         'headings':headings,
         'title':title,
     }
-    return render(request, 'store/tables.html', {'tables':[table,]})
+
+    rows = [{'data':[cart.created_time, cart.amount, get_bitsian(cart).name, get_bitsian(cart).long_id], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))}]} for cart in Cart.objects.filter(is_bitsian=True)]
+    headings = ['Created Time', 'Amount', 'Bitsian Name', 'Bitsian ID', 'View Details']
+    title = 'Bitsian Details'
+    table2 = {
+        'rows':rows,
+        'headings':headings,
+        'title':title,
+    }
+    return render(request, 'store/tables.html', {'tables':[table, table2]})
+
+def get_bitsian(cart):
+    return Bitsian.objects.filter(email=cart.email)[0]
 
 @staff_member_required
 def bill_details(request, cb_id):
