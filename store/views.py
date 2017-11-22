@@ -320,7 +320,8 @@ def get_items_string(cart):
     for combo in cart.maincombos.all():
         item_str += '(Combo)'
         for item in combo.mainitems.all():
-            item_str += item.item.name + '-' + item.size.name + '-' + item.item.colour.name + '|||'
+            item_str += item.item.name + '-' + item.size.name + '-' + item.item.colour.name + '|'
+        item_str += '|||'
 
     return item_str
 
