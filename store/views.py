@@ -300,8 +300,8 @@ def show_all_bills(request):
         'title':title,
     }
 
-    rows = [{'data':[cart.created_time, cart.amount, get_bitsian(cart).name, get_bitsian(cart).long_id], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))}]} for cart in Cart.objects.filter(is_bitsian=True)]
-    headings = ['Created Time', 'Amount', 'Bitsian Name', 'Bitsian ID', 'View Details']
+    rows = [{'data':[cart.created_time, cart.amount, get_bitsian(cart).name, get_bitsian(cart).long_id, get_items_string(cart)], 'link':[{'title':'View Details', 'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id}))}]} for cart in Cart.objects.filter(is_bitsian=True)]
+    headings = ['Created Time', 'Amount', 'Bitsian Name', 'Bitsian ID', 'Items','View Details']
     title = 'Bitsian Details'
     table2 = {
         'rows':rows,
@@ -309,6 +309,18 @@ def show_all_bills(request):
         'title':title,
     }
     return render(request, 'store/tables.html', {'tables':[table, table2]})
+
+def get_items_string(cart):
+    item_str = ''
+    for sale in cart.sale_set.all():
+        item_str += sale.item.item.name + '-' + str(sale.item.quantity) + '-' + str(sale.item.size.name) + '-' + str(sale.item.item.colour.name) + '|||'
+
+    for combo in cart.maincombos.all():
+        item_str += '(Combo)'
+        for item in combo.mainitems.all():
+            item_str += item.item.name + '-' + item.size.name + '-' + item.item.colour.name + '|||'
+
+    return item_str
 
 def get_bitsian(cart):
     return Bitsian.objects.filter(email=cart.email)[0]
