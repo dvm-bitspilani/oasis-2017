@@ -72,6 +72,7 @@ def cart_details(request, c_id):
     cart = get_object_or_404(Cart, id=c_id)
     added_items = Sale.objects.filter(cart=cart)
     if request.method == 'POST':
+        print request.POST
         if cart.paid:
             context = {
                 'url':request.build_absolute_uri(reverse('store:cart_details', kwargs={'c_id':cart.id})),
@@ -81,6 +82,7 @@ def cart_details(request, c_id):
             return render(request, 'registrations/message.html', context)
         data = request.POST
         sale_list = Sale.objects.filter(id__in=data.getlist('sale_list'))
+        print data.getlist('combo_list')
         combo_list = MainCombo.objects.filter(id__in=data.getlist('combo_list'))
         for sale in sale_list:
             cart.amount -= ((sale.quantity)*(sale.item.item.price))
