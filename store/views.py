@@ -315,7 +315,7 @@ def show_all_bills(request):
 def get_items_string(cart):
     item_str = ''
     for sale in cart.sale_set.all():
-        item_str += sale.item.item.name + '-' + str(sale.item.quantity) + '-' + str(sale.item.size.name) + '-' + str(sale.item.item.colour.name) + '|||'
+        item_str += sale.item.item.name + '-' + str(sale.quantity) + '-' + str(sale.item.size.name) + '-' + str(sale.item.item.colour.name) + '|||'
 
     for combo in cart.maincombos.all():
         item_str += '(Combo)'
