@@ -1020,3 +1020,15 @@ def has_data():
 				print e
 				print i, j
 	print y
+
+
+def add_products():
+	a=[('Schewan Chicken Noodles', '90'), ('Egg Biryani ', '80'), ('Chicken Biryani', '120'), ('Special Chicken Biryani', '160'), ('Egg Fried Maggi', '50'), ('Chicken fried Maggi', '70'), ('Chicken Burger', '60'), ('Chicken Cheese Burger', '70'), ('Plain Maggi', '25'), ('Veg Maggi', '30'), ('Fried Maggi', '35'), ('Cheese Maggi', '40'), ('Panneer Maggi', '50'), ('Cheese Fried maggi', '50'), ('Paneer Fried maggi', '55'), ('Veg Fried Rice', '45'), ('Schezwan Fried Rice', '55'), ('Paneer Fried Rice', '65'), ('Veg Hakka Noodles', '45'), ('Chilli Garlic Noodles', '55'), ('Schezwan Noodles', '55'), ('Paneer Fried Noodles', '65'), ('Veg Manchurian', '65'), ('Paneer Manchurian', '95'), ('Chilli Paneer', '95'), ('Chinese Combo', '95')]
+	stall = Stall.objects.get(id=2)
+	co = Colour.objects.get(id=1)
+	pt = Type.objects.get(id=1)
+	size = Size.objects.get(id=1)
+	ct = PCategory.objects.get(id=1)
+	for i in a:
+		p1 = Product.objects.create(name=i[0], stall=stall, colour=co, p_type=pt, category=ct)
+		p2 = ProductMain.objects.create(product=p1, size=size, price=int(i[1]))
