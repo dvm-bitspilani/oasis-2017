@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 from ckeditor.fields import RichTextField
+from ems.models import Team, Judge, ClubDepartment, Level, Parameter, Score
 from registrations.models import *
-from ems.models import *
 
 class Category(models.Model):
 	

@@ -8,6 +8,7 @@ admin.site.register(College)
 admin.site.register(IntroReg)
 admin.site.register(PaymentGroup)
 admin.site.register(Group)
+admin.site.register(Bitsian)
 
 class ParticipantAdmin(admin.ModelAdmin):
 	search_fields = ['name', 'college__name']

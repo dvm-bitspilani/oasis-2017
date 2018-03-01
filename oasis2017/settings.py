@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     'api',
     'store',
     'bitsiancode',
+    'shop',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
@@ -63,6 +66,7 @@ MIDDLEWARE = [
     'pcradmin.middleware.PCrAdminMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -180,3 +184,6 @@ MEDIA_URL = '/2017/media/'
 GOOGLE_RECAPTCHA_SECRET_KEY = recaptcha_key
 
 LOGIN_URL = '/2017/register/login/'
+
+
+CORS_ORIGIN_ALLOW_ALL = True

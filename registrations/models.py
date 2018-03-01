@@ -108,3 +108,19 @@ class CheckoutGroup(models.Model):
 	amount_retained = models.IntegerField(default=0)
 	created_time = models.DateTimeField(auto_now=True)
 	group_code = models.CharField(max_length=100, null=True, blank=True)
+
+
+class Bitsian(models.Model):
+	
+	long_id = models.CharField(max_length=20, null=True, blank=True)
+	name = models.CharField(max_length=50, null=True, blank=True)
+	gender = models.CharField(max_length=1, null=True, blank=True)
+	email = models.EmailField(null=True)
+	barcode = models.CharField(max_length=10, null=True, blank=True, unique=True)
+	phone = models.BigIntegerField(default=0, null=True)
+	bhawan = models.CharField(max_length=20, null=True, blank=True)
+	room_no = models.IntegerField(default=0)
+	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
+
+	def __unicode__(self):
+		return str(self.long_id) + ' - '+ str(self.name)

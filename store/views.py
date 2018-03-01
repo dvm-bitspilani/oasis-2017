@@ -29,7 +29,7 @@ try:
 	from oasis2017.config import *
 	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN)
 except:
-	api = Instamojo(api_key=INSTA_API_KEY, auth_token=AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/') #when in development
+	api = Instamojo(api_key=INSTA_API_KEY_test, auth_token=AUTH_TOKEN_test, endpoint='https://test.instamojo.com/api/1.1/') #when in development
 
 @staff_member_required
 def index(request):
@@ -436,12 +436,13 @@ def payment_response(request, token):
 def api_request(request):
     import requests
     payid=str(request.GET['payment_request_id'])
-    headers = {'X-Api-Key': INSTA_API_KEY,
-                'X-Auth-Token': AUTH_TOKEN}
     try:
-        from oasis2017 import config
+        headers = {'X-Api-Key': INSTA_API_KEY,
+                    'X-Auth-Token': AUTH_TOKEN}
         r = requests.get('https://www.instamojo.com/api/1.1/payment-requests/'+str(payid),headers=headers)
     except:
+        headers = {'X-Api-Key': INSTA_API_KEY_test,
+                    'X-Auth-Token': AUTH_TOKEN_test}
         r = requests.get('https://test.instamojo.com/api/1.1/payment-requests/'+str(payid), headers=headers)    ### when in development
     json_ob = r.json()
     if (json_ob['success']):

@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'^wordwars/', include("wordwars.urls")),
     url(r'^store/', include("store.urls")),
     url(r'^code/', include("bitsiancode.urls")),
+    url(r'^shop/', include("shop.urls")),
+
 ]
 
 urlpatterns += staticfiles_urlpatterns()
