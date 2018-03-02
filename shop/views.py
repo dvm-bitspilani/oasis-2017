@@ -347,7 +347,7 @@ def get_stalls(request):
 def get_products(request, stall_id):
 	stall = get_object_or_404(Stall,id=stall_id)
 	stall_serializer = StallSerializer(stall)
-	products = ProductMainSerializer(ProductMain.objects.filter(product__stall=stall).order_by('product__name'), many=True)
+	products = ProductMainSerializer(ProductMain.objects.filter(product__stall=stall).order_by('-orderno', 'product__name'), many=True)
 	return Response({'stalls':stall_serializer.data, 'products':products.data})
 
 
@@ -1032,3 +1032,21 @@ def add_products():
 	for i in a:
 		p1 = Product.objects.create(name=i[0], stall=stall, colour=co, p_type=pt, category=ct)
 		p2 = ProductMain.objects.create(product=p1, size=size, price=int(i[1]))
+
+def create_users():
+	for b in Bitsian.objects.all():
+		if not b.user:
+			email = b.email
+			password = ''.join(choice(chars) for _ in xrange(8))
+			username = email.split('@')[0]
+			try:
+				user = User.objects.get(username=username)
+				user.email = email
+				user.set_password(password)
+				user.save()
+				b.user = user
+				b.save()
+			except:
+				user = User.objects.create_user(username=username, password=password, email=email)
+				b.user = user
+				b.save()

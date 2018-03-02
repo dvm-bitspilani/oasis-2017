@@ -55,7 +55,8 @@ class ProductMain(models.Model):
 	is_available = models.BooleanField(default=True)
 	quantity = models.IntegerField(default=500)
 	discount = models.IntegerField(default=0)
-
+	orderno = models.IntegerField(default=0)
+	
 	def __unicode__(self):
 		return str(self.product) + ' ' + self.size.name
 
