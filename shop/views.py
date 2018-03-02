@@ -497,7 +497,8 @@ def change_availability(request):
 def get_stall_id(request):
 	try:
 		stall = request.user.stall
-		return Response({'status':1, 'id':stall.id, 'name':stall.name})
+		is_open =any([p.is_available for p in ProductMain.objects.filter(product__stall=stall)])
+		return Response({'status':1, 'id':stall.id, 'name':stall.name, 'open':is_open})
 	except:
 		return Response({'status':0})
 
