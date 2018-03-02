@@ -34,6 +34,7 @@ urlpatterns = [
 			url(r'^validate_profshow/?$', views.validate_profshow),
 			url(r'^generate_code/?$', views.generate_code),
 			
+			url(r'^open_close/?$', views.open_close, name="open_close"),
 			url(r'^available/?$', views.change_availability),
 			url(r'^recieve_order/?$', views.recieve_order),
 			url(r'^cancel_order/?$', views.cancel_order),

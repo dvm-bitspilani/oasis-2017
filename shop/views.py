@@ -563,6 +563,34 @@ def ready_order(request):
 	db.child('wallet').child(wallet.uid).child('transactions').child(transaction.id).set(TransactionSerializer(transaction).data)
 	return Response({'status':1, 'message':'done'})
 
+
+@api_view(['POST',])
+@permission_classes((IsAuthenticated, ))
+def open_close(request):
+	try:
+		stall = request.user.stall
+		if not stall:
+			raise Exception
+	except:
+		return Response({'status':0, 'message':'Not Allowed'})
+	print stall
+	# try:
+	# 	request.POST['s']
+	products = ProductMain.objects.filter(product__stall=stall)
+	try:
+		status = request.data['status']
+		if status == 'open':
+			products.update(is_available=True)
+			message = 'succesfully opened'
+		elif status == 'close':
+			products.update(is_available=False)
+			message = 'succesfully closed'
+		return Response({'status':1, 'message':message})
+	except:
+		return Response({'status':2, 'message':'No status'})
+
+
+
 @api_view(['POST',])
 @permission_classes((IsAuthenticated, TokenVerificationClass))
 def order_complete(request):
@@ -712,6 +740,10 @@ def validate_profshow(request):
 			return Response({'status':1, 'message':'Success. Passes Left = ' + str(attendance.count), 'participant':participant_serializer.data})
 		else:
 			return Response({'status':0, 'message':'No more passes left. Please buy more passes.'})
+
+
+
+
 
 
 ###########################	NO 		NEED	############################
