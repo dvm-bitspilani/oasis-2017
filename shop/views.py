@@ -294,7 +294,7 @@ def transfer_money(request):
 	# user = request.user
 	# username = user.username
 	# if username not in USER_NAMES:
-	return Response({'status':10, 'url':'Payment portal under construction.', 'message':'Payment portal under construction.'})
+	# return Response({'status':10, 'url':'Payment portal under construction.', 'message':'Payment portal under construction.'})
 	data = request.data
 	user = request.user
 	try:
