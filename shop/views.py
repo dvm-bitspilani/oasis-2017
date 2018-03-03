@@ -491,6 +491,43 @@ def change_availability(request):
 	return JsonResponse({'status':1, 'stall':stall_serializer.data})
 
 
+@api_view(['POST','OPTIONS'])
+@permission_classes((IsAuthenticated,))
+def sales_today(request):
+	import datetime
+	today = datetime.datetime.now()
+	one_day = datetime.timedelta(days=1)
+
+	today = today.replace(hour=17)
+	yesterday = today - one_day
+	if today.hour < 4:
+		today = today - one_day
+		yesterday = yesterday - one_day
+	print today
+	print yesterday
+	try:
+		stall = request.user.stall
+		if not stall:
+			raise Exception
+	except:
+		return Response({'status':0, 'message':'Not Allowed'})
+	today_sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall, stall_group__transaction__created_at__gte=today), many=True).data
+	yesterday_sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall, stall_group__transaction__created_at__gte=yesterday, stall_group__transaction__created_at__lte=today), many=True).data
+	return Response({'status':1, 'today':today_sales, 'yesterday':yesterday_sales})
+
+@api_view(['POST','OPTIONS'])
+@permission_classes((IsAuthenticated,))
+def all_sales(request):
+	try:
+		stall = request.user.stall
+		if not stall:
+			raise Exception
+	except:
+		return Response({'status':0, 'message':'Not Allowed'})
+	sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall), many=True).data
+	return Response({'status':1, 'sales':sales})
+
+
 ##for laddha
 @api_view(['POST','OPTIONS'])
 @permission_classes((IsAuthenticated,))

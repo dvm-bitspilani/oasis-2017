@@ -34,6 +34,8 @@ urlpatterns = [
 			url(r'^validate_profshow/?$', views.validate_profshow),
 			url(r'^generate_code/?$', views.generate_code),
 			
+			url(r'^sales_today/?$', views.sales_today, name="sales_today"),
+			url(r'^all_sales/?$', views.all_sales, name="all_sales"),
 			url(r'^open_close/?$', views.open_close, name="open_close"),
 			url(r'^available/?$', views.change_availability),
 			url(r'^recieve_order/?$', views.recieve_order),
