@@ -491,7 +491,7 @@ def change_availability(request):
 	return JsonResponse({'status':1, 'stall':stall_serializer.data})
 
 
-@api_view(['POST','OPTIONS'])
+@api_view(['POST','OPTIONS', 'GET'])
 @permission_classes((IsAuthenticated,))
 def sales_today(request):
 	import datetime
@@ -515,7 +515,7 @@ def sales_today(request):
 	yesterday_sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall, stall_group__transaction__created_at__gte=yesterday, stall_group__transaction__created_at__lte=today), many=True).data
 	return Response({'status':1, 'today':today_sales, 'yesterday':yesterday_sales})
 
-@api_view(['POST','OPTIONS'])
+@api_view(['POST','OPTIONS', 'GET'])
 @permission_classes((IsAuthenticated,))
 def all_sales(request):
 	try:
