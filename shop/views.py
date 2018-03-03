@@ -379,92 +379,94 @@ def checkout_payment(request):
 			stall_set.append(p.product.stall)
 	except:
 		return Response({'status':3, 'message':'invalid codes for products'})
-	wallet = Wallet.objects.get(user=user)
-	curr_balance = wallet.curr_balance
-	if curr_balance < total:
-		return Response({'status':2, 'message':'Insufficient Balance, need to add money to the wallet.'})
-	wallet.curr_balance -= total
-	wallet.save()
-	stall_set = set(stall_set)
-	data = []
-	stg_ids = []
-	try:
-		bitsian = Bitsian.objects.get(email=request.user.email)
-		is_bitsian = True
-	except:
-		is_bitsian=False
-		participant = Participant.objects.get(user=request.user)
-	for stall in stall_set:
-		transaction = Transaction.objects.create(wallet=wallet, t_type="buy")
-		if is_bitsian:
-			stall_group = StallGroup.objects.create(transaction=transaction, is_bitsian=is_bitsian,stall=stall, user=user, bitsian=bitsian)
-		else:
-			stall_group = StallGroup.objects.create(transaction=transaction, is_bitsian=is_bitsian,stall=stall, user=user, participant=participant)
-		data.append([stall, stall_group, transaction])
-		stg_ids.append(stall_group.id)
-	for i in products:
-		quantity = i[1]
-		product = i[0]
-		if product.product.p_type.name == 'Apparel':
-			product.quantity_left -= quantity
-			product.save()
-		elif product.product.p_type.name == 'ProfShow':
-			prof_show = product.product.prof_show
-			s = get_attendance_count(prof_show)
+	with transaction.atomic():
+		wallet = Wallet.objects.select_for_update().get(user=user)
+		curr_balance = wallet.curr_balance
+		if curr_balance < total:
+			return Response({'status':2, 'message':'Insufficient Balance, need to add money to the wallet.'})
+		wallet.curr_balance -= total
+		wallet.save()
+		stall_set = set(stall_set)
+		data = []
+		stg_ids = []
+		try:
+			bitsian = Bitsian.objects.get(email=request.user.email)
+			is_bitsian = True
+		except:
+			is_bitsian=False
+			participant = Participant.objects.get(user=request.user)
+		for stall in stall_set:
+			transaction = Transaction.objects.create(wallet=wallet, t_type="buy")
 			if is_bitsian:
-				try:
-					attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
-					attendance.count += quantity
-					attendance.save()
-				except:
-					attendance = Attendance()
-					attendance.bitsian = bitsian
-					attendance.prof_show = prof_show
-					attendance.paid = True
-					attendance.count = quantity
-					attendance.save()
+				stall_group = StallGroup.objects.create(transaction=transaction, is_bitsian=is_bitsian,stall=stall, user=user, bitsian=bitsian)
 			else:
-				try:
-					attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
-					attendance.count += quantity
-					attendance.save()
-				except:
-					attendance = Attendance()
-					attendance.participant = participant
-					attendance.prof_show = prof_show
-					attendance.paid = True
-					attendance.count = quantity
-					attendance.save()
-			attendance.number = s
-			attendance.save()
-		stall = product.product.stall
-		stall_group = StallGroup.objects.filter(id__in=stg_ids).get(stall=stall)
-		transaction = stall_group.transaction
-		stall_group.amount += int(product.price * quantity*(100-product.discount)/100)
-		stall_group.unique_code = str(random.randint(1000, 9999))
-		stall_group.orderid = str(stall_group.id) + stall.name[:3] + wallet.userid
-		stall_group.save()
-		stall_group.order_no = 1000000 + stall_group.id
-		stall_group.save()
-		transaction.value += int(product.price * quantity*(100-product.discount)/100)
-		transaction.save()
-		sale = Sale.objects.create(product=product, quantity=quantity, stall_group=stall_group, paid=True)
-		sale.save()
-	##for vendor
-	for stg_id in stg_ids:
-		stg = StallGroup.objects.get(id=stg_id)
-		if stg.stall.id == 12:
-			stg.code_requested=True
-			stg.order_ready=True
-			stg.order_complete=True
-			stg.save()
-		t = stg.transaction
-		db.child('stall').child(stg.stall.id).child(stg.id).set(StallGroupSerializer(stg).data)
-		db.child('wallet').child(wallet.uid).child('transactions').child(t.id).set(TransactionSerializer(t).data)
-	##for the user
+				stall_group = StallGroup.objects.create(transaction=transaction, is_bitsian=is_bitsian,stall=stall, user=user, participant=participant)
+			data.append([stall, stall_group, transaction])
+			stg_ids.append(stall_group.id)
+		for i in products:
+			quantity = i[1]
+			product = i[0]
+			if product.product.p_type.name == 'Apparel':
+				product.quantity_left -= quantity
+				product.save()
+			elif product.product.p_type.name == 'ProfShow':
+				prof_show = product.product.prof_show
+				s = get_attendance_count(prof_show)
+				if is_bitsian:
+					try:
+						attendance = Attendance.objects.get(bitsian=bitsian, prof_show=prof_show)
+						attendance.count += quantity
+						attendance.save()
+					except:
+						attendance = Attendance()
+						attendance.bitsian = bitsian
+						attendance.prof_show = prof_show
+						attendance.paid = True
+						attendance.count = quantity
+						attendance.save()
+				else:
+					try:
+						attendance = Attendance.objects.get(participant=participant, prof_show=prof_show)
+						attendance.count += quantity
+						attendance.save()
+					except:
+						attendance = Attendance()
+						attendance.participant = participant
+						attendance.prof_show = prof_show
+						attendance.paid = True
+						attendance.count = quantity
+						attendance.save()
+				attendance.number = s
+				attendance.save()
+			stall = product.product.stall
+			stall_group = StallGroup.objects.filter(id__in=stg_ids).get(stall=stall)
+			transaction = stall_group.transaction
+			stall_group.amount += int(product.price * quantity*(100-product.discount)/100)
+			stall_group.unique_code = str(random.randint(1000, 9999))
+			stall_group.orderid = str(stall_group.id) + stall.name[:3] + wallet.userid
+			stall_group.save()
+			stall_group.order_no = 1000000 + stall_group.id
+			stall_group.save()
+			transaction.value += int(product.price * quantity*(100-product.discount)/100)
+			transaction.save()
+			sale = Sale.objects.create(product=product, quantity=quantity, stall_group=stall_group, paid=True)
+			sale.save()
+		##for vendor
+		for stg_id in stg_ids:
+			stg = StallGroup.objects.get(id=stg_id)
+			if stg.stall.id == 12:
+				stg.code_requested=True
+				stg.order_ready=True
+				stg.order_complete=True
+				stg.save()
+			t = stg.transaction
+			db.child('stall').child(stg.stall.id).child(stg.id).set(StallGroupSerializer(stg).data)
+			db.child('wallet').child(wallet.uid).child('transactions').child(t.id).set(TransactionSerializer(t).data)
 	
-	db.child('wallet').child(wallet.uid).child('wallet').set(WalletSerializer(wallet).data)
-	return Response({'status':1, 'message': 'Your order has been placed. Wait for your turn.'})
+	##for the user
+		wallet.save()
+		db.child('wallet').child(wallet.uid).child('wallet').set(WalletSerializer(wallet).data)
+		return Response({'status':1, 'message': 'Your order has been placed. Wait for your turn.'})
 
 @api_view(['POST',])
 @permission_classes((IsAuthenticated, TokenVerificationClass))
