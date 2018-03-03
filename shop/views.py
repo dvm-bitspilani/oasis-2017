@@ -202,7 +202,7 @@ def add_money_bitsian(request):		###from swd account
 @api_view(['POST',])
 @permission_classes((IsAuthenticated, UserPermissionClass, TokenVerificationClass))
 def add_money_request(request):
-	# return Response({'status':10, 'url':'Payment portal under construction.', 'message':'Payment portal under construction.'})
+	return Response({'status':10, 'url':'Payment portal under construction.', 'message':'Payment portal under construction.'})
 	user = request.user
 	try:
 		wallet = Wallet.objects.get(user=user)
@@ -379,6 +379,7 @@ def checkout_payment(request):
 			stall_set.append(p.product.stall)
 	except:
 		return Response({'status':3, 'message':'invalid codes for products'})
+	from django.db import transaction
 	with transaction.atomic():
 		wallet = Wallet.objects.select_for_update().get(user=user)
 		curr_balance = wallet.curr_balance
