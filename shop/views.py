@@ -513,8 +513,8 @@ def sales_today(request):
 			raise Exception
 	except:
 		return Response({'status':0, 'message':'Not Allowed'})
-	today_sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall, stall_group__transaction__created_at__gte=today), many=True).data
-	yesterday_sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall, stall_group__transaction__created_at__gte=yesterday, stall_group__transaction__created_at__lte=today), many=True).data
+	today_sales = SaleSerializer(Sale.objects.filter(stall_group__cancelled=False, product__product__stall=stall, stall_group__transaction__created_at__gte=today), many=True).data
+	yesterday_sales = SaleSerializer(Sale.objects.filter(stall_group__cancelled=False, product__product__stall=stall, stall_group__transaction__created_at__gte=yesterday, stall_group__transaction__created_at__lte=today), many=True).data
 	return Response({'status':1, 'today':today_sales, 'yesterday':yesterday_sales})
 
 @api_view(['POST','OPTIONS', 'GET'])
@@ -526,7 +526,7 @@ def all_sales(request):
 			raise Exception
 	except:
 		return Response({'status':0, 'message':'Not Allowed'})
-	sales = SaleSerializer(Sale.objects.filter(product__product__stall=stall), many=True).data
+	sales = SaleSerializer(Sale.objects.filter(stall_group__cancelled=False, product__product__stall=stall), many=True).data
 	return Response({'status':1, 'sales':sales})
 
 
