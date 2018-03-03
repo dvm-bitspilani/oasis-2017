@@ -386,7 +386,6 @@ def checkout_payment(request):
 		if curr_balance < total:
 			return Response({'status':2, 'message':'Insufficient Balance, need to add money to the wallet.'})
 		wallet.curr_balance -= total
-		wallet.save()
 		stall_set = set(stall_set)
 		data = []
 		stg_ids = []
