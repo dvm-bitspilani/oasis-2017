@@ -500,9 +500,9 @@ def sales_today(request):
 	today = datetime.datetime.now()
 	one_day = datetime.timedelta(days=1)
 
-	today = today.replace(hour=17)
+	today = today.replace(hour=16)
 	yesterday = today - one_day
-	if today.hour < 4:
+	if today.hour < 3:
 		today = today - one_day
 		yesterday = yesterday - one_day
 	print today
