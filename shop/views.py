@@ -45,7 +45,7 @@ config = {
     "authDomain": "smart-campus-ba95e.firebaseio.com",
 	"databaseURL": "https://smart-campus-ba95e.firebaseio.com",
     "storageBucket": "smart-campus-ba95e.appspot.com",
-	# "serviceAccount": os.path.join(BASE_DIR, "apogee2018/vendorapp-80efa-firebase-adminsdk-ub973-3f154fa44d.json")
+	"serviceAccount": os.path.join(BASE_DIR, "oasis2017/smart-campus-ba95e-firebase-adminsdk-4dl5v-d645a5dd47.json")
 }
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
