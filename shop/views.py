@@ -1122,3 +1122,29 @@ def create_users():
 				user = User.objects.create_user(username=username, password=password, email=email)
 				b.user = user
 				b.save()
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def get_final_list(request):
+	rows = [{'data':[wallet.bitsian.name, wallet.bitsian.long_id,get_amount(wallet)], 'link':[]} for wallet in Wallet.objects.filter(is_bitsian=True)]
+	headings = ['Bitsian Name', 'Bits ID','Amount to be deducted']
+	title = 'Final List of Bitsians'
+	table = {
+		'rows':rows,
+		'headings':headings,
+		'title':title,
+	}
+	return render(request, 'pcradmin/tables.html', {'tables':[table,]})
+
+def get_amount(wallet):
+	amount = 0
+	for t in Transaction.objects.filter(wallet=wallet):
+		if t.t_type == 'swd' or t.t_type=='add':
+			amount += t.value
+		if t.t_type == 'buy':
+			st = StallGroup.objects.get(transaction=t)
+			if 'Prof' in st.stall.name:
+				amount -= t.value
+	return str(int(wallet.curr_balance) - int(amount))

@@ -46,5 +46,6 @@ urlpatterns = [
 			url(r'^orders/?$', views.show_all_orders),
 			url(r'^get_stall_id/?$', views.get_stall_id, name="get_stall_id"),
 			url(r'^add_money_controls/?$', views.add_money_controls, name="add_money_controls"),
+			url(r'^get_final_list/?$', views.get_final_list, ),
 
 ]
