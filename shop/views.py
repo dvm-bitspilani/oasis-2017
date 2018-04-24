@@ -1154,7 +1154,8 @@ def get_amount(wallet, lst):
 		if(amount1>=amount):
 			return lst
 		else:
-			lst[t.transfer_to_from.bitsian.long_id] += t.amount
+			amount1 = t.value
+			lst[t.transfer_to_from.bitsian.long_id] += t.value
 	if amount1 < amount:
 		lst[wallet.bitsian.long_id] += (amount - amount1)
 	return lst
