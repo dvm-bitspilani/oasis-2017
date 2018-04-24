@@ -1144,26 +1144,11 @@ def get_amount(wallet):
 		# if t.t_type == 'swd' or t.t_type=='add':
 		# 	amount += t.value
 		if t.t_type == 'buy':
-			st = StallGroup.objects.get(transaction=t, stall__name__icontains='loot')
-			amount += t.value
+			st = StallGroup.objects.get(transaction=t)
+			if 'loot' in (st.stall.name).lower():
+				amount += t.value
 		if t.t_type == 'transfer':
 			amount += t.value
 		if t.t_type == 'recieve':
 			amount -= t.value
 	return str(int(amount))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
