@@ -1141,10 +1141,29 @@ def get_final_list(request):
 def get_amount(wallet):
 	amount = 0
 	for t in Transaction.objects.filter(wallet=wallet):
-		if t.t_type == 'swd' or t.t_type=='add':
-			amount += t.value
+		# if t.t_type == 'swd' or t.t_type=='add':
+		# 	amount += t.value
 		if t.t_type == 'buy':
-			st = StallGroup.objects.get(transaction=t)
-			if 'Prof' in st.stall.name:
-				amount -= t.value
-	return str(int(wallet.curr_balance) - int(amount))
+			st = StallGroup.objects.get(transaction=t, stall__name__icontains='loot')
+			amount += t.value
+		if t.t_type == 'transfer':
+			amount += t.value
+		if t.t_type == 'recieve':
+			amount -= t.value
+	return str(int(amount))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
