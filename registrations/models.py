@@ -123,4 +123,4 @@ class Bitsian(models.Model):
 	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 
 	def __unicode__(self):
-		return str(self.long_id) + ' - '+ str(self.name)
+		return self.long_id + ' - '+ self.name

@@ -50,6 +50,8 @@ config = {
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
+from collections import defaultdict
+
 #google oauth client side
 from google.oauth2 import id_token
 from google.auth.transport import requests as requests1
@@ -1128,7 +1130,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
 def get_final_list(request):
-	rows = [{'data':[wallet.bitsian.name, wallet.bitsian.long_id,get_amount(wallet)], 'link':[]} for wallet in Wallet.objects.filter(is_bitsian=True)]
+	d = defaultdict(int)
+	for wallet in Wallet.objects.filter(is_bitsian=True):
+		d = get_amount(wallet, d)
+	rows = [{'data':[wallet.bitsian.name, wallet.bitsian.long_id,d[wallet.bitsian.long_id]], 'link':[]} for wallet in Wallet.objects.filter(is_bitsian=True)]
 	headings = ['Bitsian Name', 'Bits ID','Amount to be deducted']
 	title = 'Final List of Bitsians'
 	table = {
@@ -1138,17 +1143,18 @@ def get_final_list(request):
 	}
 	return render(request, 'pcradmin/tables.html', {'tables':[table,]})
 
-def get_amount(wallet):
+def get_amount(wallet, lst):
 	amount = 0
-	for t in Transaction.objects.filter(wallet=wallet):
-		# if t.t_type == 'swd' or t.t_type=='add':
-		# 	amount += t.value
-		if t.t_type == 'buy':
-			st = StallGroup.objects.get(transaction=t)
-			if 'loot' in (st.stall.name).lower():
-				amount += t.value
-		if t.t_type == 'transfer':
-			amount += t.value
-		if t.t_type == 'recieve':
-			amount -= t.value
-	return str(int(amount))
+	for st in StallGroup.objects.filter(bitsian=wallet.bitsian):
+		amount+=st.amount
+	if(amount==0):
+		return lst
+	amount1 = 0
+	for t in Transaction.objects.filter(wallet=wallet, t_type='recieve'):
+		if(amount1>=amount):
+			return lst
+		else:
+			lst[t.transfer_to_from.bitsian.long_id] += t.amount
+	if amount1 < amount:
+		lst[wallet.bitsian.long_id] += (amount - amount1)
+	return lst
